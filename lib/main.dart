@@ -1,6 +1,6 @@
-import 'package:app_petfinder/routes/auth/auth_routes.dart';
 import 'package:flutter/material.dart';
-import 'features/auth/screens/login/login_screen.dart';
+import 'package:app_petfinder/core/router/app_router.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,17 +11,23 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'PetFinder',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
         useMaterial3: true,
       ),
-      home: const LoginScreen(),
-      routes: {
-        ...AuthRoutes.getRoutes(),
-      },
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('es', 'ES')
+      ],
+      locale: const Locale('es', 'ES'),
+      routerConfig: appRouter,
     );
   }
 }

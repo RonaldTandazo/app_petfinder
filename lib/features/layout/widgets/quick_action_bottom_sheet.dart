@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:app_petfinder/core/router/auth/auth_routes.dart';
+import 'package:app_petfinder/core/router/pet/pet_routes.dart';
 
-class RegisterTypeBottomSheet {
+class QuickActionBottomSheet {
   static Future<void> show(BuildContext context) {
     return showModalBottomSheet<void>(
       context: context,
@@ -25,34 +25,36 @@ class RegisterTypeBottomSheet {
               ),
             ),
             const Text(
-              '¿Cómo deseas registrarte?',
+              '¿Qué deseas publicar?',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             ListTile(
               leading: const CircleAvatar(
                 backgroundColor: Colors.teal,
-                child: Icon(Icons.person, color: Colors.white),
+                child: Icon(Icons.pets, color: Colors.white),
               ),
-              title: const Text('Tutor de Mascota'),
+              title: const Text('Dar en Adopción'),
+              subtitle: const Text('Publica una mascota que busca hogar'),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               onTap: () {
                 Navigator.of(modalContext).pop();
                 
-                context.push(AuthRoutes.registerTutor);
+                context.push(PetRoutes.publish);
               },
             ),
             const Divider(),
             ListTile(
               leading: const CircleAvatar(
-                backgroundColor: Colors.orange,
-                child: Icon(Icons.pets, color: Colors.white),
+                backgroundColor: Colors.redAccent,
+                child: Icon(Icons.warning_amber_rounded, color: Colors.white),
               ),
-              title: const Text('Refugio / Fundación'),
+              title: const Text('Reportar Mascota Perdida'),
+              subtitle: const Text('Avisa a la comunidad sobre un animal extraviado'),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               onTap: () {
                 Navigator.of(modalContext).pop();
-                context.push(AuthRoutes.registerShelter);
+                // TODO: context.push(PetRoutes.reportLost);
               },
             ),
             const SizedBox(height: 30),

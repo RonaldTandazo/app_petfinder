@@ -1,6 +1,6 @@
+import 'package:dio/dio.dart';
 import 'package:app_petfinder/core/network/api_exception.dart';
 import 'package:app_petfinder/core/network/api_response.dart';
-import 'package:dio/dio.dart';
 
 Future<ApiResponse<T>> safeApiCall<T>(
   Future<Response> Function() apiCall, {

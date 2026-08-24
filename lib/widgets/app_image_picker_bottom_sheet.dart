@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
-class AccountSelectionBottomSheet {
-  static Future<String?> show(BuildContext context) {
-    return showModalBottomSheet<String>(
+class AppImagePickerBottomSheet {
+  static Future<ImageSource?> show(BuildContext context) {
+    return showModalBottomSheet<ImageSource>(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
@@ -23,30 +24,21 @@ class AccountSelectionBottomSheet {
               ),
             ),
             const Text(
-              'Selecciona tu perfil',
+              'Seleccionar foto',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             ListTile(
-              leading: const CircleAvatar(
-                backgroundColor: Colors.teal,
-                child: Icon(Icons.person, color: Colors.white),
-              ),
-              title: const Text('Cuenta Personal (Tutor)'),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-              onTap: () => Navigator.pop(context, 'user'),
+              leading: Icon(Icons.camera_alt_rounded, color: Colors.teal.shade600),
+              title: const Text('Tomar foto con la Cámara'),
+              onTap: () => Navigator.pop(context, ImageSource.camera),
             ),
             const Divider(),
             ListTile(
-              leading: const CircleAvatar(
-                backgroundColor: Colors.orange,
-                child: Icon(Icons.pets, color: Colors.white),
-              ),
-              title: const Text('Cuenta de Refugio'),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-              onTap: () => Navigator.pop(context, 'shelter'),
+              leading: Icon(Icons.photo_library_rounded, color: Colors.teal.shade600),
+              title: const Text('Elegir de la Galería'),
+              onTap: () => Navigator.pop(context, ImageSource.gallery),
             ),
-            const SizedBox(height: 30),
           ],
         ),
       ),

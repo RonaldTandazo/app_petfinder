@@ -1,6 +1,9 @@
-import 'package:app_petfinder/core/network/api_exception.dart';
-import 'package:app_petfinder/repository/auth/auth_repository.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:app_petfinder/core/router/auth/auth_routes.dart';
+import 'package:app_petfinder/core/network/api_exception.dart';
+import 'package:app_petfinder/widgets/app_snackbar.dart';
+import 'package:app_petfinder/repository/auth/auth_repository.dart';
 
 class RegisterShelterScreen extends StatefulWidget {
   const RegisterShelterScreen({super.key});
@@ -46,7 +49,7 @@ class _RegisterShelterScreenState extends State<RegisterShelterScreen> {
 
     setState(() => _isLoading = true);
 
-    final payload = {
+    final Map<String, dynamic> payload = {
       'name': _nameController.text.trim(),
       if (_businessNameController.text.trim().isNotEmpty) 'business_name': _businessNameController.text.trim(),
       if (_taxIdController.text.trim().isNotEmpty) 'tax_identification': _taxIdController.text.trim(),
@@ -64,14 +67,13 @@ class _RegisterShelterScreenState extends State<RegisterShelterScreen> {
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(response.message),
-          backgroundColor: Colors.green,
-        ),
+      AppSnackBar.show(
+        context,
+        title: response.message,
+        type: SnackBarType.success,
       );
 
-      Navigator.pushNamedAndRemoveUntil(context, '/auth/login', (route) => false);
+      context.go(AuthRoutes.login);
     } on ApiException catch (e) {
       if (!mounted) return;
 
@@ -83,11 +85,10 @@ class _RegisterShelterScreenState extends State<RegisterShelterScreen> {
         errorDetail = validationErrors[firstKey][0];
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(errorDetail),
-          backgroundColor: Colors.redAccent,
-        ),
+      AppSnackBar.show(
+        context,
+        title: errorDetail,
+        type: SnackBarType.error,
       );
     } finally {
       if (mounted) {

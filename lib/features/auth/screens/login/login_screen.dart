@@ -1,8 +1,11 @@
+import 'package:app_petfinder/widgets/app_snackbar.dart';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:app_petfinder/core/network/api_exception.dart';
+import 'package:app_petfinder/core/router/main/main_routes.dart';
 import 'package:app_petfinder/repository/auth/auth_repository.dart';
 import 'package:app_petfinder/features/auth/widgets/account_selection_bottom_sheet.dart';
 import 'package:app_petfinder/features/auth/widgets/register_type_bottom_sheet.dart';
-import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -48,14 +51,13 @@ class _LoginScreenState extends State<LoginScreen> {
         return;
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(response.message),
-          backgroundColor: Colors.green,
-        ),
+      AppSnackBar.show(
+        context,
+        title: response.message,
+        type: SnackBarType.success,
       );
 
-      // Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+      context.go(MainRoutes.home);
     } on ApiException catch (e) {
       if (!mounted) return;
 
@@ -67,11 +69,10 @@ class _LoginScreenState extends State<LoginScreen> {
         errorDetail = validationErrors[firstKey][0];
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(errorDetail),
-          backgroundColor: Colors.redAccent,
-        ),
+      AppSnackBar.show(
+        context,
+        title: errorDetail,
+        type: SnackBarType.error,
       );
     } finally {
       if (mounted) {
@@ -80,26 +81,16 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  void _showAccountSelectionModal() {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => AccountSelectionBottomSheet(
-        onAccountSelected: (type) => _submitLogin(type),
-      ),
-    );
+  void _showAccountSelectionModal() async {
+    final type = await AccountSelectionBottomSheet.show(context);
+
+    if (type == null) return;
+
+    _submitLogin(type);
   }
 
-  void _showRegisterTypeModal() {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => const RegisterTypeBottomSheet(),
-    );
+  void _showRegisterTypeModal(BuildContext context) async{
+    await RegisterTypeBottomSheet.show(context);
   }
 
   @override
@@ -163,7 +154,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   children: [
                     const Text('¿No tienes cuenta?'),
                     TextButton(
-                      onPressed: _showRegisterTypeModal,
+                      onPressed: () => _showRegisterTypeModal(context),
                       child: const Text('Regístrate aquí'),
                     ),
                   ],

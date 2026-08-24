@@ -1,7 +1,10 @@
-import 'package:app_petfinder/core/network/api_exception.dart';
-import 'package:app_petfinder/core/utils/token_storage_service.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:go_router/go_router.dart';
+import 'package:app_petfinder/core/router/app_router.dart';
+import 'package:app_petfinder/core/network/api_exception.dart';
+import 'package:app_petfinder/core/router/auth/auth_routes.dart';
+import 'package:app_petfinder/core/utils/token_storage_service.dart';
 
 class ApiClient {
   static final ApiClient _instance = ApiClient._internal();
@@ -38,10 +41,23 @@ class ApiClient {
 
           return handler.next(options);
         },
+
         onResponse: (response, handler) {
           return handler.next(response);
         },
-        onError: (DioException error, handler) {
+
+        onError: (DioException error, handler) async {
+          final statusCode = error.response?.statusCode;
+
+          if (statusCode == 401) {
+            await TokenStorageService.deleteToken();
+
+            final context = rootNavigatorKey.currentContext;
+            if (context != null) {
+              context.go(AuthRoutes.login);
+            }
+          }
+
           if (error.response?.data != null && error.response?.data is Map<String, dynamic>) {
             final json = error.response!.data;
             

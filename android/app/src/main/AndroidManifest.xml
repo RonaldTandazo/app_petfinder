@@ -42,4 +42,11 @@
             <data android:mimeType="text/plain"/>
         </intent>
     </queries>
+
+    <!-- Permiso de Cámara -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+
+    <!-- Permisos de Galería / Lectura de Imágenes -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
 </manifest>

@@ -1,6 +1,9 @@
-import 'package:app_petfinder/core/network/api_exception.dart';
-import 'package:app_petfinder/repository/auth/auth_repository.dart';
+import 'package:app_petfinder/widgets/app_snackbar.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:app_petfinder/core/network/api_exception.dart';
+import 'package:app_petfinder/core/router/auth/auth_routes.dart';
+import 'package:app_petfinder/repository/auth/auth_repository.dart';
 
 class RegisterUserScreen extends StatefulWidget {
   const RegisterUserScreen({super.key});
@@ -40,7 +43,7 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
 
     setState(() => _isLoading = true);
 
-    final payload = {
+    final Map<String, dynamic> payload = {
       'first_names': _firstNamesController.text.trim(),
       'last_names': _lastNamesController.text.trim(),
       'email': _emailController.text.trim(),
@@ -55,14 +58,13 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(response.message),
-          backgroundColor: Colors.green,
-        ),
+      AppSnackBar.show(
+        context,
+        title: response.message,
+        type: SnackBarType.success,
       );
 
-      Navigator.pushNamedAndRemoveUntil(context, '/auth/login', (route) => false);
+      context.go(AuthRoutes.login);
     } on ApiException catch (e) {
       if (!mounted) return;
 
@@ -74,11 +76,10 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
         errorDetail = validationErrors[firstKey][0];
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(errorDetail),
-          backgroundColor: Colors.redAccent,
-        ),
+      AppSnackBar.show(
+        context,
+        title: errorDetail,
+        type: SnackBarType.error,
       );
     } finally {
       if (mounted) {
