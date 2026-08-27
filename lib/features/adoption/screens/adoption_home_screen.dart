@@ -1,3 +1,4 @@
+import 'package:app_petfinder/core/utils/api_error_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:app_petfinder/core/network/api_exception.dart';
 import 'package:app_petfinder/models/adoption/adoption_pet_model.dart';
@@ -20,11 +21,18 @@ class AdoptionHomeScreen extends StatefulWidget {
 
 class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
   final _adoptionRepository = AdoptionRepository();
+  final ScrollController _scrollController = ScrollController();
 
   ViewMode _currentViewMode = ViewMode.grid;
   String _selectedCategory = 'Todos';
+  
   List<AdoptionPetModel> _pets = [];
+  
   bool _isLoadingPets = true;
+  bool _isLoadingMore = true;
+  bool _hasMore = false;
+  final int _limit = 20;
+  int _page = 1;
 
   final List<String> _categories = ['Todos', 'Perros', 'Gatos', 'Otros'];
 
@@ -36,40 +44,72 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
   @override
   void initState() {
     super.initState();
-    _loadAdoptionPets();
+    _loadAdoptionPets(reset: true);
+    _scrollController.addListener(_onScroll);
   }
 
-  Future<void> _loadAdoptionPets() async {
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final currentScroll = _scrollController.position.pixels;
+
+    if (currentScroll >= (maxScroll * 0.8)) {
+      if (!_isLoadingMore && _hasMore && !_isLoadingPets) {
+        _loadAdoptionPets();
+      }
+    }
+  }
+
+  Future<void> _loadAdoptionPets({bool reset = false}) async {
+    if (reset) {
+      setState(() {
+        _isLoadingPets = true;
+        _page = 1;
+        _pets.clear();
+      });
+    } else {
+      setState(() => _isLoadingMore = true);
+    }
+
+    final Map<String, dynamic> payload = {
+      'page': _page,
+      'limit': _limit
+    };
+
     try {
-      final response = await _adoptionRepository.getAdoptionPets();
+      final response = await _adoptionRepository.getAdoptionPets(payload);
+
       if (!mounted) return;
 
       final data = response.data;
-      setState(() {
-        if (data != null && data['pets'] is List) {
-          _pets = (data['pets'] as List)
-              .map((e) => AdoptionPetModel.fromJson(e as Map<String, dynamic>))
-              .toList();
-        }
-      });
-    } on ApiException catch (e) {
-      if (!mounted) return;
-      String errorDetail = e.message;
 
-      if (e.error is Map<String, dynamic>) {
-        final validationErrors = e.error as Map<String, dynamic>;
-        final firstKey = validationErrors.keys.first;
-        errorDetail = validationErrors[firstKey][0];
+      if (data != null && data['pets'] is List) {
+        final List newPetsJson = data['pets'];
+        final newPets = newPetsJson
+            .map((e) => AdoptionPetModel.fromJson(e as Map<String, dynamic>))
+            .toList();
+
+        setState(() {
+          _pets.addAll(newPets);
+          _hasMore = data['hasMore'] ?? false;
+          if (_hasMore) _page++;
+        });
       }
-
-      AppSnackBar.show(
-        context,
-        title: errorDetail,
-        type: SnackBarType.error,
-      );
+    } on ApiException catch (e) {
+      ApiErrorHandler.handle(context, e);
     } finally {
       if (mounted) {
-        setState(() => _isLoadingPets = false);
+        setState(() {
+          _isLoadingPets = false;
+          _isLoadingMore = false;
+        });
       }
     }
   }
@@ -100,17 +140,21 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
                 : AnimatedSwitcher(
                     duration: const Duration(milliseconds: 300),
                     child: _currentViewMode == ViewMode.grid
-                        ? PetGridView(
-                            pets: _filteredPets,
-                            emptyStateWidget: _buildEmptyState(),
-                          )
-                        : PetSwipeView(
-                            pets: _filteredPets,
-                            onDismissed: (index) {
-                              setState(() => _pets.removeAt(index));
-                            },
-                            emptyStateWidget: _buildEmptyState(),
-                          ),
+                      ? PetGridView(
+                        pets: _filteredPets,
+                        emptyStateWidget: _buildEmptyState(),
+                      )
+                      : PetSwipeView(
+                          pets: _filteredPets,
+                          onDismissed: (index) {
+                            setState(() => _pets.removeAt(index));
+
+                            if (_pets.length <= 3 && _hasMore && !_isLoadingMore) {
+                              _loadAdoptionPets();
+                            }
+                          },
+                          emptyStateWidget: _buildEmptyState(),
+                        ),
                   ),
           ),
         ],

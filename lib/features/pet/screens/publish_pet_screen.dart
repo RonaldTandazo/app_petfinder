@@ -1,3 +1,5 @@
+import 'package:app_petfinder/core/utils/api_error_handler.dart';
+import 'package:app_petfinder/core/utils/api_success_handler.dart';
 import 'package:app_petfinder/repository/pet/pet_repository.dart';
 import 'package:app_petfinder/widgets/app_loading_overlay.dart';
 import 'package:flutter/material.dart';
@@ -101,21 +103,7 @@ class _PublishPetScreenState extends State<PublishPetScreen> {
         }
       });
     } on ApiException catch (e) {
-      if (!mounted) return;
-
-      String errorDetail = e.message;
-
-      if (e.error is Map<String, dynamic>) {
-        final validationErrors = e.error as Map<String, dynamic>;
-        final firstKey = validationErrors.keys.first;
-        errorDetail = validationErrors[firstKey][0];
-      }
-
-      AppSnackBar.show(
-        context,
-        title: errorDetail,
-        type: SnackBarType.error,
-      );
+      ApiErrorHandler.handle(context, e);
     } finally {
       if (mounted) {
         setState(() => _isLoadingCatalog = false);
@@ -222,23 +210,11 @@ class _PublishPetScreenState extends State<PublishPetScreen> {
         type: SnackBarType.success,
       );
 
+      ApiSuccessHandler.handle(context, title: '¡Publicación creada!', description: response.message);
+
       context.pop();
     } on ApiException catch (e) {
-      if (!mounted) return;
-
-      String errorDetail = e.message;
-
-      if (e.error is Map<String, dynamic>) {
-        final validationErrors = e.error as Map<String, dynamic>;
-        final firstKey = validationErrors.keys.first;
-        errorDetail = validationErrors[firstKey][0];
-      }
-
-      AppSnackBar.show(
-        context,
-        title: errorDetail,
-        type: SnackBarType.error,
-      );
+        ApiErrorHandler.handle(context, e);
     } finally {
       AppLoadingOverlay.hide();
     }

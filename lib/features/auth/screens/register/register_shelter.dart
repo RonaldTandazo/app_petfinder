@@ -1,3 +1,5 @@
+import 'package:app_petfinder/core/utils/api_error_handler.dart';
+import 'package:app_petfinder/core/utils/api_success_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:app_petfinder/core/router/auth/auth_routes.dart';
@@ -67,29 +69,11 @@ class _RegisterShelterScreenState extends State<RegisterShelterScreen> {
 
       if (!mounted) return;
 
-      AppSnackBar.show(
-        context,
-        title: response.message,
-        type: SnackBarType.success,
-      );
+      ApiSuccessHandler.handle(context, title: response.message);
 
       context.go(AuthRoutes.login);
     } on ApiException catch (e) {
-      if (!mounted) return;
-
-      String errorDetail = e.message;
-
-      if (e.error is Map<String, dynamic>) {
-        final validationErrors = e.error as Map<String, dynamic>;
-        final firstKey = validationErrors.keys.first;
-        errorDetail = validationErrors[firstKey][0];
-      }
-
-      AppSnackBar.show(
-        context,
-        title: errorDetail,
-        type: SnackBarType.error,
-      );
+      ApiErrorHandler.handle(context, e);
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);

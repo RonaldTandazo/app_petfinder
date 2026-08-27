@@ -1,3 +1,5 @@
+import 'package:app_petfinder/core/utils/api_error_handler.dart';
+import 'package:app_petfinder/core/utils/api_success_handler.dart';
 import 'package:app_petfinder/widgets/app_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -51,29 +53,11 @@ class _LoginScreenState extends State<LoginScreen> {
         return;
       }
 
-      AppSnackBar.show(
-        context,
-        title: response.message,
-        type: SnackBarType.success,
-      );
+      ApiSuccessHandler.handle(context, title: response.message);
 
       context.go(MainRoutes.home);
     } on ApiException catch (e) {
-      if (!mounted) return;
-
-      String errorDetail = e.message;
-
-      if (e.error is Map<String, dynamic>) {
-        final validationErrors = e.error as Map<String, dynamic>;
-        final firstKey = validationErrors.keys.first;
-        errorDetail = validationErrors[firstKey][0];
-      }
-
-      AppSnackBar.show(
-        context,
-        title: errorDetail,
-        type: SnackBarType.error,
-      );
+        ApiErrorHandler.handle(context, e);
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
