@@ -1,8 +1,7 @@
-import 'package:app_petfinder/core/utils/api_error_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:app_petfinder/core/network/api_exception.dart';
+import 'package:app_petfinder/core/utils/api_error_handler.dart';
 import 'package:app_petfinder/models/adoption/adoption_pet_model.dart';
-import 'package:app_petfinder/widgets/app_snackbar.dart';
 import 'package:app_petfinder/features/adoption/widgets/adoption_search_bar.dart';
 import 'package:app_petfinder/features/adoption/widgets/adoption_skeleton_loader.dart';
 import 'package:app_petfinder/features/adoption/widgets/pet_grid_view.dart';
