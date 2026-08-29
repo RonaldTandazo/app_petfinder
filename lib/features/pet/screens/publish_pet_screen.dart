@@ -1,9 +1,9 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:app_petfinder/core/utils/api_error_handler.dart';
 import 'package:app_petfinder/core/utils/api_success_handler.dart';
 import 'package:app_petfinder/repository/pet/pet_repository.dart';
 import 'package:app_petfinder/widgets/app_loading_overlay.dart';
-import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:app_petfinder/core/network/api_exception.dart';
 import 'package:app_petfinder/models/catalog/animal_gender_model.dart';

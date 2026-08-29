@@ -1,8 +1,7 @@
-import 'package:app_petfinder/core/utils/api_error_handler.dart';
-import 'package:app_petfinder/core/utils/api_success_handler.dart';
-import 'package:app_petfinder/widgets/app_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:app_petfinder/core/utils/api_error_handler.dart';
+import 'package:app_petfinder/core/utils/api_success_handler.dart';
 import 'package:app_petfinder/core/network/api_exception.dart';
 import 'package:app_petfinder/core/router/main/main_routes.dart';
 import 'package:app_petfinder/repository/auth/auth_repository.dart';

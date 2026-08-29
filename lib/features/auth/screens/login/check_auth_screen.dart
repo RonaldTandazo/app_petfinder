@@ -1,8 +1,6 @@
-import 'package:app_petfinder/core/router/main/main_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:app_petfinder/core/network/api_exception.dart';
-import 'package:app_petfinder/core/utils/token_storage_service.dart';
+import 'package:app_petfinder/core/router/main/main_routes.dart';
 import 'package:app_petfinder/core/router/auth/auth_routes.dart';
 import 'package:app_petfinder/repository/auth/auth_repository.dart';
 

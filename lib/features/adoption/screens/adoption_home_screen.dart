@@ -25,7 +25,7 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
   ViewMode _currentViewMode = ViewMode.grid;
   String _selectedCategory = 'Todos';
   
-  List<AdoptionPetModel> _pets = [];
+  final List<AdoptionPetModel> _pets = [];
   
   bool _isLoadingPets = true;
   bool _isLoadingMore = true;
