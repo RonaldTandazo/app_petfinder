@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:app_petfinder/core/router/lost_pet/lost_pet_routes.dart';
 import 'package:app_petfinder/models/lost_pet/lost_pet_model.dart';
 import 'package:app_petfinder/features/lost_pet/widgets/lost_pet_card.dart';
 
@@ -44,8 +46,9 @@ class _LostPetHomeScreenState extends State<LostPetHomeScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'btn_report_lost_pet',
         onPressed: () {
-          // TODO: Navegar a pantalla de crear reporte
+          context.push(LostPetRoutes.publish);
         },
         backgroundColor: Colors.redAccent,
         icon: const Icon(Icons.add_location_alt_rounded, color: Colors.white),

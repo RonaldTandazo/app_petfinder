@@ -48,6 +48,7 @@ class MainLayoutScreen extends StatelessWidget {
     return Scaffold(
       body: child,
       floatingActionButton: FloatingActionButton(
+        heroTag: 'btn_quick_actions',
         onPressed: () => _showQuickActionModal(context),
         backgroundColor: Colors.teal,
         elevation: 4,
