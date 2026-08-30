@@ -1,7 +1,7 @@
-import 'package:app_petfinder/widgets/app_badge.dart';
-import 'package:app_petfinder/widgets/app_image_placeholders.dart';
 import 'package:flutter/material.dart';
 import 'package:app_petfinder/models/adoption/adoption_pet_model.dart';
+import 'package:app_petfinder/widgets/app_badge.dart';
+import 'package:app_petfinder/widgets/app_image_placeholders.dart';
 
 class PetSwipeCard extends StatelessWidget {
   final AdoptionPetModel pet;
@@ -17,7 +17,7 @@ class PetSwipeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool hasImage = pet.picture != null && pet.picture!.trim().isNotEmpty;
+    final bool hasImage = pet.picture.trim().isNotEmpty;
     final bool isMale = pet.genderTag == 'MALE';
 
     return Dismissible(
@@ -47,7 +47,7 @@ class PetSwipeCard extends StatelessWidget {
                 Positioned.fill(
                   child: hasImage
                     ? Image.network(
-                        pet.picture!,
+                        pet.picture,
                         width: double.infinity,
                         height: double.infinity,
                         fit: BoxFit.cover,

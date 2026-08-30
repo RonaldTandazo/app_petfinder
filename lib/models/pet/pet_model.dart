@@ -6,13 +6,13 @@ class PetModel {
   final String? race;
   final String? color;
   final String bornDate;
-  final int animalGenderTag;
+  final String animalGenderTag;
   final String animalGender;
-  final int sizeTag;
+  final String sizeTag;
   final String size;
   final String? description;
-  final int petStatusTag;
-  final int petStatus;
+  final String petStatusTag;
+  final String petStatus;
   final String age;
 
   PetModel({

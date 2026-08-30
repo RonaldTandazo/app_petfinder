@@ -10,8 +10,8 @@ class SizeModel extends CatalogItemModel {
   factory SizeModel.fromJson(Map<String, dynamic> json) {
     return SizeModel(
       id: json['id'] as int,
-      name: json['name'] as String? ?? '',
-      tag: json['tag'] as String? ?? '',
+      name: (json['name'] ?? '') as String,
+      tag: (json['tag'] ?? '') as String,
     );
   }
 }

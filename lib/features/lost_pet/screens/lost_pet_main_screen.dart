@@ -12,56 +12,13 @@ class LostPetHomeScreen extends StatefulWidget {
 class _LostPetHomeScreenState extends State<LostPetHomeScreen> {
   int _selectedFilterIndex = 0;
 
-  final List<LostPetModel> mockPetReports = [
-    const LostPetModel(
-      id: '1',
-      petName: 'Max',
-      species: 'Perro',
-      breed: 'Beagle',
-      location: 'Urdesa Central',
-      distance: '1.2 km',
-      date: 'Hace 3 horas',
-      imageUrl: 'https://images.unsplash.com/photo-1537151608828-ea2b11777ee8',
-      description: 'Se escapó cerca del parque. Lleva un collar rojo sin placa. Es muy amigable pero asustadizo.',
-      type: ReportType.lost,
-      contactPhone: '+593991234567',
-      reporterName: 'Ronald Tandazo',
-    ),
-    const LostPetModel(
-      id: '2',
-      petName: 'Sin nombre (Encontrado)',
-      species: 'Gato',
-      breed: 'Mestizo',
-      location: 'La Alborada, Etapa 6',
-      distance: '3.5 km',
-      date: 'Ayer',
-      imageUrl: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba',
-      description: 'Lo encontré resguardándose en mi garaje. Tiene un collar azul con cascabel. Está en buen estado.',
-      type: ReportType.found,
-      contactPhone: '+593998765432',
-      reporterName: 'María Fernanda',
-    ),
-    const LostPetModel(
-      id: '3',
-      petName: 'Luna',
-      species: 'Perro',
-      breed: 'Siberian Husky',
-      location: 'Samborondón, Km 2.5',
-      distance: '5.0 km',
-      date: 'Hace 1 día',
-      imageUrl: 'https://images.unsplash.com/photo-1605568427561-40dd23c2acea',
-      description: 'Tiene heterocromía (un ojo azul y uno café). Responde al nombre de Luna.',
-      type: ReportType.lost,
-      contactPhone: '+593993334444',
-      reporterName: 'Carlos Gómez',
-    ),
-  ];
+  final List<LostPetModel> mockPetReports = [];
 
   List<LostPetModel> get _filteredReports {
     if (_selectedFilterIndex == 1) {
-      return mockPetReports.where((r) => r.type == ReportType.lost).toList();
+      return mockPetReports.where((r) => r.reportStatusTag == 'LOST').toList();
     } else if (_selectedFilterIndex == 2) {
-      return mockPetReports.where((r) => r.type == ReportType.found).toList();
+      return mockPetReports.where((r) => r.reportStatusTag == 'FOUND').toList();
     }
     return mockPetReports;
   }

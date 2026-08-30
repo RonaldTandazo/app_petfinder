@@ -6,7 +6,7 @@ import 'package:app_petfinder/models/catalog/size_model.dart';
 import 'package:app_petfinder/models/catalog/animal_gender_model.dart';
 import 'package:app_petfinder/models/catalog/species_model.dart';
 import 'package:app_petfinder/repository/catalog/catalog_repository.dart';
-// import 'package:app_petfinder/repository/pet/lost_pet_repository.dart';
+import 'package:app_petfinder/repository/lost_pet/lost_pet_repository.dart';
 import 'package:app_petfinder/core/utils/api_error_handler.dart';
 import 'package:app_petfinder/core/utils/api_success_handler.dart';
 import 'package:app_petfinder/core/network/api_exception.dart';
@@ -15,7 +15,9 @@ import 'package:app_petfinder/widgets/app_datepicker.dart';
 import 'package:app_petfinder/widgets/app_snackbar.dart';
 import 'package:app_petfinder/widgets/app_image_picker_grid.dart';
 import 'package:app_petfinder/widgets/app_toggle_tile.dart';
+import 'package:app_petfinder/widgets/app_location_picker.dart';
 import 'package:app_petfinder/features/pet/styles/pet_form_styles.dart';
+import 'package:latlong2/latlong.dart';
 
 class PublishLostPetScreen extends StatefulWidget {
   const PublishLostPetScreen({super.key});
@@ -27,7 +29,7 @@ class PublishLostPetScreen extends StatefulWidget {
 class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
   final _formKey = GlobalKey<FormState>();
   final _catalogRepository = CatalogRepository();
-  // final _lostPetRepository = LostPetRepository();
+  final _lostPetRepository = LostPetRepository();
 
   List<TempFileModel> _selectedImages = [];
   int _mainImageIndex = 0;
@@ -39,6 +41,8 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
   final _eventAddressController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _rewardAmountController = TextEditingController();
+  final _phoneHomeController = TextEditingController();
+  final _phoneMobileController = TextEditingController();
 
   bool _isLoadingCatalog = true;
   int? _selectedSpeciesId;
@@ -47,6 +51,8 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
   DateTime? _selectedEventDate;
 
   bool _hasReward = false;
+  double? _latitude;
+  double? _longitude;
 
   List<SpeciesModel> _speciesList = [];
   List<AnimalGenderModel> _gendersList = [];
@@ -67,6 +73,8 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
     _eventAddressController.dispose();
     _descriptionController.dispose();
     _rewardAmountController.dispose();
+    _phoneHomeController.dispose();
+    _phoneMobileController.dispose();
     super.dispose();
   }
 
@@ -79,8 +87,6 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
 
       setState(() {
         if (data != null) {
-          print(data);
-
           if (data['species'] is List) {
             _speciesList = (data['species'] as List)
                 .map((e) => SpeciesModel.fromJson(e as Map<String, dynamic>))
@@ -131,17 +137,6 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
       return;
     }
 
-    final hasErrors = _selectedImages.any((img) => img.hasError || img.key == null);
-    if (hasErrors) {
-      AppSnackBar.show(
-        context,
-        title: 'Error en fotos',
-        description: 'Una o más imágenes fallaron al subirse. Elimínalas o vuelve a intentarlo.',
-        type: SnackBarType.error,
-      );
-      return;
-    }
-
     if (!_formKey.currentState!.validate()) return;
 
     final photosPayload = _selectedImages.asMap().entries.map((entry) {
@@ -154,19 +149,23 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
     }).toList();
 
     final Map<String, dynamic> payload = {
-      'species_id': _selectedSpeciesId,
-      'animal_gender_id': _selectedGenderId,
-      'size_id': _selectedSizeId,
       'name': _nameController.text.trim(),
       'race': _raceController.text.trim().isEmpty ? null : _raceController.text.trim(),
       'color': _colorController.text.trim().isEmpty ? null : _colorController.text.trim(),
       'description': _descriptionController.text.trim().isEmpty ? null : _descriptionController.text.trim(),
+      'phone_home': _phoneHomeController.text.trim().isEmpty ? null : _phoneHomeController.text.trim(),
+      'phone_mobile': _phoneMobileController.text.trim().isEmpty ? null : _phoneMobileController.text.trim(),
+      'species_id': _selectedSpeciesId,
+      'animal_gender_id': _selectedGenderId,
+      'size_id': _selectedSizeId,
       'has_reward': _hasReward,
       'reward_amount': _hasReward && _rewardAmountController.text.trim().isNotEmpty
         ? double.tryParse(_rewardAmountController.text.trim())
         : null,
       'city': _cityController.text.trim(),
       'event_address': _eventAddressController.text.trim().isEmpty ? null : _eventAddressController.text.trim(),
+      'latitude': _latitude,
+      'longitude': _longitude,
       'event_date': _selectedEventDate?.toIso8601String(),
       'photos': photosPayload,
     };
@@ -174,14 +173,14 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
     AppLoadingOverlay.show(
       context,
       title: 'Registrando reporte...',
-      description: 'Estamos enviando la alerta a la comunidad.',
+      description: 'Estamos enviando la alerta a la comunidad',
     );
 
     try {
-      // final response = await _lostPetRepository.store(payload);
-      // if (!mounted) return;
+      final response = await _lostPetRepository.store(payload);
+      if (!mounted) return;
 
-      // ApiSuccessHandler.handle(context, title: '¡Reporte publicado!', description: response.message);
+      ApiSuccessHandler.handle(context, title: '¡Reporte publicado!', description: response.message);
 
       context.pop();
     } on ApiException catch (e) {
@@ -208,7 +207,7 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 children: [
-                  // Selección de Fotografías
+                  // FOTOGRAFIAS
                   PetFormStyles.buildSectionHeader('Fotografías', 'Sube imágenes recientes y claras de la mascota'),
                   const SizedBox(height: 12),
                   AppImagePickerGrid(
@@ -228,7 +227,7 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Información de la Mascota
+                  // INFORMACION DE LA MASCOTA
                   PetFormStyles.buildSectionHeader('Información de la Mascota', 'Datos de identificación'),
                   const SizedBox(height: 12),
                   TextFormField(
@@ -306,7 +305,7 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Datos del Evento / Extravío
+                  // UBICACION Y FECHA
                   PetFormStyles.buildSectionHeader('Ubicación y Fecha', '¿Dónde y cuándo sucedió?'),
                   const SizedBox(height: 12),
                   Row(
@@ -321,7 +320,7 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: AppDatePicker(
-                          label: 'Fecha del evento *',
+                          label: 'Fecha de extravío *',
                           icon: Icons.event_rounded,
                           selectionType: DateSelectionType.single,
                           filterType: DateFilterType.disableFuture,
@@ -350,9 +349,136 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
                       Icons.place_rounded,
                     ),
                   ),
+                  const SizedBox(height: 12),
+
+                  InkWell(
+                    onTap: () async {
+                      final LatLng? result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AppLocationPicker(
+                            initialPosition: (_latitude != null && _longitude != null)
+                                ? LatLng(_latitude!, _longitude!)
+                                : null,
+                          ),
+                        ),
+                      );
+
+                      if (result != null) {
+                        setState(() {
+                          _latitude = result.latitude;
+                          _longitude = result.longitude;
+                        });
+                      }
+                    },
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: _latitude != null ? Colors.teal.shade50 : Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: _latitude != null ? Colors.teal : Colors.grey.shade300,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            _latitude != null ? Icons.pin_drop_rounded : Icons.map_rounded,
+                            color: _latitude != null ? Colors.teal : Colors.grey.shade600,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  _latitude != null ? 'Punto exacto marcado' : 'Marcar posición en mapa (Opcional)',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                    color: _latitude != null ? Colors.teal.shade900 : Colors.black87,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  _latitude != null 
+                                      ? 'Lat: ${_latitude!.toStringAsFixed(5)}, Lng: ${_longitude!.toStringAsFixed(5)}'
+                                      : 'Abre el mapa para seleccionar el lugar preciso del extravío',
+                                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Icon(Icons.chevron_right_rounded, color: Colors.grey.shade500),
+                        ],
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 24),
 
-                  // Recompensa
+                  // INFORMACION DE CONTACTO
+                  PetFormStyles.buildSectionHeader('Información de Contacto', 'Teléfonos de referencia para recibir información',),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          controller: _phoneMobileController,
+                          keyboardType: TextInputType.phone,
+                          maxLength: 15,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp(r'[\d+\s]')),
+                            TextInputFormatter.withFunction((oldValue, newValue) {
+                              final text = newValue.text;
+                              // Si intenta poner un '+' que no esté en la primera posición, cancela el cambio
+                              if (text.contains('+') && !text.startsWith('+')) {
+                                return oldValue;
+                              }
+                              // Evita múltiples signos '+' al inicio
+                              if (text.indexOf('+') != text.lastIndexOf('+')) {
+                                return oldValue;
+                              }
+
+                              final spaceCount = text.split(' ').length - 1;
+                              if (spaceCount > 1) {
+                                return oldValue;
+                              }
+
+                              return newValue;
+                            }),
+                            LengthLimitingTextInputFormatter(15),
+                          ],
+                          decoration: PetFormStyles.inputDecoration(
+                            'Teléfono Celular',
+                            Icons.smartphone_rounded,
+                          ).copyWith(
+                            hintText: '+593 987654321',
+                            counterText: ''
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: TextFormField(
+                          controller: _phoneHomeController,
+                          keyboardType: TextInputType.phone,
+                          maxLength: 10,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            LengthLimitingTextInputFormatter(10)
+                          ],
+                          decoration: PetFormStyles.inputDecoration(
+                            'Teléfono Convencional',
+                            Icons.phone_rounded,
+                          ).copyWith(counterText: ''),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+
+                  // RECOMPENSA
                   PetFormStyles.buildSectionHeader('Recompensa', 'Incentivo opcional por devolución o datos'),
                   const SizedBox(height: 8),
                   Container(
@@ -419,7 +545,7 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Descripción y detalles
+                  // DETALLES ADICIONALES
                   PetFormStyles.buildSectionHeader('Detalles Adicionales', 'Señas particulares y lo que sea de ayuda'),
                   const SizedBox(height: 12),
                   TextFormField(
@@ -431,8 +557,8 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
                     ),
                   ),
                   const SizedBox(height: 32),
-
-                  // Botón Submit
+  
+                  // SUBMIT
                   SizedBox(
                     height: 54,
                     child: ElevatedButton(

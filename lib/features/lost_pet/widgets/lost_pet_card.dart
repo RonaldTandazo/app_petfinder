@@ -13,7 +13,7 @@ class LostPetCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isLost = report.type == ReportType.lost;
+    final isLost = report.reportStatusTag == 'LOST';
     final badgeColor = isLost ? Colors.redAccent : Colors.teal;
     final badgeText = isLost ? 'PERDIDO' : 'ENCONTRADO';
 
@@ -43,10 +43,11 @@ class LostPetCard extends StatelessWidget {
                 // Imagen con Tag de tipo de reporte
                 Stack(
                   children: [
+                    if(report.picture != null && report.picture!.isNotEmpty)
                     ClipRRect(
                       borderRadius: BorderRadius.circular(12),
                       child: Image.network(
-                        report.imageUrl,
+                        report.picture!,
                         width: 100,
                         height: 100,
                         fit: BoxFit.cover,
@@ -91,7 +92,7 @@ class LostPetCard extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              report.petName,
+                              report.name,
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -102,14 +103,14 @@ class LostPetCard extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            report.date,
+                            report.eventDate,
                             style: const TextStyle(fontSize: 11, color: Colors.grey),
                           ),
                         ],
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${report.breed} • ${report.species}',
+                        '${report.race} • ${report.species}',
                         style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
                       ),
                       const SizedBox(height: 8),
@@ -121,7 +122,7 @@ class LostPetCard extends StatelessWidget {
                           const SizedBox(width: 2),
                           Expanded(
                             child: Text(
-                              report.location,
+                              report.eventAddress,
                               style: const TextStyle(fontSize: 12, color: Colors.black54),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -132,14 +133,6 @@ class LostPetCard extends StatelessWidget {
                             decoration: BoxDecoration(
                               color: Colors.teal.withValues(alpha: 0.08),
                               borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              report.distance,
-                              style: const TextStyle(
-                                fontSize: 11,
-                                color: Colors.teal,
-                                fontWeight: FontWeight.w600,
-                              ),
                             ),
                           ),
                         ],

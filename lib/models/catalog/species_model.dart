@@ -10,8 +10,8 @@ class SpeciesModel extends CatalogItemModel {
   factory SpeciesModel.fromJson(Map<String, dynamic> json) {
     return SpeciesModel(
       id: json['id'] as int,
-      name: json['name'] as String? ?? '',
-      tag: json['tag'] as String? ?? '',
+      name: (json['name'] ?? '') as String,
+      tag: (json['tag'] ?? '') as String,
     );
   }
 }

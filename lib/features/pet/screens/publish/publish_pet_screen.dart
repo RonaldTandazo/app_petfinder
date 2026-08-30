@@ -141,17 +141,6 @@ class _PublishPetScreenState extends State<PublishPetScreen> {
       return;
     }
 
-    final hasErrors = _selectedImages.any((img) => img.hasError || img.key == null);
-    if (hasErrors) {
-      AppSnackBar.show(
-        context,
-        title: 'Error en fotos',
-        description: 'Una o más imágenes fallaron al subirse. Elimínalas o vuelve a intentarlo.',
-        type: SnackBarType.error,
-      );
-      return;
-    }
-
     if (!_formKey.currentState!.validate()) return;
 
     final photosPayload = _selectedImages.asMap().entries.map((entry) {
@@ -214,6 +203,7 @@ class _PublishPetScreenState extends State<PublishPetScreen> {
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           children: [
+            // FOTOGRAFIAS
             PetFormStyles.buildSectionHeader('Fotografías', 'Sube hasta 5 fotos claras (mínimo 1)'),
             const SizedBox(height: 12),
             AppImagePickerGrid(
@@ -233,7 +223,8 @@ class _PublishPetScreenState extends State<PublishPetScreen> {
             ),
             const SizedBox(height: 24),
 
-            PetFormStyles.buildSectionHeader('Información General', 'Datos requeridos de la mascota'),
+            // INFORMACIÓN DE LA MASCOTA
+            PetFormStyles.buildSectionHeader('Información de la Mascota', 'Datos requeridos de la mascota'),
             const SizedBox(height: 12),
             TextFormField(
               controller: _nameController,
@@ -331,6 +322,7 @@ class _PublishPetScreenState extends State<PublishPetScreen> {
             ),
             const SizedBox(height: 24),
 
+            // PRIORIDAD DE ADOPCION
             PetFormStyles.buildSectionHeader('Prioridad de Adopción', 'Identifica el nivel de prioridad'),
             const SizedBox(height: 8),
             AppToggleTile(
@@ -343,6 +335,7 @@ class _PublishPetScreenState extends State<PublishPetScreen> {
             ),
             const SizedBox(height: 24),
 
+            // ESTADO DE SALUD
             PetFormStyles.buildSectionHeader('Estado de Salud', 'Información clave para los adoptantes'),
             const SizedBox(height: 8),
             HealthStatusCard(
@@ -352,6 +345,7 @@ class _PublishPetScreenState extends State<PublishPetScreen> {
             ),
             const SizedBox(height: 24),
 
+            // HISTORIA Y PERSONALIDAD
             PetFormStyles.buildSectionHeader('Historia y Personalidad', 'Cuéntale a la comunidad sobre la mascota'),
             const SizedBox(height: 12),
             TextFormField(
@@ -364,6 +358,7 @@ class _PublishPetScreenState extends State<PublishPetScreen> {
             ),
             const SizedBox(height: 32),
 
+            // SUBMIT
             SizedBox(
               height: 54,
               child: ElevatedButton(
