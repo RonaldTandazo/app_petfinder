@@ -574,7 +574,7 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 50),
                 ],
               ),
             ),
