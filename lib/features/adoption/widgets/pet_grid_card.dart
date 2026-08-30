@@ -1,3 +1,5 @@
+import 'package:app_petfinder/widgets/app_badge.dart';
+import 'package:app_petfinder/widgets/app_image_placeholders.dart';
 import 'package:flutter/material.dart';
 import 'package:app_petfinder/models/adoption/adoption_pet_model.dart';
 
@@ -30,20 +32,53 @@ class PetGridCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Descomentar cuando la API entregue el array de imágenes
-            /*
             Expanded(
               child: ClipRRect(
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                child: Image.network(
-                  pet.imageUrl,
-                  width: double.infinity,
-                  height: double.infinity,
-                  fit: BoxFit.cover,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    pet.picture != null && pet.picture!.trim().isNotEmpty
+                        ? Image.network(
+                            pet.picture!,
+                            width: double.infinity,
+                            height: double.infinity,
+                            fit: BoxFit.cover,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Container(
+                                color: Colors.grey.shade100,
+                                child: const Center(
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                ),
+                              );
+                            },
+                            errorBuilder: (context, error, stackTrace) {
+                              return AppImagePlaceholders.light(
+                                icon: Icons.broken_image_outlined,
+                                message: 'No se pudo obtener\nla imagen',
+                              );
+                            },
+                          )
+                        : AppImagePlaceholders.light(
+                            icon: Icons.pets,
+                            message: 'Sin imagen disponible',
+                          ),
+
+                    if (pet.isUrgent)
+                      const AppBadge(
+                        text: 'URGENTE',
+                        icon: Icons.warning_amber_rounded,
+                        position: BadgePosition.topLeft,
+                        fontSize: 9,
+                        iconSize: 12,
+                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      ),
+                  ],
                 ),
               ),
             ),
-            */
+
             Padding(
               padding: const EdgeInsets.all(12),
               child: Column(
@@ -55,13 +90,16 @@ class PetGridCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           pet.name,
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       Icon(
                         pet.genderTag == 'MALE' ? Icons.male : Icons.female,
-                        size: 18,
+                        size: 20,
                         color: pet.genderTag == 'MALE' ? Colors.blue : Colors.pink,
                       ),
                     ],
@@ -70,7 +108,10 @@ class PetGridCard extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       pet.race!,
-                      style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 12,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -78,7 +119,10 @@ class PetGridCard extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text(
                     pet.age,
-                    style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.grey.shade600,
+                    ),
                   ),
                 ],
               ),

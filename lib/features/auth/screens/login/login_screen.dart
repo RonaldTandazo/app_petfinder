@@ -44,7 +44,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       final response = await _authRepository.login(payload);
-
       if (!mounted) return;
 
       if (response.data?['requires_account_selection'] == true) {

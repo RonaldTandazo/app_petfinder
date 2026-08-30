@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:app_petfinder/models/storage/temp_file_model.dart';
 import 'package:app_petfinder/core/utils/api_error_handler.dart';
 import 'package:app_petfinder/core/utils/api_success_handler.dart';
 import 'package:app_petfinder/repository/pet/pet_repository.dart';
 import 'package:app_petfinder/widgets/app_loading_overlay.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:app_petfinder/core/network/api_exception.dart';
 import 'package:app_petfinder/models/catalog/animal_gender_model.dart';
 import 'package:app_petfinder/models/catalog/health_condition_model.dart';
@@ -12,11 +12,11 @@ import 'package:app_petfinder/models/catalog/size_model.dart';
 import 'package:app_petfinder/models/catalog/species_model.dart';
 import 'package:app_petfinder/repository/catalog/catalog_repository.dart';
 import 'package:app_petfinder/widgets/app_datepicker.dart';
-import 'package:app_petfinder/widgets/app_image_picker_bottom_sheet.dart';
 import 'package:app_petfinder/widgets/app_snackbar.dart';
 import 'package:app_petfinder/widgets/app_image_picker_grid.dart';
 import 'package:app_petfinder/features/pet/styles/pet_form_styles.dart';
 import 'package:app_petfinder/features/pet/widgets/health_status_card.dart';
+import 'package:app_petfinder/features/pet/widgets/urgent_toggle_pet.dart';
 
 class PublishPetScreen extends StatefulWidget {
   const PublishPetScreen({super.key});
@@ -30,27 +30,26 @@ class _PublishPetScreenState extends State<PublishPetScreen> {
   final _catalogRepository = CatalogRepository();
   final _petRepository = PetRepository();
 
+  final Set<int> _selectedHealthConditionIds = {};
+  List<TempFileModel> _selectedImages = [];
+
   final _nameController = TextEditingController();
   final _raceController = TextEditingController();
   final _colorController = TextEditingController();
   final _descriptionController = TextEditingController();
 
-  int? _selectedSpeciesId;
-  int? _selectedGenderId;
+  bool _isLoadingCatalog = true;
+  int _mainImageIndex = 0;
   int? _selectedSizeId;
+  int? _selectedGenderId;
+  int? _selectedSpeciesId;
   DateTime? _selectedBornDate;
-
-  final Set<int> _selectedHealthConditionIds = {};
+  bool _isUrgent = false;
 
   List<SpeciesModel> _speciesList = [];
   List<AnimalGenderModel> _gendersList = [];
   List<SizeModel> _sizesList = [];
   List<HealthConditionModel> _healthConditionsList = [];
-
-  bool _isLoadingCatalog = true;
-
-  final List<XFile> _selectedImages = [];
-  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -70,7 +69,6 @@ class _PublishPetScreenState extends State<PublishPetScreen> {
   Future<void> _loadFormCatalogs() async {
     try {
       final response = await _catalogRepository.getCatalogs();
-
       if (!mounted) return;
 
       final data = response.data;
@@ -111,51 +109,6 @@ class _PublishPetScreenState extends State<PublishPetScreen> {
     }
   }
 
-  void _showImageSourceOptions() async {
-    if (_selectedImages.length >= 5) {
-      AppSnackBar.show(
-        context,
-        title: 'Límite alcanzado',
-        description: 'Ya has seleccionado el máximo de 5 fotos.',
-        type: SnackBarType.warning,
-      );
-      return;
-    }
-
-    final source = await AppImagePickerBottomSheet.show(context);
-
-    if (source == null) return;
-
-    _pickImageFromSource(source);
-  }
-
-  Future<void> _pickImageFromSource(ImageSource source) async {
-    try {
-      if (source == ImageSource.camera) {
-        final XFile? photo = await _picker.pickImage(source: ImageSource.camera, imageQuality: 80);
-        if (photo != null) setState(() => _selectedImages.add(photo));
-      } else {
-        final int maxAllowed = 5 - _selectedImages.length;
-        final List<XFile> images = await _picker.pickMultiImage(limit: maxAllowed, imageQuality: 80);
-        if (images.isNotEmpty) {
-          setState(() {
-            _selectedImages.addAll(images);
-            if (_selectedImages.length > 5) {
-              _selectedImages.removeRange(5, _selectedImages.length);
-            }
-          });
-        }
-      }
-    } catch (_) {
-      AppSnackBar.show(
-        context,
-        title: 'Error de imagen',
-        description: 'No se pudo cargar la imagen. Inténtalo de nuevo.',
-        type: SnackBarType.error,
-      );
-    }
-  }
-
   void _toggleHealthCondition(int conditionId) {
     setState(() {
       if (_selectedHealthConditionIds.contains(conditionId)) {
@@ -177,7 +130,38 @@ class _PublishPetScreenState extends State<PublishPetScreen> {
       return;
     }
 
+    final hasUploading = _selectedImages.any((img) => img.isUploading);
+    if (hasUploading) {
+      AppSnackBar.show(
+        context,
+        title: 'Imágenes subiendo',
+        description: 'Por favor espera a que terminen de subirse las fotografías.',
+        type: SnackBarType.warning,
+      );
+      return;
+    }
+
+    final hasErrors = _selectedImages.any((img) => img.hasError || img.key == null);
+    if (hasErrors) {
+      AppSnackBar.show(
+        context,
+        title: 'Error en fotos',
+        description: 'Una o más imágenes fallaron al subirse. Elimínalas o vuelve a intentarlo.',
+        type: SnackBarType.error,
+      );
+      return;
+    }
+
     if (!_formKey.currentState!.validate()) return;
+
+    final photosPayload = _selectedImages.asMap().entries.map((entry) {
+      final idx = entry.key;
+      final item = entry.value;
+      return {
+        'path_temp': item.key,
+        'is_main': idx == _mainImageIndex,
+      };
+    }).toList();
 
     final Map<String, dynamic> payload = {
       'name': _nameController.text.trim(),
@@ -189,6 +173,8 @@ class _PublishPetScreenState extends State<PublishPetScreen> {
       'born_date': _selectedBornDate?.toIso8601String().split('T').first,
       'description': _descriptionController.text.trim().isEmpty ? null : _descriptionController.text.trim(),
       'health_conditions': _selectedHealthConditionIds.toList(),
+      'is_urgent': _isUrgent,
+      'photos': photosPayload,
     };
 
     AppLoadingOverlay.show(
@@ -198,23 +184,14 @@ class _PublishPetScreenState extends State<PublishPetScreen> {
     );
 
     try {
-
       final response = await _petRepository.store(payload);
-
       if (!mounted) return;
-
-      AppSnackBar.show(
-        context,
-        title: '¡Publicación creada!',
-        description: response.message,
-        type: SnackBarType.success,
-      );
 
       ApiSuccessHandler.handle(context, title: '¡Publicación creada!', description: response.message);
 
       context.pop();
     } on ApiException catch (e) {
-        ApiErrorHandler.handle(context, e);
+      ApiErrorHandler.handle(context, e);
     } finally {
       AppLoadingOverlay.hide();
     }
@@ -241,8 +218,18 @@ class _PublishPetScreenState extends State<PublishPetScreen> {
             const SizedBox(height: 12),
             AppImagePickerGrid(
               images: _selectedImages,
-              onAddPressed: _showImageSourceOptions,
-              onRemovePressed: (index) => setState(() => _selectedImages.removeAt(index)),
+              enableMainSelection: true,
+              selectedIndex: _mainImageIndex,
+              onImagesChanged: (updatedList) {
+                setState(() {
+                  _selectedImages = updatedList;
+                });
+              },
+              onSelectMain: (newIndex) {
+                setState(() {
+                  _mainImageIndex = newIndex;
+                });
+              },
             ),
             const SizedBox(height: 24),
 
@@ -341,6 +328,14 @@ class _PublishPetScreenState extends State<PublishPetScreen> {
                   ),
                 ),
               ],
+            ),
+            const SizedBox(height: 24),
+
+            PetFormStyles.buildSectionHeader('Prioridad de Adopción', 'Identifica el nivel de prioridad'),
+            const SizedBox(height: 8),
+            UrgentTogglePet(
+              value: _isUrgent,
+              onChanged: (val) => setState(() => _isUrgent = val),
             ),
             const SizedBox(height: 24),
 

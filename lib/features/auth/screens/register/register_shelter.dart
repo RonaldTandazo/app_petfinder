@@ -65,7 +65,6 @@ class _RegisterShelterScreenState extends State<RegisterShelterScreen> {
 
     try {
       final response = await _authRepository.registerShelter(payload);
-
       if (!mounted) return;
 
       ApiSuccessHandler.handle(context, title: response.message);

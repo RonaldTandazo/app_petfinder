@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:app_petfinder/core/network/api_exception.dart';
 import 'package:app_petfinder/core/utils/api_error_handler.dart';
+import 'package:app_petfinder/widgets/app_empty_state.dart';
 import 'package:app_petfinder/models/adoption/adoption_pet_model.dart';
 import 'package:app_petfinder/features/adoption/widgets/adoption_search_bar.dart';
 import 'package:app_petfinder/features/adoption/widgets/adoption_skeleton_loader.dart';
@@ -84,13 +85,13 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
 
     try {
       final response = await _adoptionRepository.getAdoptionPets(payload);
-
       if (!mounted) return;
 
       final data = response.data;
 
       if (data != null && data['pets'] is List) {
         final List newPetsJson = data['pets'];
+
         final newPets = newPetsJson
             .map((e) => AdoptionPetModel.fromJson(e as Map<String, dynamic>))
             .toList();
@@ -141,7 +142,7 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
                     child: _currentViewMode == ViewMode.grid
                       ? PetGridView(
                         pets: _filteredPets,
-                        emptyStateWidget: _buildEmptyState(),
+                        emptyStateWidget: AppEmptyState(description: 'No hay mascotas en adopción'),
                       )
                       : PetSwipeView(
                           pets: _filteredPets,
@@ -152,7 +153,7 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
                               _loadAdoptionPets();
                             }
                           },
-                          emptyStateWidget: _buildEmptyState(),
+                          emptyStateWidget: AppEmptyState(description: 'No hay mascotas en adopción'),
                         ),
                   ),
           ),
@@ -201,15 +202,6 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
         ),
         const SizedBox(width: 8),
       ],
-    );
-  }
-
-  Widget _buildEmptyState() {
-    return const Center(
-      child: Text(
-        'No hay mascotas disponibles en esta categoría.',
-        style: TextStyle(color: Colors.grey),
-      ),
     );
   }
 }

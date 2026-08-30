@@ -23,7 +23,6 @@ class _CheckAuthScreenState extends State<CheckAuthScreen> {
   Future<void> _checkSession() async {
     try {  
       final response = await _authRepository.checkAuthStatus();
-
       if (!mounted) return;
 
       if (response.ok) {

@@ -1,3 +1,5 @@
+import 'package:app_petfinder/widgets/app_badge.dart';
+import 'package:app_petfinder/widgets/app_image_placeholders.dart';
 import 'package:flutter/material.dart';
 import 'package:app_petfinder/models/adoption/adoption_pet_model.dart';
 
@@ -21,7 +23,7 @@ class PetSwipeCard extends StatelessWidget {
         height: 480,
         width: double.infinity,
         decoration: BoxDecoration(
-          color: Colors.teal.shade700, // Background provisorio mientras se integra la imagen
+          color: Colors.teal.shade700,
           borderRadius: BorderRadius.circular(28),
           boxShadow: [
             BoxShadow(
@@ -31,57 +33,95 @@ class PetSwipeCard extends StatelessWidget {
             )
           ],
         ),
-        child: Stack(
-          children: [
-            // Descomentar cuando exista imageUrl
-            /*
-            ClipRRect(
-              borderRadius: BorderRadius.circular(28),
-              child: Image.network(
-                pet.imageUrl,
-                width: double.infinity,
-                height: double.infinity,
-                fit: BoxFit.cover,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(28),
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: pet.picture != null && pet.picture!.trim().isNotEmpty
+                    ? Image.network(
+                        pet.picture!,
+                        width: double.infinity,
+                        height: double.infinity,
+                        fit: BoxFit.cover,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Container(
+                            color: Colors.grey.shade900,
+                            child: const Center(
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            ),
+                          );
+                        },
+                        errorBuilder: (context, error, stackTrace) {
+                          return AppImagePlaceholders.dark(
+                            icon: Icons.broken_image_outlined,
+                            message: 'No se pudo obtener la imagen',
+                          );
+                        },
+                      )
+                    : AppImagePlaceholders.dark(
+                        icon: Icons.pets,
+                        message: 'Sin imagen disponible',
+                      ),
               ),
-            ),
-            */
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(28),
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.transparent,
-                    Colors.black.withValues(alpha: 0.8),
-                  ],
-                  stops: const [0.5, 1.0],
-                ),
-              ),
-            ),
-            Positioned(
-              bottom: 24,
-              left: 20,
-              right: 20,
-              child: Row(
-                children: [
-                  Text(
-                    '${pet.name}, ${pet.age}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
+
+              Positioned.fill(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.transparent,
+                        Colors.black.withValues(alpha: 0.85),
+                      ],
+                      stops: const [0.5, 1.0],
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Icon(
-                    pet.genderTag == 'MALE' ? Icons.male : Icons.female,
-                    color: Colors.white,
-                  ),
-                ],
+                ),
               ),
-            ),
-          ],
+
+              if (pet.isUrgent)
+                const AppBadge(
+                  text: 'URGENTE',
+                  icon: Icons.warning_amber_rounded,
+                  position: BadgePosition.topLeft,
+                  fontSize: 11,
+                  iconSize: 15,
+                ),
+
+              Positioned(
+                bottom: 24,
+                left: 20,
+                right: 20,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        '${pet.name}, ${pet.age}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Icon(
+                      pet.genderTag == 'MALE' ? Icons.male : Icons.female,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

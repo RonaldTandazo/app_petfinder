@@ -22,7 +22,6 @@ class AppSnackBar {
     };
 
     late OverlayEntry overlayEntry;
-    final isTop = position == SnackBarPosition.top;
 
     overlayEntry = OverlayEntry(
       builder: (context) {

@@ -56,7 +56,6 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
 
     try {
       final response = await _authRepository.registerUser(payload);
-
       if (!mounted) return;
 
       ApiSuccessHandler.handle(context, title: response.message);

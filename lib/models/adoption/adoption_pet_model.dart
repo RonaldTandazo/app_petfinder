@@ -7,8 +7,8 @@ class AdoptionPetModel {
   final String genderTag;
   final String age;
   // final String distance;
-  // final String imageUrl;
-  // final bool isUrgent;
+  final bool isUrgent;
+  final String? picture;
 
   AdoptionPetModel({
     required this.id,
@@ -18,6 +18,8 @@ class AdoptionPetModel {
     this.race,
     required this.genderTag,
     required this.age,
+    required this.isUrgent,
+    this.picture
   });
 
   factory AdoptionPetModel.fromJson(Map<String, dynamic> json) {
@@ -29,6 +31,8 @@ class AdoptionPetModel {
       race: json['race'] as String? ?? '',
       genderTag: json['gender_tag'] as String,
       age: json['age'] as String,
+      isUrgent: json['is_urgent'] as bool,
+      picture: json['picture'] as String? ?? '',
     );
   }
 }
