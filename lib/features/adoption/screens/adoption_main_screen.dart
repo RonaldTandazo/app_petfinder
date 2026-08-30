@@ -1,3 +1,4 @@
+import 'package:app_petfinder/core/router/pet/pet_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:app_petfinder/core/network/api_exception.dart';
 import 'package:app_petfinder/core/utils/api_error_handler.dart';
@@ -9,6 +10,7 @@ import 'package:app_petfinder/features/adoption/widgets/pet_grid_view.dart';
 import 'package:app_petfinder/features/adoption/widgets/pet_swipe_view.dart';
 import 'package:app_petfinder/features/adoption/widgets/species_selector_chips.dart';
 import 'package:app_petfinder/repository/adoption/adoption_repository.dart';
+import 'package:go_router/go_router.dart';
 
 enum ViewMode { grid, swipe }
 
@@ -114,6 +116,10 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
     }
   }
 
+  void _navigateToDetail(AdoptionPetModel pet) {
+    context.push(PetRoutes.petDetail, extra: pet);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -142,10 +148,12 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
                     child: _currentViewMode == ViewMode.grid
                       ? PetGridView(
                         pets: _filteredPets,
+                        onTap: _navigateToDetail,
                         emptyStateWidget: AppEmptyState(description: 'No hay mascotas en adopción'),
                       )
                       : PetSwipeView(
                           pets: _filteredPets,
+                          onTap: _navigateToDetail,
                           onDismissed: (index) {
                             setState(() => _pets.removeAt(index));
 

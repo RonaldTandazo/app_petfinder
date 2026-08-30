@@ -5,11 +5,13 @@ import 'package:app_petfinder/models/adoption/adoption_pet_model.dart';
 class PetGridView extends StatelessWidget {
   final List<AdoptionPetModel> pets;
   final Widget emptyStateWidget;
+  final void Function(AdoptionPetModel) onTap;
 
   const PetGridView({
     super.key,
     required this.pets,
     required this.emptyStateWidget,
+    required this.onTap
   });
 
   @override
@@ -27,7 +29,12 @@ class PetGridView extends StatelessWidget {
       ),
       itemCount: pets.length,
       itemBuilder: (context, index) {
-        return PetGridCard(pet: pets[index]);
+        final pet = pets[index];
+
+        return PetGridCard(
+          pet: pet,
+          onTap: () => onTap(pet)
+        );
       },
     );
   }

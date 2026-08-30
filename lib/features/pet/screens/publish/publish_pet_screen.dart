@@ -16,7 +16,7 @@ import 'package:app_petfinder/widgets/app_snackbar.dart';
 import 'package:app_petfinder/widgets/app_image_picker_grid.dart';
 import 'package:app_petfinder/features/pet/styles/pet_form_styles.dart';
 import 'package:app_petfinder/features/pet/widgets/health_status_card.dart';
-import 'package:app_petfinder/features/pet/widgets/urgent_toggle_pet.dart';
+import 'package:app_petfinder/widgets/app_toggle_tile.dart';
 
 class PublishPetScreen extends StatefulWidget {
   const PublishPetScreen({super.key});
@@ -333,9 +333,13 @@ class _PublishPetScreenState extends State<PublishPetScreen> {
 
             PetFormStyles.buildSectionHeader('Prioridad de Adopción', 'Identifica el nivel de prioridad'),
             const SizedBox(height: 8),
-            UrgentTogglePet(
+            AppToggleTile(
               value: _isUrgent,
               onChanged: (val) => setState(() => _isUrgent = val),
+              title: 'Caso Urgente',
+              subtitle: 'Marca esta opción si la mascota requiere adopción/hogar temporal de forma prioritaria',
+              icon: Icons.warning_amber_rounded,
+              activeColor: Colors.amber.shade800,
             ),
             const SizedBox(height: 24),
 

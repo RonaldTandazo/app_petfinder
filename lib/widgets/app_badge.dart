@@ -10,6 +10,8 @@ enum BadgeType {
 enum BadgePosition {
   topLeft,
   topRight,
+  bottomLeft,
+  bottomRight,
 }
 
 class AppBadge extends StatelessWidget {
@@ -47,13 +49,17 @@ class AppBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double topOffset = 12;
+    final isTop = [BadgePosition.topLeft, BadgePosition.topRight].contains(position);
+    final isLeft = [BadgePosition.topLeft, BadgePosition.bottomLeft].contains(position);
+
+    final double verticalOffset = 12;
     final double horizontalOffset = 12;
 
     return Positioned(
-      top: topOffset,
-      left: position == BadgePosition.topLeft ? horizontalOffset : null,
-      right: position == BadgePosition.topRight ? horizontalOffset : null,
+      top: isTop ? verticalOffset : null,
+      bottom: !isTop ? verticalOffset : null,
+      left: isLeft ? horizontalOffset : null,
+      right: !isLeft ? horizontalOffset : null,
       child: Container(
         padding: padding ?? const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         decoration: BoxDecoration(

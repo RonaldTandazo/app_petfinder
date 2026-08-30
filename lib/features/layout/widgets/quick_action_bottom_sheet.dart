@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:app_petfinder/core/router/pet/pet_routes.dart';
+import 'package:app_petfinder/core/router/lost_pet/lost_pet_routes.dart';
 
 class QuickActionBottomSheet {
   static Future<void> show(BuildContext context) {
@@ -54,7 +55,8 @@ class QuickActionBottomSheet {
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               onTap: () {
                 Navigator.of(modalContext).pop();
-                // TODO: context.push(PetRoutes.reportLost);
+
+                context.push(LostPetRoutes.publish);
               },
             ),
             const SizedBox(height: 30),

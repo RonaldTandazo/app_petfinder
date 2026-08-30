@@ -1,51 +1,62 @@
 import 'package:flutter/material.dart';
 
-class UrgentTogglePet extends StatelessWidget {
+class AppToggleTile extends StatelessWidget {
   final bool value;
   final ValueChanged<bool> onChanged;
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final Color activeColor;
 
-  const UrgentTogglePet({
+  const AppToggleTile({
     super.key,
     required this.value,
     required this.onChanged,
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    this.activeColor = Colors.teal,
   });
 
   @override
   Widget build(BuildContext context) {
-    final isUrgentColor = value ? Colors.amber.shade50 : Colors.white;
-    final borderColor = value ? Colors.amber.shade600 : Colors.grey.shade200;
+    final activeBg = activeColor.withValues(alpha: 0.08);
+    final activeBorder = activeColor.withValues(alpha: 0.6);
+    final inactiveBorder = Colors.grey.shade200;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       child: Material(
-        color: isUrgentColor,
+        color: value ? activeBg : Colors.white,
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
           side: BorderSide(
-            color: borderColor,
+            color: value ? activeBorder : inactiveBorder,
             width: value ? 1.5 : 1.0,
           ),
         ),
-        child: SwitchListTile(
+        child: SwitchListTile.adaptive(
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           value: value,
           onChanged: onChanged,
-          activeThumbColor: Colors.amber.shade700,
+          activeThumbColor: activeColor,
           title: Row(
             children: [
               Icon(
-                Icons.warning_amber_rounded,
-                color: value ? Colors.amber.shade800 : Colors.grey.shade600,
+                icon,
+                color: value ? activeColor : Colors.grey.shade600,
                 size: 22,
               ),
               const SizedBox(width: 8),
-              Text(
-                'Caso Urgente',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15,
-                  color: value ? Colors.amber.shade900 : Colors.black87,
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                    color: value ? activeColor : Colors.black87,
+                  ),
                 ),
               ),
             ],
@@ -53,12 +64,10 @@ class UrgentTogglePet extends StatelessWidget {
           subtitle: Padding(
             padding: const EdgeInsets.only(top: 4),
             child: Text(
-              'Marca esta opción si la mascota requiere adopción/hogar temporal de forma prioritaria.',
+              subtitle,
               style: TextStyle(
                 fontSize: 12,
-                color: value
-                    ? Colors.amber.shade900.withValues(alpha: 0.8)
-                    : Colors.grey.shade600,
+                color: value ? activeColor.withValues(alpha: 0.85) : Colors.grey.shade600,
               ),
             ),
           ),

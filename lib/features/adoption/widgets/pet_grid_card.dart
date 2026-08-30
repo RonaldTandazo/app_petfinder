@@ -15,6 +15,9 @@ class PetGridCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool hasImage = pet.picture != null && pet.picture!.trim().isNotEmpty;
+    final bool isMale = pet.genderTag == 'MALE';
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -38,32 +41,32 @@ class PetGridCard extends StatelessWidget {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    pet.picture != null && pet.picture!.trim().isNotEmpty
-                        ? Image.network(
-                            pet.picture!,
-                            width: double.infinity,
-                            height: double.infinity,
-                            fit: BoxFit.cover,
-                            loadingBuilder: (context, child, loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              return Container(
-                                color: Colors.grey.shade100,
-                                child: const Center(
-                                  child: CircularProgressIndicator(strokeWidth: 2),
-                                ),
-                              );
-                            },
-                            errorBuilder: (context, error, stackTrace) {
-                              return AppImagePlaceholders.light(
-                                icon: Icons.broken_image_outlined,
-                                message: 'No se pudo obtener\nla imagen',
-                              );
-                            },
-                          )
-                        : AppImagePlaceholders.light(
-                            icon: Icons.pets,
-                            message: 'Sin imagen disponible',
-                          ),
+                    hasImage
+                      ? Image.network(
+                          pet.picture!,
+                          width: double.infinity,
+                          height: double.infinity,
+                          fit: BoxFit.cover,
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Container(
+                              color: Colors.grey.shade100,
+                              child: const Center(
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              ),
+                            );
+                          },
+                          errorBuilder: (context, error, stackTrace) {
+                            return AppImagePlaceholders.light(
+                              icon: Icons.broken_image_outlined,
+                              message: 'No se pudo obtener\nla imagen',
+                            );
+                          },
+                        )
+                      : AppImagePlaceholders.light(
+                          icon: Icons.pets,
+                          message: 'Sin imagen disponible',
+                        ),
 
                     if (pet.isUrgent)
                       const AppBadge(
@@ -98,9 +101,9 @@ class PetGridCard extends StatelessWidget {
                         ),
                       ),
                       Icon(
-                        pet.genderTag == 'MALE' ? Icons.male : Icons.female,
+                        isMale ? Icons.male : Icons.female,
                         size: 20,
-                        color: pet.genderTag == 'MALE' ? Colors.blue : Colors.pink,
+                        color: isMale ? Colors.blue : Colors.pink,
                       ),
                     ],
                   ),

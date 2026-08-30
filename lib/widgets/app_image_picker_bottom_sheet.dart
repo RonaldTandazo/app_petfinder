@@ -39,6 +39,7 @@ class AppImagePickerBottomSheet {
               title: const Text('Elegir de la Galería'),
               onTap: () => Navigator.pop(context, ImageSource.gallery),
             ),
+            const SizedBox(height: 30),
           ],
         ),
       ),
