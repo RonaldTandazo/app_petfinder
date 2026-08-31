@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 class AppImagePlaceholders {
   AppImagePlaceholders._();
 
-  /// Variant Clara: Utilizada en Cards pequeñas, Grids o vistas claras.
-  static Widget light({
+  /// Variant Card: Utilizada en Cards pequeñas, Grids o vistas claras.
+  static Widget card({
     required IconData icon,
     required String message,
   }) {
@@ -19,17 +19,20 @@ class AppImagePlaceholders {
         children: [
           Icon(
             icon,
-            size: 32,
+            size: 26,
             color: Colors.grey.shade400,
           ),
-          const SizedBox(height: 6),
-          Text(
-            message,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 11,
-              color: Colors.grey.shade500,
-              fontWeight: FontWeight.w500,
+          const SizedBox(height: 4),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 10,
+                color: Colors.grey.shade500,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ],
@@ -37,8 +40,8 @@ class AppImagePlaceholders {
     );
   }
 
-  /// Variant Oscura: Utilizada en Cards grandes estilo Tinder/Swipe o fondos oscuros.
-  static Widget dark({
+  /// Variant Swipe: Utilizada en Cards grandes estilo Tinder/Swipe o fondos oscuros.
+  static Widget swipe({
     required IconData icon,
     required String message,
   }) {

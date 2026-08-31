@@ -1,21 +1,39 @@
 import 'package:flutter/material.dart';
-import 'package:app_petfinder/models/lost_pet/lost_pet_model.dart';
+import 'package:app_petfinder/widgets/app_image_placeholders.dart';
+import 'package:app_petfinder/models/lost_pet/lost_pet_list_model.dart';
 
 class LostPetCard extends StatelessWidget {
-  final LostPetModel report;
-  final VoidCallback? onTap;
+  final LostPetListModel lostPet;
+  final String? distance;
+  final void Function(LostPetListModel) onTap;
 
   const LostPetCard({
     super.key,
-    required this.report,
-    this.onTap,
+    required this.lostPet,
+    this.distance,
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final isLost = report.reportStatusTag == 'LOST';
-    final badgeColor = isLost ? Colors.redAccent : Colors.teal;
-    final badgeText = isLost ? 'PERDIDO' : 'ENCONTRADO';
+    final bool hasImage = lostPet.picture.trim().isNotEmpty;
+    final bool isLost = lostPet.reportStatusTag == 'ACTIVE';
+    final Color badgeColor = isLost ? Colors.redAccent : Colors.teal;
+    final String badgeText = lostPet.reportStatus;
+    
+    // Identificación de género
+    final bool isMale = lostPet.animalGenderTag == 'MALE';
+    final bool hasGender = lostPet.animalGenderTag.isNotEmpty;
+
+    // Sublínea: Raza • Especie (o solo Especie)
+    final String description = (lostPet.race != null && lostPet.race!.trim().isNotEmpty)
+        ? '${lostPet.species} • ${lostPet.race}'
+        : lostPet.species;
+
+    // Ubicación: Dirección + Ciudad (o fallback a solo Ciudad)
+    final String location = (lostPet.eventAddress != null && lostPet.eventAddress!.trim().isNotEmpty)
+        ? '${lostPet.eventAddress}, ${lostPet.city}'
+        : lostPet.city;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -35,28 +53,36 @@ class LostPetCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
-          onTap: onTap,
+          onTap: () => onTap(lostPet),
           child: Padding(
             padding: const EdgeInsets.all(12),
             child: Row(
               children: [
-                // Imagen con Tag de tipo de reporte
+                // Imagen con Badge de Estado
                 Stack(
                   children: [
-                    if(report.picture != null && report.picture!.isNotEmpty)
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Image.network(
-                        report.picture!,
-                        width: 100,
-                        height: 100,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, _, _) => Container(
-                          width: 100,
-                          height: 100,
-                          color: Colors.grey.shade200,
-                          child: const Icon(Icons.pets, color: Colors.grey),
-                        ),
+                    SizedBox(
+                      width: 100,
+                      height: 100,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: hasImage
+                            ? Image.network(
+                                lostPet.picture,
+                                width: 100,
+                                height: 100,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return AppImagePlaceholders.card(
+                                    icon: Icons.broken_image_outlined,
+                                    message: 'No se pudo obtener\nla imagen',
+                                  );
+                                },
+                              )
+                            : AppImagePlaceholders.card(
+                                icon: Icons.pets,
+                                message: 'Sin imagen disponible',
+                              ),
                       ),
                     ),
                     Positioned(
@@ -87,54 +113,88 @@ class LostPetCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Nombre + Icono de Género + Fecha
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Expanded(
-                            child: Text(
-                              report.name,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                            child: Row(
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    lostPet.name,
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black87,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                if (hasGender) ...[
+                                  const SizedBox(width: 4),
+                                  Icon(
+                                    isMale ? Icons.male : Icons.female,
+                                    size: 18,
+                                    color: isMale ? Colors.blue : Colors.pink,
+                                  ),
+                                ],
+                              ],
                             ),
                           ),
+                          const SizedBox(width: 8),
                           Text(
-                            report.eventDate,
+                            lostPet.eventDate,
                             style: const TextStyle(fontSize: 11, color: Colors.grey),
                           ),
                         ],
                       ),
                       const SizedBox(height: 4),
+
+                      // Raza • Especie
                       Text(
-                        '${report.race} • ${report.species}',
+                        description,
                         style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 8),
 
-                      // Ubicación y distancia
+                      // Ubicación (Dirección + Ciudad)
                       Row(
                         children: [
-                          const Icon(Icons.location_on, size: 14, color: Colors.teal),
-                          const SizedBox(width: 2),
-                          Expanded(
-                            child: Text(
-                              report.eventAddress,
-                              style: const TextStyle(fontSize: 12, color: Colors.black54),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                          if (location.trim().isNotEmpty) ...[
+                            const Icon(Icons.location_on, size: 14, color: Colors.teal),
+                            const SizedBox(width: 2),
+                            Expanded(
+                              child: Text(
+                                location,
+                                style: const TextStyle(fontSize: 12, color: Colors.black54),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: Colors.teal.withValues(alpha: 0.08),
-                              borderRadius: BorderRadius.circular(4),
+                          ],
+                          
+                          // Badge de Distancia
+                          if (distance != null) ...[
+                            const SizedBox(width: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: Colors.teal.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                distance!,
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  color: Colors.teal,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                             ),
-                          ),
+                          ],
                         ],
                       ),
                     ],

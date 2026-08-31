@@ -64,13 +64,13 @@ class PetSwipeCard extends StatelessWidget {
                           );
                         },
                         errorBuilder: (context, error, stackTrace) {
-                          return AppImagePlaceholders.dark(
+                          return AppImagePlaceholders.swipe(
                             icon: Icons.broken_image_outlined,
                             message: 'No se pudo obtener la imagen',
                           );
                         },
                       )
-                    : AppImagePlaceholders.dark(
+                    : AppImagePlaceholders.swipe(
                         icon: Icons.pets,
                         message: 'Sin imagen disponible',
                       ),

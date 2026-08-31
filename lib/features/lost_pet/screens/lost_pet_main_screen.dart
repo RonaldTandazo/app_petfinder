@@ -1,8 +1,17 @@
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:app_petfinder/core/services/location_service.dart';
 import 'package:app_petfinder/core/router/lost_pet/lost_pet_routes.dart';
-import 'package:app_petfinder/models/lost_pet/lost_pet_model.dart';
+import 'package:app_petfinder/core/network/api_exception.dart';
+import 'package:app_petfinder/core/utils/api_error_handler.dart';
+import 'package:app_petfinder/repository/lost_pet/lost_pet_repository.dart';
+import 'package:app_petfinder/models/lost_pet/lost_pet_list_model.dart';
+import 'package:app_petfinder/features/adoption/widgets/species_selector_chips.dart';
 import 'package:app_petfinder/features/lost_pet/widgets/lost_pet_card.dart';
+import 'package:app_petfinder/features/adoption/widgets/adoption_skeleton_loader.dart';
+import 'package:app_petfinder/widgets/app_empty_state.dart';
 
 class LostPetHomeScreen extends StatefulWidget {
   const LostPetHomeScreen({super.key});
@@ -12,17 +21,122 @@ class LostPetHomeScreen extends StatefulWidget {
 }
 
 class _LostPetHomeScreenState extends State<LostPetHomeScreen> {
-  int _selectedFilterIndex = 0;
+  final ScrollController _scrollController = ScrollController();
+  final _lostPetRepository = LostPetRepository();
 
-  final List<LostPetModel> mockPetReports = [];
+  String _selectedCategory = 'Todos';
 
-  List<LostPetModel> get _filteredReports {
-    if (_selectedFilterIndex == 1) {
-      return mockPetReports.where((r) => r.reportStatusTag == 'LOST').toList();
-    } else if (_selectedFilterIndex == 2) {
-      return mockPetReports.where((r) => r.reportStatusTag == 'FOUND').toList();
+  final List<LostPetListModel> _lostPets = [];
+  
+  LatLng? _userLocation;
+  bool _isLoadingLostPets = true;
+  bool _isLoadingMore = true;
+  bool _hasMore = false;
+  final int _limit = 20;
+  int _page = 1;
+
+ final List<String> _categories = ['Todos', 'Perros', 'Gatos', 'Otros'];
+
+  List<LostPetListModel> get _filteredLostPets {
+    if (_selectedCategory == 'Todos') return _lostPets;
+    return _lostPets.where((p) => p.species == _selectedCategory).toList();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLostPets(reset: true);
+    _getUserLocation();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final currentScroll = _scrollController.position.pixels;
+
+    if (currentScroll >= (maxScroll * 0.8)) {
+      if (!_isLoadingMore && _hasMore && !_isLoadingLostPets) {
+        _loadLostPets();
+      }
     }
-    return mockPetReports;
+  }
+
+  Future<void> _getUserLocation() async {
+    final location = await LocationService.getCurrentLocation();
+    if (mounted) {
+      setState(() => _userLocation = location);
+    }
+  }
+
+  String? _getDistanceForPet(LostPetListModel pet) {
+    if (_userLocation == null || pet.latitude == null || pet.longitude == null) {
+      return null;
+    }
+
+    return LocationService.calculateFormattedDistance(
+      userLocation: _userLocation!,
+      targetLat: pet.latitude!,
+      targetLng: pet.longitude!,
+    );
+  }
+
+  Future<void> _loadLostPets({bool reset = false}) async {
+    if (reset) {
+      setState(() {
+        _isLoadingLostPets = true;
+        _page = 1;
+        _lostPets.clear();
+      });
+    } else {
+      setState(() => _isLoadingMore = true);
+    }
+
+    final Map<String, dynamic> payload = {
+      'page': _page,
+      'limit': _limit
+    };
+
+    try {
+      final response = await _lostPetRepository.getLostPets(payload);
+      if (!mounted) return;
+
+      final data = response.data;
+
+      if (data != null && data['lost_pets'] is List) {
+        final List newLostPetsJson = data['lost_pets'];
+
+        final newLostPets = newLostPetsJson
+            .map((e) => LostPetListModel.fromJson(e as Map<String, dynamic>))
+            .toList();
+
+        setState(() {
+          _lostPets.addAll(newLostPets);
+          _hasMore = data['hasMore'] ?? false;
+          if (_hasMore) _page++;
+        });
+      }
+    } on ApiException catch (e) {
+      ApiErrorHandler.handle(context, e);
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoadingLostPets = false;
+          _isLoadingMore = false;
+        });
+      }
+    }
+  }
+
+  void _navigateToDetail(LostPetListModel lostPet) {
+    // context.push(PetRoutes.petDetail, extra: lostPet);
   }
 
   @override
@@ -59,67 +173,35 @@ class _LostPetHomeScreenState extends State<LostPetHomeScreen> {
       ),
       body: Column(
         children: [
-          // Selector de Categoría (Tabs superiores)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
-              children: [
-                _buildFilterChip(0, 'Todos'),
-                const SizedBox(width: 8),
-                _buildFilterChip(1, 'Perdidos'),
-                const SizedBox(width: 8),
-                _buildFilterChip(2, 'Encontrados'),
-              ],
-            ),
+          CategorySelectorChips(
+            categories: _categories,
+            selectedCategory: _selectedCategory,
+            onSelected: (category) {
+              setState(() => _selectedCategory = category);
+            },
           ),
 
-          // Lista de reportes
           Expanded(
-            child: _filteredReports.isEmpty
-                ? const Center(
-                    child: Text(
-                      'No hay reportes en esta categoría',
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                  )
-                : ListView.builder(
-                    itemCount: _filteredReports.length,
-                    itemBuilder: (context, index) {
-                      final report = _filteredReports[index];
-                      return LostPetCard(
-                        report: report,
-                        onTap: () {
-                          // TODO: Abrir modal o pantalla de detalle del reporte
-                        },
-                      );
-                    },
-                  ),
+            child:  _isLoadingLostPets
+              ? AdoptionSkeletonLoader(mode: SkeletonViewMode.list) 
+              : _filteredLostPets.isEmpty
+              ? AppEmptyState(description: 'No hay reportes de mascotas perdidas')
+              : ListView.builder(
+                  itemCount: _filteredLostPets.length,
+                  itemBuilder: (context, index) {
+                    final lostPet = _filteredLostPets[index];
+                    final distance = _getDistanceForPet(lostPet);
+                    
+                    return LostPetCard(
+                      lostPet: lostPet,
+                      distance: distance,
+                      onTap: _navigateToDetail,
+                    );
+                  },
+                ),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildFilterChip(int index, String label) {
-    final isSelected = _selectedFilterIndex == index;
-    return ChoiceChip(
-      label: Text(
-        label,
-        style: TextStyle(
-          color: isSelected ? Colors.white : Colors.grey.shade700,
-          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-        ),
-      ),
-      selected: isSelected,
-      selectedColor: Colors.teal,
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: BorderSide(color: isSelected ? Colors.teal : Colors.grey.shade300),
-      ),
-      onSelected: (_) {
-        setState(() => _selectedFilterIndex = index);
-      },
     );
   }
 }

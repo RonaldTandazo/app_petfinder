@@ -57,13 +57,13 @@ class PetGridCard extends StatelessWidget {
                             );
                           },
                           errorBuilder: (context, error, stackTrace) {
-                            return AppImagePlaceholders.light(
+                            return AppImagePlaceholders.card(
                               icon: Icons.broken_image_outlined,
                               message: 'No se pudo obtener\nla imagen',
                             );
                           },
                         )
-                      : AppImagePlaceholders.light(
+                      : AppImagePlaceholders.card(
                           icon: Icons.pets,
                           message: 'Sin imagen disponible',
                         ),

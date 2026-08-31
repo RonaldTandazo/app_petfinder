@@ -22,8 +22,8 @@ class AdoptionHomeScreen extends StatefulWidget {
 }
 
 class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
-  final _adoptionRepository = AdoptionRepository();
   final ScrollController _scrollController = ScrollController();
+  final _adoptionRepository = AdoptionRepository();
 
   ViewMode _currentViewMode = ViewMode.grid;
   String _selectedCategory = 'Todos';
@@ -41,6 +41,15 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
   List<AdoptionPetModel> get _filteredPets {
     if (_selectedCategory == 'Todos') return _pets;
     return _pets.where((p) => p.species == _selectedCategory).toList();
+  }
+
+  SkeletonViewMode get _skeletonMode {
+    switch (_currentViewMode) {
+      case ViewMode.swipe:
+        return SkeletonViewMode.swipe;
+      case ViewMode.grid:
+      return SkeletonViewMode.grid;
+    }
   }
 
   @override
@@ -120,6 +129,21 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
     context.push(PetRoutes.petDetail, extra: pet);
   }
 
+  IconData _getToggleIcon() {
+    switch (_currentViewMode) {
+      case ViewMode.grid:
+        return Icons.swipe_rounded;
+      case ViewMode.swipe:
+        return Icons.grid_view_rounded;
+    }
+  }
+
+  void _toggleViewMode() {
+    setState(() {
+      _currentViewMode = _currentViewMode == ViewMode.grid ? ViewMode.swipe : ViewMode.grid;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -142,27 +166,33 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
           const SizedBox(height: 12),
           Expanded(
             child: _isLoadingPets
-                ? AdoptionSkeletonLoader(isGrid: _currentViewMode == ViewMode.grid)
+                ? AdoptionSkeletonLoader(mode: _skeletonMode)
                 : AnimatedSwitcher(
                     duration: const Duration(milliseconds: 300),
                     child: _currentViewMode == ViewMode.grid
                       ? PetGridView(
-                        pets: _filteredPets,
-                        onTap: _navigateToDetail,
-                        emptyStateWidget: AppEmptyState(description: 'No hay mascotas en adopción'),
-                      )
-                      : PetSwipeView(
                           pets: _filteredPets,
                           onTap: _navigateToDetail,
-                          onDismissed: (index) {
-                            setState(() => _pets.removeAt(index));
+                          emptyStateWidget: const AppEmptyState(description: 'No hay mascotas en adopción'),
+                        )
+                      : _currentViewMode == ViewMode.swipe
+                        ? PetSwipeView(
+                            pets: _filteredPets,
+                            onTap: _navigateToDetail,
+                            onDismissed: (index) {
+                              setState(() => _pets.removeAt(index));
 
-                            if (_pets.length <= 3 && _hasMore && !_isLoadingMore) {
-                              _loadAdoptionPets();
-                            }
-                          },
-                          emptyStateWidget: AppEmptyState(description: 'No hay mascotas en adopción'),
-                        ),
+                              if (_pets.length <= 3 && _hasMore && !_isLoadingMore) {
+                                _loadAdoptionPets();
+                              }
+                            },
+                            emptyStateWidget: const AppEmptyState(description: 'No hay mascotas en adopción'),
+                          )
+                        : PetGridView( // Nota: Reemplazar por PetListView cuando esté construido
+                            pets: _filteredPets,
+                            onTap: _navigateToDetail,
+                            emptyStateWidget: const AppEmptyState(description: 'No hay mascotas en adopción'),
+                          ),
                   ),
           ),
         ],
@@ -195,18 +225,9 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
       ),
       actions: [
         IconButton(
-          icon: Icon(
-            _currentViewMode == ViewMode.grid ? Icons.style_rounded : Icons.grid_view_rounded,
-            color: Colors.teal,
-          ),
+          icon: Icon(_getToggleIcon(), color: Colors.teal),
           tooltip: 'Cambiar Vista',
-          onPressed: () {
-            setState(() {
-              _currentViewMode = _currentViewMode == ViewMode.grid
-                  ? ViewMode.swipe
-                  : ViewMode.grid;
-            });
-          },
+          onPressed: _toggleViewMode,
         ),
         const SizedBox(width: 8),
       ],

@@ -10,8 +10,8 @@ class AnimalGenderModel extends CatalogItemModel {
   factory AnimalGenderModel.fromJson(Map<String, dynamic> json) {
     return AnimalGenderModel(
       id: json['id'] as int,
-      name: (json['name'] ?? '') as String,
-      tag: (json['tag'] ?? '') as String,
+      name: json['name'] as String,
+      tag: json['tag'] as String,
     );
   }
 }

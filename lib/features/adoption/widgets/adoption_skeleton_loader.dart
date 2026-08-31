@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
 
+enum SkeletonViewMode { grid, swipe, list }
+
 class AdoptionSkeletonLoader extends StatefulWidget {
-  final bool isGrid;
-  const AdoptionSkeletonLoader({super.key, this.isGrid = true});
+  final SkeletonViewMode mode;
+  final int itemCount;
+
+  const AdoptionSkeletonLoader({
+    super.key,
+    this.mode = SkeletonViewMode.grid,
+    this.itemCount = 10,
+  });
 
   @override
   State<AdoptionSkeletonLoader> createState() => _AdoptionSkeletonLoaderState();
@@ -29,7 +37,11 @@ class _AdoptionSkeletonLoaderState extends State<AdoptionSkeletonLoader>
     super.dispose();
   }
 
-  Widget _buildPlaceholderBox({required double height, double? width, double radius = 16}) {
+  Widget _buildPlaceholderBox({
+    required double height,
+    double? width,
+    double radius = 16,
+  }) {
     return FadeTransition(
       opacity: _animation,
       child: Container(
@@ -45,15 +57,80 @@ class _AdoptionSkeletonLoaderState extends State<AdoptionSkeletonLoader>
 
   @override
   Widget build(BuildContext context) {
-    if (!widget.isGrid) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: _buildPlaceholderBox(height: 480, radius: 28),
-        ),
-      );
+    switch (widget.mode) {
+      case SkeletonViewMode.swipe:
+        return _buildSwipeSkeleton();
+      case SkeletonViewMode.list:
+        return _buildListSkeleton();
+      case SkeletonViewMode.grid:
+        return _buildGridSkeleton();
     }
+  }
 
+  /// Modo Swipe / Tinder Card
+  Widget _buildSwipeSkeleton() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: _buildPlaceholderBox(height: 480, radius: 28),
+      ),
+    );
+  }
+
+  /// Modo Lista (Horizontal Image + Details)
+  Widget _buildListSkeleton() {
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: widget.itemCount,
+      itemBuilder: (_, _) {
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Row(
+            children: [
+              // Placeholder de la imagen (100x100)
+              _buildPlaceholderBox(height: 100, width: 100, radius: 12),
+              const SizedBox(width: 12),
+
+              // Placeholder de los textos
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _buildPlaceholderBox(height: 16, width: 110, radius: 4),
+                        _buildPlaceholderBox(height: 12, width: 75, radius: 4),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    _buildPlaceholderBox(height: 12, width: 90, radius: 4),
+                    const SizedBox(height: 14),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _buildPlaceholderBox(height: 12, width: 130, radius: 4),
+                        _buildPlaceholderBox(height: 12, width: 50, radius: 4),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  /// Modo Grid (2 Columnas)
+  Widget _buildGridSkeleton() {
     return GridView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       physics: const NeverScrollableScrollPhysics(),
@@ -63,8 +140,8 @@ class _AdoptionSkeletonLoaderState extends State<AdoptionSkeletonLoader>
         crossAxisSpacing: 14,
         mainAxisSpacing: 14,
       ),
-      itemCount: 6,
-      itemBuilder: (_, __) {
+      itemCount: widget.itemCount,
+      itemBuilder: (_, _) {
         return Container(
           decoration: BoxDecoration(
             color: Colors.white,
@@ -73,7 +150,12 @@ class _AdoptionSkeletonLoaderState extends State<AdoptionSkeletonLoader>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(child: _buildPlaceholderBox(height: double.infinity, radius: 20)),
+              Expanded(
+                child: _buildPlaceholderBox(
+                  height: double.infinity,
+                  radius: 20,
+                ),
+              ),
               Padding(
                 padding: const EdgeInsets.all(12),
                 child: Column(

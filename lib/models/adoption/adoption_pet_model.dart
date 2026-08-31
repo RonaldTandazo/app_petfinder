@@ -31,7 +31,7 @@ class AdoptionPetModel {
       genderTag: json['gender_tag'] as String,
       age: json['age'] as String,
       isUrgent: json['is_urgent'] as bool,
-      picture: (json['picture'] ?? '') as String,
+      picture: json['picture'] as String,
     );
   }
 }

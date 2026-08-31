@@ -66,12 +66,12 @@ class PetDetailScreen extends StatelessWidget {
                       ? Image.network(
                           petData.picture!,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => AppImagePlaceholders.dark(
+                          errorBuilder: (_, __, ___) => AppImagePlaceholders.swipe(
                             icon: Icons.pets,
                             message: 'Sin imagen',
                           ),
                         )
-                      : AppImagePlaceholders.dark(
+                      : AppImagePlaceholders.swipe(
                           icon: Icons.pets,
                           message: 'Sin imagen',
                         ),

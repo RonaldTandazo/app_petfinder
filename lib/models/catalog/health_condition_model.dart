@@ -10,8 +10,8 @@ class HealthConditionModel extends CatalogItemModel {
   factory HealthConditionModel.fromJson(Map<String, dynamic> json) {
     return HealthConditionModel(
       id: json['id'] as int,
-      name: (json['name'] ?? '') as String,
-      tag: (json['tag'] ?? '') as String,
+      name: json['name'] as String,
+      tag: json['tag'] as String,
     );
   }
 }
