@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:app_petfinder/widgets/app_image_placeholders.dart';
+import 'package:app_petfinder/widgets/images/app_image_placeholders.dart';
 import 'package:app_petfinder/models/lost_pet/lost_pet_list_model.dart';
 
 class LostPetCard extends StatelessWidget {
@@ -27,13 +27,13 @@ class LostPetCard extends StatelessWidget {
 
     // Sublínea: Raza • Especie (o solo Especie)
     final String description = (lostPet.race != null && lostPet.race!.trim().isNotEmpty)
-        ? '${lostPet.species} • ${lostPet.race}'
-        : lostPet.species;
+      ? '${lostPet.species} • ${lostPet.race}'
+      : lostPet.species;
 
     // Ubicación: Dirección + Ciudad (o fallback a solo Ciudad)
     final String location = (lostPet.eventAddress != null && lostPet.eventAddress!.trim().isNotEmpty)
-        ? '${lostPet.eventAddress}, ${lostPet.city}'
-        : lostPet.city;
+      ? '${lostPet.eventAddress}, ${lostPet.city}'
+      : lostPet.city;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

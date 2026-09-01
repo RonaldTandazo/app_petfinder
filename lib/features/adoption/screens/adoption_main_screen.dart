@@ -2,10 +2,10 @@ import 'package:app_petfinder/core/router/pet/pet_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:app_petfinder/core/network/api_exception.dart';
 import 'package:app_petfinder/core/utils/api_error_handler.dart';
-import 'package:app_petfinder/widgets/app_empty_state.dart';
+import 'package:app_petfinder/widgets/state/app_empty_state.dart';
 import 'package:app_petfinder/models/adoption/adoption_pet_model.dart';
 import 'package:app_petfinder/features/adoption/widgets/adoption_search_bar.dart';
-import 'package:app_petfinder/features/adoption/widgets/adoption_skeleton_loader.dart';
+import 'package:app_petfinder/widgets/loaders/app_skeleton_loader.dart';
 import 'package:app_petfinder/features/adoption/widgets/pet_grid_view.dart';
 import 'package:app_petfinder/features/adoption/widgets/pet_swipe_view.dart';
 import 'package:app_petfinder/features/adoption/widgets/species_selector_chips.dart';
@@ -166,7 +166,7 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
           const SizedBox(height: 12),
           Expanded(
             child: _isLoadingPets
-                ? AdoptionSkeletonLoader(mode: _skeletonMode)
+                ? AppSkeletonLoader(mode: _skeletonMode)
                 : AnimatedSwitcher(
                     duration: const Duration(milliseconds: 300),
                     child: _currentViewMode == ViewMode.grid

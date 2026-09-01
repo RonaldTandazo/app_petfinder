@@ -4,10 +4,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
 import 'package:app_petfinder/models/storage/temp_file_model.dart';
 import 'package:app_petfinder/repository/file/file_repository.dart';
-import 'package:app_petfinder/widgets/app_add_image_tile.dart';
-import 'package:app_petfinder/widgets/app_image_tile.dart';
-import 'package:app_petfinder/widgets/app_image_picker_bottom_sheet.dart';
-import 'package:app_petfinder/widgets/app_snackbar.dart';
+import 'package:app_petfinder/widgets/images/app_add_image_tile.dart';
+import 'package:app_petfinder/widgets/images/app_image_tile.dart';
+import 'package:app_petfinder/widgets/images/app_image_picker_bottom_sheet.dart';
+import 'package:app_petfinder/widgets/snackbars/app_snackbar.dart';
 import 'package:app_petfinder/core/network/api_exception.dart';
 
 class AppImagePickerGrid extends StatefulWidget {

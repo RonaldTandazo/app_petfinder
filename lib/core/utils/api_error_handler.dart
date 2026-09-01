@@ -1,4 +1,4 @@
-import 'package:app_petfinder/widgets/app_snackbar.dart';
+import 'package:app_petfinder/widgets/snackbars/app_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:app_petfinder/core/network/api_exception.dart';
 

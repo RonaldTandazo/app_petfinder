@@ -2,21 +2,21 @@ import 'package:flutter/material.dart';
 
 enum SkeletonViewMode { grid, swipe, list }
 
-class AdoptionSkeletonLoader extends StatefulWidget {
+class AppSkeletonLoader extends StatefulWidget {
   final SkeletonViewMode mode;
   final int itemCount;
 
-  const AdoptionSkeletonLoader({
+  const AppSkeletonLoader({
     super.key,
     this.mode = SkeletonViewMode.grid,
     this.itemCount = 10,
   });
 
   @override
-  State<AdoptionSkeletonLoader> createState() => _AdoptionSkeletonLoaderState();
+  State<AppSkeletonLoader> createState() => _AppSkeletonLoaderState();
 }
 
-class _AdoptionSkeletonLoaderState extends State<AdoptionSkeletonLoader>
+class _AppSkeletonLoaderState extends State<AppSkeletonLoader>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;

@@ -4,19 +4,19 @@ import 'package:app_petfinder/models/storage/temp_file_model.dart';
 import 'package:app_petfinder/core/utils/api_error_handler.dart';
 import 'package:app_petfinder/core/utils/api_success_handler.dart';
 import 'package:app_petfinder/repository/pet/pet_repository.dart';
-import 'package:app_petfinder/widgets/app_loading_overlay.dart';
+import 'package:app_petfinder/widgets/loaders/app_loading_overlay.dart';
 import 'package:app_petfinder/core/network/api_exception.dart';
 import 'package:app_petfinder/models/catalog/animal_gender_model.dart';
 import 'package:app_petfinder/models/catalog/health_condition_model.dart';
 import 'package:app_petfinder/models/catalog/size_model.dart';
 import 'package:app_petfinder/models/catalog/species_model.dart';
 import 'package:app_petfinder/repository/catalog/catalog_repository.dart';
-import 'package:app_petfinder/widgets/app_datepicker.dart';
-import 'package:app_petfinder/widgets/app_snackbar.dart';
-import 'package:app_petfinder/widgets/app_image_picker_grid.dart';
+import 'package:app_petfinder/widgets/datepickers/app_datepicker.dart';
+import 'package:app_petfinder/widgets/snackbars/app_snackbar.dart';
+import 'package:app_petfinder/widgets/images/app_image_picker_grid.dart';
 import 'package:app_petfinder/features/pet/styles/pet_form_styles.dart';
 import 'package:app_petfinder/features/pet/widgets/health_status_card.dart';
-import 'package:app_petfinder/widgets/app_toggle_tile.dart';
+import 'package:app_petfinder/widgets/toggles/app_toggle_tile.dart';
 
 class PublishPetScreen extends StatefulWidget {
   const PublishPetScreen({super.key});

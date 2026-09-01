@@ -1,8 +1,8 @@
-import 'package:app_petfinder/widgets/app_badge.dart';
+import 'package:app_petfinder/widgets/badges/app_badge.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:app_petfinder/models/adoption/adoption_pet_model.dart';
-import 'package:app_petfinder/widgets/app_image_placeholders.dart';
+import 'package:app_petfinder/widgets/images/app_image_placeholders.dart';
 
 class PetDetailScreen extends StatelessWidget {
   final AdoptionPetModel? pet;
@@ -66,10 +66,12 @@ class PetDetailScreen extends StatelessWidget {
                       ? Image.network(
                           petData.picture!,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => AppImagePlaceholders.swipe(
-                            icon: Icons.pets,
-                            message: 'Sin imagen',
-                          ),
+                          errorBuilder: (context, error, stackTrace) {
+                            return AppImagePlaceholders.swipe(
+                              icon: Icons.broken_image_outlined,
+                              message: 'No se pudo obtener\nla imagen',
+                            );
+                          },
                         )
                       : AppImagePlaceholders.swipe(
                           icon: Icons.pets,

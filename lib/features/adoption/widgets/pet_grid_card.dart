@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:app_petfinder/models/adoption/adoption_pet_model.dart';
-import 'package:app_petfinder/widgets/app_badge.dart';
-import 'package:app_petfinder/widgets/app_image_placeholders.dart';
+import 'package:app_petfinder/widgets/badges/app_badge.dart';
+import 'package:app_petfinder/widgets/images/app_image_placeholders.dart';
 
 class PetGridCard extends StatelessWidget {
   final AdoptionPetModel pet;

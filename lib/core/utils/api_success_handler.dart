@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:app_petfinder/widgets/app_snackbar.dart';
+import 'package:app_petfinder/widgets/snackbars/app_snackbar.dart';
 
 class ApiSuccessHandler {
   static void handle(BuildContext context, { required String title, String? description }) {

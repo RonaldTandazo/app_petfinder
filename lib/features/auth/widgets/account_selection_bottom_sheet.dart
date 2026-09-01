@@ -8,7 +8,7 @@ class AccountSelectionBottomSheet {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => Container(
+      builder: (modalContext) => Container(
         padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -34,7 +34,7 @@ class AccountSelectionBottomSheet {
               ),
               title: const Text('Cuenta Personal (Tutor)'),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-              onTap: () => Navigator.pop(context, 'user'),
+              onTap: () => Navigator.pop(modalContext, 'user'),
             ),
             const Divider(),
             ListTile(
@@ -44,7 +44,7 @@ class AccountSelectionBottomSheet {
               ),
               title: const Text('Cuenta de Refugio'),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-              onTap: () => Navigator.pop(context, 'shelter'),
+              onTap: () => Navigator.pop(modalContext, 'shelter'),
             ),
             const SizedBox(height: 30),
           ],

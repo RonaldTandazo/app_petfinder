@@ -10,8 +10,8 @@ import 'package:app_petfinder/repository/lost_pet/lost_pet_repository.dart';
 import 'package:app_petfinder/models/lost_pet/lost_pet_list_model.dart';
 import 'package:app_petfinder/features/adoption/widgets/species_selector_chips.dart';
 import 'package:app_petfinder/features/lost_pet/widgets/lost_pet_card.dart';
-import 'package:app_petfinder/features/adoption/widgets/adoption_skeleton_loader.dart';
-import 'package:app_petfinder/widgets/app_empty_state.dart';
+import 'package:app_petfinder/widgets/loaders/app_skeleton_loader.dart';
+import 'package:app_petfinder/widgets/state/app_empty_state.dart';
 
 class LostPetHomeScreen extends StatefulWidget {
   const LostPetHomeScreen({super.key});
@@ -136,7 +136,7 @@ class _LostPetHomeScreenState extends State<LostPetHomeScreen> {
   }
 
   void _navigateToDetail(LostPetListModel lostPet) {
-    // context.push(PetRoutes.petDetail, extra: lostPet);
+    context.push(LostPetRoutes.lostPetDetail, extra: lostPet.id);
   }
 
   @override
@@ -183,7 +183,7 @@ class _LostPetHomeScreenState extends State<LostPetHomeScreen> {
 
           Expanded(
             child:  _isLoadingLostPets
-              ? AdoptionSkeletonLoader(mode: SkeletonViewMode.list) 
+              ? AppSkeletonLoader(mode: SkeletonViewMode.list) 
               : _filteredLostPets.isEmpty
               ? AppEmptyState(description: 'No hay reportes de mascotas perdidas')
               : ListView.builder(
