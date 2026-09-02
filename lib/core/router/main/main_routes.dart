@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:app_petfinder/features/account/screens/profile_screen.dart';
 import 'package:app_petfinder/features/layout/screens/main_layout_screen.dart';
 import 'package:app_petfinder/features/adoption/screens/adoption_main_screen.dart';
+import 'package:app_petfinder/features/community/screens/feed_screen.dart';
 import 'package:app_petfinder/features/lost_pet/screens/lost_pet_main_screen.dart';
 
 class MainRoutes {
@@ -28,11 +29,11 @@ class MainRoutes {
         ),
         GoRoute(
           path: community,
-          builder: (context, state) => const Center(child: Text('🌐 Comunidad')),
+          builder: (context, state) => const CommunityFeedScreen(),
         ),
         GoRoute(
           path: profile,
-          builder: (context, state) => const Center(child: Text('👤 Perfil')),
+          builder: (context, state) => const ProfileScreen(),
         ),
       ],
     );

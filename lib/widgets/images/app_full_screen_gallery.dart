@@ -6,6 +6,7 @@ class AppFullScreenGallery extends StatefulWidget {
   final int initialIndex;
 
   const AppFullScreenGallery({
+    super.key,
     required this.pictures,
     required this.initialIndex,
   });
@@ -52,8 +53,14 @@ class _AppFullScreenGalleryState extends State<AppFullScreenGallery> {
                   child: Image.network(
                     widget.pictures[index],
                     fit: BoxFit.contain,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return const Center(
+                        child: CircularProgressIndicator(color: Colors.white),
+                      );
+                    },
                     errorBuilder: (context, error, stackTrace) {
-                      return AppImagePlaceholders.card(
+                      return AppImagePlaceholders.swipe(
                         icon: Icons.broken_image_outlined,
                         message: 'No se pudo obtener\nla imagen',
                       );

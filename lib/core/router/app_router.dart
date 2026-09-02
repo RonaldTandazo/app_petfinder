@@ -1,3 +1,5 @@
+import 'package:app_petfinder/core/router/account/account_routes.dart';
+import 'package:app_petfinder/core/router/community/community_routes.dart';
 import 'package:app_petfinder/core/router/lost_pet/lost_pet_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -14,6 +16,8 @@ final appRouter = GoRouter(
     ...AuthRoutes.getRoutes(),
     MainRoutes.getRoutes(),
     ...PetRoutes.getRoutes(),
-    ...LostPetRoutes.getRoutes()
+    ...LostPetRoutes.getRoutes(),
+    ...CommunityRoutes.getRoutes(),
+    ...AccountRoutes.getRoutes(),
   ],
 );
