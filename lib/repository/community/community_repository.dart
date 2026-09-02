@@ -69,9 +69,21 @@ class CommunityRepository extends BaseRepository {
     return response;
   }
 
-  Future<ApiResponse<Map<String, dynamic>>> getComments(String postId, {int page = 1, int limit = 20}) async {
+  Future<ApiResponse<Map<String, dynamic>>> getComments(
+    String postId, {
+    int page = 1,
+    int limit = 20,
+    String? parentId,
+  }) async {
     final response = await safeCall<Map<String, dynamic>>(
-      () => api.get('$_prefix/posts/$postId/comments', queryParameters: {'page': page, 'limit': limit}),
+      () => api.get(
+        '$_prefix/posts/$postId/comments',
+        queryParameters: {
+          'page': page,
+          'limit': limit,
+          if (parentId != null && parentId.isNotEmpty) 'parent_id': parentId,
+        },
+      ),
       fromJson: (json) => json as Map<String, dynamic>,
     );
 

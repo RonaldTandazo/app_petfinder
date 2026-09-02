@@ -37,7 +37,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   final ScrollController _scrollController = ScrollController();
 
   PostModel? _post;
-  final List<CommunityCommentModel> _comments = [];
+  final Map<String?, _CommentBucket> _buckets = <String?, _CommentBucket>{};
   final Map<String, GlobalKey> _commentKeys = {};
   final Set<String> _expandedReplies = <String>{};
   CommunityCommentModel? _replyTo;
@@ -46,9 +46,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   bool _isLoadingPost = true;
   bool _isLoadingComments = true;
   bool _isLoadingMoreComments = false;
-  bool _hasMoreComments = false;
   final int _limit = 20;
-  int _commentsPage = 1;
+  static const Duration _repliesCacheDuration = Duration(minutes: 5);
+
+  bool get _hasMoreComments => _buckets[null]?.hasMore ?? false;
 
   @override
   void initState() {
@@ -145,18 +146,27 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     final postId = _post?.id;
     if (postId == null) return;
 
+    final bucket = _buckets.putIfAbsent(null, () => _CommentBucket());
+    if (bucket.isLoading) return;
+
     if (reset) {
       setState(() {
+        bucket
+          ..items.clear()
+          ..page = 1
+          ..hasMore = true
+          ..isLoading = true;
         _isLoadingComments = true;
-        _commentsPage = 1;
-        _comments.clear();
       });
     } else {
-      setState(() => _isLoadingMoreComments = true);
+      setState(() {
+        bucket.isLoading = true;
+        _isLoadingMoreComments = true;
+      });
     }
 
     try {
-      final response = await _communityRepository.getComments(postId, page: _commentsPage, limit: _limit);
+      final response = await _communityRepository.getComments(postId, page: bucket.page, limit: _limit);
       if (!mounted) return;
 
       final data = response.data;
@@ -165,15 +175,18 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       final paginated = Paginated<CommunityCommentModel>.fromJson(data, CommunityCommentModel.fromJson);
 
       setState(() {
-        _comments.addAll(paginated.items);
-        _hasMoreComments = paginated.hasMore;
-        if (_hasMoreComments) _commentsPage++;
+        bucket.items.addAll(paginated.items);
+        bucket.hasMore = paginated.hasMore;
+        if (bucket.hasMore) bucket.page++;
+        bucket.loadedAt = DateTime.now();
       });
     } on ApiException catch (e) {
+      if (!mounted) return;
       ApiErrorHandler.handle(context, e);
     } finally {
       if (mounted) {
         setState(() {
+          bucket.isLoading = false;
           _isLoadingComments = false;
           _isLoadingMoreComments = false;
         });
@@ -210,14 +223,13 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
             : null;
 
         setState(() {
-          _comments.add(newComment);
+          final bucket = replyTo == null
+              ? _buckets.putIfAbsent(null, () => _CommentBucket())
+              : _buckets.putIfAbsent(replyTo.id, () => _CommentBucket());
+          bucket.items.add(newComment);
 
           if (replyTo != null) {
-            final index = _comments.indexWhere((c) => c.id == replyTo.id);
-            if (index != -1) {
-              _comments[index] =
-                  _comments[index].copyWith(repliesCount: _comments[index].repliesCount + 1);
-            }
+            _incrementRepliesCount(replyTo.id);
           } else {
             _post = updatedPost;
           }
@@ -247,7 +259,11 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
             : null;
 
         setState(() {
-          _comments.add(
+          final bucket = replyTo == null
+              ? _buckets.putIfAbsent(null, () => _CommentBucket())
+              : _buckets.putIfAbsent(replyTo.id, () => _CommentBucket());
+
+          bucket.items.add(
             CommunityCommentModel(
               id: commentId,
               author: me,
@@ -264,11 +280,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
           );
 
           if (replyTo != null) {
-            final index = _comments.indexWhere((c) => c.id == replyTo.id);
-            if (index != -1) {
-              _comments[index] =
-                  _comments[index].copyWith(repliesCount: _comments[index].repliesCount + 1);
-            }
+            _incrementRepliesCount(replyTo.id);
           } else {
             _post = updatedPost;
           }
@@ -321,25 +333,118 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     setState(() => _replyTo = null);
   }
 
-  void _toggleReplies(String commentId) {
-    setState(() {
-      if (!_expandedReplies.add(commentId)) {
-        _expandedReplies.remove(commentId);
-      }
-    });
-  }
-
   void _expandRepliesFor(String commentId) {
     final chain = <String>{};
     String? current = commentId;
 
     while (current != null) {
       chain.add(current);
-      final index = _comments.indexWhere((c) => c.id == current);
-      current = index != -1 ? _comments[index].parentId : null;
+      current = _findComment(current)?.parentId;
     }
 
     _expandedReplies.addAll(chain);
+  }
+
+  CommunityCommentModel? _findComment(String commentId) {
+    for (final bucket in _buckets.values) {
+      for (final comment in bucket.items) {
+        if (comment.id == commentId) return comment;
+      }
+    }
+    return null;
+  }
+
+  void _incrementRepliesCount(String commentId) {
+    for (final bucket in _buckets.values) {
+      final index = bucket.items.indexWhere((c) => c.id == commentId);
+      if (index != -1) {
+        bucket.items[index] = bucket.items[index].copyWith(
+          repliesCount: bucket.items[index].repliesCount + 1,
+        );
+        return;
+      }
+    }
+  }
+
+  void _toggleReplies(String commentId) {
+    final comment = _findComment(commentId);
+    if (comment == null) return;
+
+    final isExpanded = _expandedReplies.contains(commentId);
+    if (isExpanded) {
+      setState(() => _expandedReplies.remove(commentId));
+      return;
+    }
+
+    final bucket = _buckets[commentId];
+    final isStale = bucket == null ||
+        bucket.items.isEmpty ||
+        DateTime.now().difference(bucket.loadedAt) > _repliesCacheDuration;
+
+    setState(() => _expandedReplies.add(commentId));
+    if (isStale) {
+      _loadReplies(comment, reset: true);
+    }
+  }
+
+  Future<void> _loadReplies(CommunityCommentModel parent, {bool reset = false}) async {
+    final postId = _post?.id;
+    if (postId == null) return;
+
+    final bucket = _buckets.putIfAbsent(parent.id, () => _CommentBucket());
+    if (bucket.isLoading) return;
+
+    setState(() {
+      if (reset) {
+        bucket
+          ..items.clear()
+          ..page = 1
+          ..hasMore = true;
+        _expandedReplies.add(parent.id);
+      }
+      bucket.isLoading = true;
+    });
+
+    try {
+      final response = await _communityRepository.getComments(
+        postId,
+        parentId: parent.id,
+        page: bucket.page,
+        limit: _limit,
+      );
+      if (!mounted) return;
+
+      final data = response.data;
+      if (data == null) return;
+
+      final paginated = Paginated<CommunityCommentModel>.fromJson(data, CommunityCommentModel.fromJson);
+
+      setState(() {
+        bucket.items.addAll(paginated.items);
+        bucket.hasMore = paginated.hasMore;
+        if (bucket.hasMore) bucket.page++;
+        bucket.loadedAt = DateTime.now();
+      });
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ApiErrorHandler.handle(context, e);
+    } finally {
+      if (mounted) {
+        setState(() => bucket.isLoading = false);
+      }
+    }
+  }
+
+  void _loadMoreReplies(CommunityCommentModel comment) {
+    final bucket = _buckets[comment.id];
+    if (bucket == null || bucket.isLoading || !bucket.hasMore) return;
+
+    final isStale = DateTime.now().difference(bucket.loadedAt) > _repliesCacheDuration;
+    if (isStale) {
+      _loadReplies(comment, reset: true);
+    } else {
+      _loadReplies(comment);
+    }
   }
 
   Future<void> _editComment(CommunityCommentModel comment) async {
@@ -381,12 +486,14 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       final response = await _communityRepository.updateComment(comment.id, newContent);
       if (!mounted) return;
 
-      final index = _comments.indexWhere((c) => c.id == comment.id);
-      if (index != -1) {
-        setState(() {
-          _comments[index] = comment.copyWith(content: newContent);
-        });
-      }
+      setState(() {
+        for (final bucket in _buckets.values) {
+          final index = bucket.items.indexWhere((c) => c.id == comment.id);
+          if (index != -1) {
+            bucket.items[index] = comment.copyWith(content: newContent);
+          }
+        }
+      });
 
       ApiSuccessHandler.handle(context, title: 'Comentario actualizado', description: response.message);
     } on ApiException catch (e) {
@@ -422,25 +529,28 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       if (!mounted) return;
 
       final removedIds = <String>{comment.id};
-      final cursor = <String>[comment.id];
+      final queue = <String>[comment.id];
 
-      while (cursor.isNotEmpty) {
-        final children = _comments
-            .where((c) => c.parentId != null && cursor.contains(c.parentId))
-            .map((c) => c.id)
-            .toList();
+      while (queue.isNotEmpty) {
+        final parentId = queue.removeLast();
+        final childrenBucket = _buckets.remove(parentId);
+        if (childrenBucket == null) continue;
 
-        removedIds.addAll(children);
-        cursor
-          ..clear()
-          ..addAll(children);
+        for (final child in childrenBucket.items) {
+          if (removedIds.add(child.id)) {
+            queue.add(child.id);
+          }
+        }
       }
 
       final newCount = (_post?.commentsCount ?? 0) - removedIds.length;
       final updatedPost = _post?.copyWith(commentsCount: newCount < 0 ? 0 : newCount);
 
       setState(() {
-        _comments.removeWhere((c) => removedIds.contains(c.id));
+        final parentBucket = comment.parentId == null
+            ? _buckets[null]
+            : _buckets[comment.parentId];
+        parentBucket?.items.removeWhere((c) => removedIds.contains(c.id));
         _expandedReplies.removeAll(removedIds);
 
         if (updatedPost != null) {
@@ -618,7 +728,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       ];
     }
 
-    if (_comments.isEmpty) {
+    if (_buckets[null]?.items.isNotEmpty != true) {
       return [
         const Padding(
           padding: EdgeInsets.symmetric(vertical: 24),
@@ -642,27 +752,19 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   }
 
   List<Widget> _buildCommentsTree() {
-    final childrenByParent = <String?, List<CommunityCommentModel>>{};
-
-    for (final comment in _comments) {
-      childrenByParent.putIfAbsent(comment.parentId, () => []).add(comment);
-    }
-
-    final roots = childrenByParent[null] ?? const <CommunityCommentModel>[];
+    final roots = _buckets[null]?.items ?? const <CommunityCommentModel>[];
 
     return [
-      for (final root in roots) _renderCommentNode(root, childrenByParent, 0),
+      for (final root in roots) _renderCommentNode(root, 0),
     ];
   }
 
-  Widget _renderCommentNode(
-    CommunityCommentModel comment,
-    Map<String?, List<CommunityCommentModel>> childrenByParent,
-    int depth,
-  ) {
+  Widget _renderCommentNode(CommunityCommentModel comment, int depth) {
     final canReply = depth < 2;
-    final replies = childrenByParent[comment.id] ?? const <CommunityCommentModel>[];
+    final bucket = _buckets[comment.id];
+    final replies = bucket?.items ?? const <CommunityCommentModel>[];
     final isExpanded = _expandedReplies.contains(comment.id);
+    final hasReplies = comment.repliesCount > 0 || replies.isNotEmpty;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -679,8 +781,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
             onDelete: () => _deleteComment(comment),
           ),
         ),
-        if (replies.isNotEmpty && !isExpanded) _buildRepliesToggle(comment),
-        if (replies.isNotEmpty && isExpanded) ...[
+        if (hasReplies && !isExpanded) _buildRepliesToggle(comment),
+        if (isExpanded) ...[
           Container(
             margin: const EdgeInsets.only(left: 12),
             padding: const EdgeInsets.only(left: 20, top: 4, bottom: 2),
@@ -692,8 +794,21 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                if (bucket?.isLoading == true && replies.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                    child: Center(
+                      child: SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.teal),
+                      ),
+                    ),
+                  ),
                 for (final child in replies)
-                  _renderCommentNode(child, childrenByParent, depth + 1),
+                  _renderCommentNode(child, depth + 1),
+                if (bucket?.hasMore == true && replies.isNotEmpty)
+                  _buildLoadMoreReplies(comment),
               ],
             ),
           ),
@@ -701,6 +816,16 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         ],
       ],
     );
+  }
+
+  String _buildRepliesToggleLabel(CommunityCommentModel comment, bool expanded) {
+    if (expanded) return 'Ocultar respuestas';
+
+    final count = comment.repliesCount;
+    if (count > 0) {
+      return 'Ver $count ${count == 1 ? 'respuesta' : 'respuestas'}';
+    }
+    return 'Ver respuestas';
   }
 
   Widget _buildRepliesToggle(CommunityCommentModel comment, {bool expanded = false}) {
@@ -721,7 +846,48 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
               ),
               const SizedBox(width: 4),
               Text(
-                expanded ? 'Ocultar respuestas' : 'Ver respuestas',
+                _buildRepliesToggleLabel(comment, expanded),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey.shade700,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoadMoreReplies(CommunityCommentModel comment) {
+    final bucket = _buckets[comment.id];
+    final isLoading = bucket?.isLoading ?? false;
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 12, top: 4),
+      child: InkWell(
+        onTap: isLoading ? null : () => _loadMoreReplies(comment),
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (isLoading)
+                const Padding(
+                  padding: EdgeInsets.only(right: 8),
+                  child: SizedBox(
+                    width: 14,
+                    height: 14,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.teal),
+                  ),
+                )
+              else
+                Icon(Icons.expand_more_rounded, size: 18, color: Colors.grey.shade600),
+              const SizedBox(width: 4),
+              Text(
+                'Ver más respuestas',
                 style: TextStyle(
                   fontSize: 12,
                   color: Colors.grey.shade700,
@@ -752,4 +918,12 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       ),
     );
   }
+}
+
+class _CommentBucket {
+  final List<CommunityCommentModel> items = <CommunityCommentModel>[];
+  int page = 1;
+  bool hasMore = true;
+  bool isLoading = false;
+  DateTime loadedAt = DateTime.now();
 }
