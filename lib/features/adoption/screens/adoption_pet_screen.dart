@@ -222,7 +222,7 @@ class _AdoptionPetScreenState extends State<AdoptionPetScreen> {
                     if (hasAddress) ...[
                       const SizedBox(height: 6),
                       Text(
-                        _adoptionPet!.address,
+                        '${_adoptionPet!.address}, ${_adoptionPet!.city}',
                         style: const TextStyle(fontSize: 14, color: Colors.black87, height: 1.4),
                       ),
                     ],
