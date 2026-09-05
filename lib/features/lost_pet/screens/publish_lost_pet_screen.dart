@@ -163,7 +163,7 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
         ? double.tryParse(_rewardAmountController.text.trim())
         : null,
       'city': _cityController.text.trim(),
-      'event_address': _eventAddressController.text.trim().isEmpty ? null : _eventAddressController.text.trim(),
+      'event_address': _eventAddressController.text.trim(),
       'latitude': _latitude,
       'longitude': _longitude,
       'event_date': _selectedEventDate?.toIso8601String(),
@@ -344,8 +344,9 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
 
                   TextFormField(
                     controller: _eventAddressController,
+                    validator: (val) => val == null || val.trim().isEmpty ? 'Ingresa la dirección' : null,
                     decoration: PetFormStyles.inputDecoration(
-                      'Dirección de referencia / Sector',
+                      'Dirección de referencia / Sector *',
                       Icons.place_rounded,
                     ),
                   ),

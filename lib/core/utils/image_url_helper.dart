@@ -9,6 +9,6 @@ class ImageUrlHelper {
     final uri = Uri.tryParse(url);
     if (uri == null || uri.host != 'host.docker.internal') return url;
 
-    return uri.replace(host: ApiClient.baseUrlHost).toString();
+    return uri.replace(host: ApiClient.baseHost).toString();
   }
 }

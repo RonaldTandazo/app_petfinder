@@ -1,17 +1,31 @@
 class SightReportModel {
   final int id;
-  final String dateText;
-  final String address;
+  final int tutorId;
+  final DateTime eventDate;
+  final String eventAddress;
+  final double? latitude;
+  final double? longitude;
   final String? comment;
-  final double latitude;
-  final double longitude;
 
   const SightReportModel({
     required this.id,
-    required this.dateText,
-    required this.address,
+    required this.tutorId,
+    required this.eventDate,
+    required this.eventAddress,
     this.comment,
-    required this.latitude,
-    required this.longitude,
+    this.latitude,
+    this.longitude,
   });
+
+  factory SightReportModel.fromJson(Map<String, dynamic> json) {
+    return SightReportModel(
+      id: json['id'] as int,
+      tutorId: json['tutor_id'] as int,
+      eventDate: json['event_date'] is DateTime ? json['event_date'] as DateTime : DateTime.parse(json['event_date'] as String),
+      eventAddress: json['event_address'] as String,
+      longitude: (json['longitude'] as num?)?.toDouble(),
+      latitude: (json['latitude'] as num?)?.toDouble(),
+      comment: (json['comment'] ?? '') as String,
+    );
+  }
 }

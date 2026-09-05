@@ -13,7 +13,7 @@ class LostPetListModel {
   final String? eventAddress;
   final double? latitude;
   final double? longitude;
-  final String eventDate;
+  final DateTime eventDate;
   final String reportStatusTag;
   final String reportStatus;
   final String picture;
@@ -47,7 +47,7 @@ class LostPetListModel {
       eventAddress: (json['event_address'] ?? '') as String,
       longitude: (json['longitude'] ?? 0.00) as double,
       latitude: (json['latitude'] ?? 0.00) as double,
-      eventDate: json['event_date'] as String,
+      eventDate: json['event_date'] is DateTime ? json['event_date'] as DateTime : DateTime.parse(json['event_date'] as String),
       reportStatusTag: json['report_status_tag'] as String,
       reportStatus: json['report_status'] as String,
       picture: json['picture'] as String

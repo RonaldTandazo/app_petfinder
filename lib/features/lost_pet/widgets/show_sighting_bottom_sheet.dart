@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:app_petfinder/models/lost_pet/sight_report_model.dart';
+import 'package:app_petfinder/core/utils/common_helpers.dart';
 
 class ShowSightingBottomSheet {
   static Future<void> show(BuildContext context, SightReportModel sight) {
@@ -19,12 +20,12 @@ class ShowSightingBottomSheet {
               children: [
                 const Icon(Icons.visibility, color: Colors.teal),
                 const SizedBox(width: 8),
-                Text('Avistamiento - ${sight.dateText}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                Text('Avistamiento - ${formatDate(sight.eventDate)}', style: const TextStyle(fontWeight: FontWeight.bold)),
               ],
             ),
             const Divider(),
-            Text('Dirección: ${sight.address}', style: const TextStyle(fontSize: 13)),
-            if (sight.comment != null) ...[
+            Text('Dirección: ${sight.eventAddress}', style: const TextStyle(fontSize: 13)),
+            if (sight.comment != null && sight.comment!.isNotEmpty) ...[
               const SizedBox(height: 6),
               Text('Comentario: ${sight.comment}', style: const TextStyle(fontSize: 13, color: Colors.black87)),
             ],

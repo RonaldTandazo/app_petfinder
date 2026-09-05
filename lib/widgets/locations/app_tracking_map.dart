@@ -26,6 +26,10 @@ class AppTrackingMap extends StatelessWidget {
     final double initialLat = mainLatitude ?? -2.1894;
     final double initialLng = mainLongitude ?? -79.8891;
 
+    final validSightings = sightings.where(
+      (sight) => sight.latitude != null && sight.longitude != null,
+    );
+
     return Container(
       height: 250,
       decoration: BoxDecoration(
@@ -54,10 +58,13 @@ class AppTrackingMap extends StatelessWidget {
                     height: 40,
                     child: const Icon(Icons.location_pin, color: Colors.red, size: 40),
                   ),
-                ...sightings.map((sight) {
+                ...validSightings.map((sight) {
                   final isSelected = selectedSightId == sight.id;
+                  final lat = sight.latitude!;
+                  final lng = sight.longitude!;
+
                   return Marker(
-                    point: LatLng(sight.latitude, sight.longitude),
+                    point: LatLng(lat, lng),
                     width: isSelected ? 48 : 36,
                     height: isSelected ? 48 : 36,
                     child: GestureDetector(

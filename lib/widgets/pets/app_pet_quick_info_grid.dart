@@ -29,9 +29,24 @@ class AppPetQuickInfoGrid extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.grey.shade200),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: items.map((item) => _buildTile(item)).toList(),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return Row(
+            children: [
+              for (int i = 0; i < items.length; i++) ...[
+                Expanded(
+                  child: _buildTile(items[i]),
+                ),
+                if (i < items.length - 1)
+                  Container(
+                    height: 45,
+                    width: 1,
+                    color: Colors.grey.shade200,
+                  ),
+              ],
+            ],
+          );
+        },
       ),
     );
   }
@@ -39,10 +54,33 @@ class AppPetQuickInfoGrid extends StatelessWidget {
   Widget _buildTile(QuickInfoItem item) {
     return Column(
       children: [
-        Icon(item.icon, size: 20, color: Colors.teal),
+        Icon(
+          item.icon,
+          size: 20,
+          color: Colors.teal
+        ),
         const SizedBox(height: 4),
-        Text(item.label, style: const TextStyle(fontSize: 11, color: Colors.grey)),
-        Text(item.value, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+        Text(
+          item.label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontSize: 11,
+            color: Colors.grey,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          item.value,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ],
     );
   }

@@ -1,3 +1,4 @@
+import 'package:app_petfinder/core/utils/common_helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:app_petfinder/widgets/images/app_image_placeholders.dart';
 import 'package:app_petfinder/models/lost_pet/lost_pet_list_model.dart';
@@ -144,7 +145,7 @@ class LostPetCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            lostPet.eventDate,
+                            formatDate(lostPet.eventDate),
                             style: const TextStyle(fontSize: 11, color: Colors.grey),
                           ),
                         ],

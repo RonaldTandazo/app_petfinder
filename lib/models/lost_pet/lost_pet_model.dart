@@ -24,7 +24,7 @@ class LostPetModel {
   final String? eventAddress;
   final double? latitude;
   final double? longitude;
-  final String eventDate;
+  final DateTime eventDate;
   final String reportStatusTag;
   final String reportStatus;
   final String? closingDate;
@@ -77,16 +77,16 @@ class LostPetModel {
       sizeTag: json['size_tag'] as String,
       size: json['size'] as String,
       hasReward: json['has_reward'] as bool,
-      rewardAmount: (json['reward_amount'] ?? 0.00) as double,
+      rewardAmount: (json['reward_amount'] ?? 0).toDouble(),
       city: json['city'] as String,
-      eventAddress: (json['event_address'] ?? '') as String,
-      longitude: json['longitude'] as double?,
-      latitude: json['latitude'] as double?,
-      eventDate: json['event_date'] as String,
+      eventAddress: json['event_address'] as String,
+      longitude: (json['longitude'] as num?)?.toDouble(),
+      latitude: (json['latitude'] as num?)?.toDouble(),
+      eventDate: json['event_date'] is DateTime ? json['event_date'] as DateTime : DateTime.parse(json['event_date'] as String),
       reportStatusTag: json['report_status_tag'] as String,
       reportStatus: json['report_status'] as String,
       closingDate: (json['closing_date'] ?? '') as String,
-      pictures: (json['pictures'] ?? []) as List<String>
+      pictures: List<String>.from(json['pictures'] ?? []),
     );
   }
 }

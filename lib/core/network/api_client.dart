@@ -5,16 +5,20 @@ import 'package:app_petfinder/core/router/app_router.dart';
 import 'package:app_petfinder/core/network/api_exception.dart';
 import 'package:app_petfinder/core/router/auth/auth_routes.dart';
 import 'package:app_petfinder/core/utils/token_storage_service.dart';
+import 'package:app_petfinder/core/utils/session_info.dart';
 
 class ApiClient {
   static final ApiClient _instance = ApiClient._internal();
+  
+  static final String baseUrl = 'http://192.168.100.61:8000/api';
+  
+  static String get baseHost => Uri.parse(baseUrl).host;
+  
   late final Dio dio;
 
   factory ApiClient() => _instance;
 
   ApiClient._internal() {
-    const String baseUrl = 'http://192.168.100.61:8000/api';
-
     dio = Dio(
       BaseOptions(
         baseUrl: baseUrl,
@@ -51,6 +55,7 @@ class ApiClient {
 
           if (statusCode == 401) {
             await TokenStorageService.deleteToken();
+            await SessionInfo.clearSession();
 
             final context = rootNavigatorKey.currentContext;
             if (context != null) {
