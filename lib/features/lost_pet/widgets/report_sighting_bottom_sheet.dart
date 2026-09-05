@@ -1,3 +1,7 @@
+import 'package:app_petfinder/core/utils/session_info.dart';
+import 'package:app_petfinder/models/storage/temp_file_model.dart';
+import 'package:app_petfinder/widgets/images/app_image_picker_grid.dart';
+import 'package:app_petfinder/widgets/snackbars/app_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:app_petfinder/widgets/datepickers/app_datepicker.dart';
@@ -26,10 +30,12 @@ class _ReportSightingBottomSheetState extends State<ReportSightingBottomSheet> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _commentController = TextEditingController();
+  final int? currentTutorId = SessionInfo.tutorId;
 
+  DateTime? _selectedEventDate;
   double? _latitude;
   double? _longitude;
-  DateTime? _selectedEventDate;
+  List<TempFileModel> _selectedImages = [];
 
   @override
   void dispose() {
@@ -69,6 +75,17 @@ class _ReportSightingBottomSheetState extends State<ReportSightingBottomSheet> {
                     'Registrar Avistamiento',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
+                ),
+                const SizedBox(height: 16),
+
+                AppImagePickerGrid(
+                  images: _selectedImages,
+                  enableMainSelection: false,
+                  onImagesChanged: (updatedList) {
+                    setState(() {
+                      _selectedImages = updatedList;
+                    });
+                  },
                 ),
                 const SizedBox(height: 16),
                 
@@ -195,12 +212,34 @@ class _ReportSightingBottomSheetState extends State<ReportSightingBottomSheet> {
                     ),
                     onPressed: () {
                       if (_formKey.currentState?.validate() ?? false) {
+                        final hasUploading = _selectedImages.any((img) => img.isUploading);
+                        if (hasUploading) {
+                          AppSnackBar.show(
+                            context,
+                            title: 'Imágenes subiendo',
+                            description: 'Por favor espera a que terminen de subirse las fotografías.',
+                            type: SnackBarType.warning,
+                          );
+                          return;
+                        }
+
+                        final photosPayload = _selectedImages.asMap().entries.map((entry) {
+                          final item = entry.value;
+                          
+                          return {
+                            'path_temp': item.key,
+                            'is_main':false,
+                          };
+                        }).toList();
+                        
                         final Map<String, dynamic> payload = {
+                          'tutor_id': currentTutorId,
                           'event_date': _selectedEventDate?.toIso8601String(),
                           'event_address': _addressController.text.trim(),
                           'latitude': _latitude != null ? double.parse(_latitude!.toStringAsFixed(8)) : null,
                           'longitude': _longitude != null ? double.parse(_longitude!.toStringAsFixed(8)) : null,
                           'comment': _commentController.text.trim().isEmpty ? null : _commentController.text.trim(),
+                          'photos': photosPayload,
                         };
                         
                         Navigator.pop(context, payload);

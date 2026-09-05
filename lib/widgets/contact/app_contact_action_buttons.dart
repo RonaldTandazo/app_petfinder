@@ -16,7 +16,7 @@ class AppContactActionButtons extends StatelessWidget {
     final bool hasPhoneMobile = phoneNumber != null && phoneNumber!.isNotEmpty;
     final bool hasPhoneHome = phoneHome != null && phoneHome!.isNotEmpty;
 
-    if (hasPhoneMobile && hasPhoneHome) {
+    if (!hasPhoneMobile && !hasPhoneHome) {
       return const SizedBox.shrink();
     }
 

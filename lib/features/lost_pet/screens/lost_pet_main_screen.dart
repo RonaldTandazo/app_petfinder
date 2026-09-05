@@ -185,7 +185,7 @@ class _LostPetHomeScreenState extends State<LostPetHomeScreen> {
             child:  _isLoadingLostPets
               ? AppSkeletonLoader(mode: SkeletonViewMode.list) 
               : _filteredLostPets.isEmpty
-              ? AppEmptyState(description: 'No hay reportes de mascotas perdidas')
+              ? AppEmptyState(icon: Icons.pets, description: 'No hay reportes de mascotas perdidas')
               : ListView.builder(
                   itemCount: _filteredLostPets.length,
                   itemBuilder: (context, index) {

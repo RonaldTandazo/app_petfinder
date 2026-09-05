@@ -6,6 +6,7 @@ class SightReportModel {
   final double? latitude;
   final double? longitude;
   final String? comment;
+  final List<String> pictures;
 
   const SightReportModel({
     required this.id,
@@ -15,6 +16,7 @@ class SightReportModel {
     this.comment,
     this.latitude,
     this.longitude,
+    required this.pictures
   });
 
   factory SightReportModel.fromJson(Map<String, dynamic> json) {
@@ -26,6 +28,7 @@ class SightReportModel {
       longitude: (json['longitude'] as num?)?.toDouble(),
       latitude: (json['latitude'] as num?)?.toDouble(),
       comment: (json['comment'] ?? '') as String,
+      pictures: List<String>.from(json['pictures'] ?? []),
     );
   }
 }

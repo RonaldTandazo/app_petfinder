@@ -1,5 +1,6 @@
 import 'package:app_petfinder/core/utils/common_helpers.dart';
 import 'package:app_petfinder/core/utils/session_info.dart';
+import 'package:app_petfinder/widgets/images/app_full_screen_gallery.dart';
 import 'package:flutter/material.dart';
 import 'package:app_petfinder/models/lost_pet/sight_report_model.dart';
 
@@ -17,21 +18,35 @@ class AppSightingsList extends StatelessWidget {
     required this.onSightingDeleted
   });
 
+  void _openFullScreenViewer(BuildContext context, List<String> pictures) {
+    showDialog(
+      context: context,
+      useSafeArea: false,
+      builder: (context) {
+        return AppFullScreenGallery(
+          pictures: pictures,
+          initialIndex: 0,
+        );
+      },
+    );
+  }
+
   void _confirmDelete(BuildContext context, SightReportModel sight) {
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (context) => AlertDialog(
         title: const Text('¿Eliminar avistamiento?'),
         content: const Text('Esta acción quitará el reporte de avistamiento.'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(ctx),
+            onPressed: () => Navigator.pop(context),
             child: const Text('Cancelar'),
           ),
           TextButton(
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             onPressed: () {
-              Navigator.pop(ctx);
+              Navigator.pop(context);
+
               onSightingDeleted(sight.id);
             },
             child: const Text('Eliminar'),
@@ -53,6 +68,8 @@ class AppSightingsList extends StatelessWidget {
         final SightReportModel sight = sightings[index];
         
         final bool hasCoordinates = sight.latitude != null && sight.longitude != null;
+
+        final bool hasPictures = sight.pictures.isNotEmpty;
         
         final bool isSelected = selectedSightId == sight.id;
 
@@ -91,17 +108,36 @@ class AppSightingsList extends StatelessWidget {
            trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Icono para enfocar/seleccionar en mapa
+                if (hasPictures)
+                  IconButton(
+                    icon: Badge(
+                      label: Text('${sight.pictures.length}'),
+                      isLabelVisible: sight.pictures.length > 1,
+                      backgroundColor: Colors.teal,
+                      child: const Icon(
+                        Icons.photo_library_outlined,
+                        size: 20,
+                        color: Colors.teal,
+                      ),
+                    ),
+                    tooltip: 'Ver fotos',
+                    onPressed: () => _openFullScreenViewer(context, sight.pictures),
+                    constraints: const BoxConstraints(),
+                    padding: const EdgeInsets.all(8),
+                  ),
+
                 IconButton(
                   icon: const Icon(Icons.my_location, size: 18, color: Colors.teal),
+                  tooltip: 'Ver en mapa',
                   onPressed: () => onSightingSelected(sight),
                   constraints: const BoxConstraints(),
                   padding: const EdgeInsets.all(8),
                 ),
-                // Botón de eliminar visible ÚNICAMENTE si es el creador del reporte
+
                 if (isOwner)
                   IconButton(
                     icon: const Icon(Icons.delete_outline, size: 18, color: Colors.redAccent),
+                    tooltip: 'Eliminar reporte',
                     onPressed: () => _confirmDelete(context, sight),
                     constraints: const BoxConstraints(),
                     padding: const EdgeInsets.all(8),

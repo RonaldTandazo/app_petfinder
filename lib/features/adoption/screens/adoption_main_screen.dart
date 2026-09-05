@@ -173,7 +173,7 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
                       ? PetGridView(
                           pets: _filteredPets,
                           onTap: _navigateToDetail,
-                          emptyStateWidget: const AppEmptyState(description: 'No hay mascotas en adopción'),
+                          emptyStateWidget: const AppEmptyState(icon: Icons.pets, description: 'No hay mascotas en adopción'),
                         )
                       : _currentViewMode == ViewMode.swipe
                         ? PetSwipeView(
@@ -186,12 +186,12 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
                                 _loadAdoptionPets();
                               }
                             },
-                            emptyStateWidget: const AppEmptyState(description: 'No hay mascotas en adopción'),
+                            emptyStateWidget: const AppEmptyState(icon: Icons.pets, description: 'No hay mascotas en adopción'),
                           )
-                        : PetGridView( // Nota: Reemplazar por PetListView cuando esté construido
+                        : PetGridView(
                             pets: _filteredPets,
                             onTap: _navigateToDetail,
-                            emptyStateWidget: const AppEmptyState(description: 'No hay mascotas en adopción'),
+                            emptyStateWidget: const AppEmptyState(icon: Icons.pets, description: 'No hay mascotas en adopción'),
                           ),
                   ),
           ),

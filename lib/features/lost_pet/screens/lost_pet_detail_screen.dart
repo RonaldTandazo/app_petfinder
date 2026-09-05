@@ -20,6 +20,7 @@ import 'package:app_petfinder/widgets/pets/app_pet_quick_info_grid.dart';
 import 'package:app_petfinder/widgets/sightings/app_sightings_list.dart';
 import 'package:app_petfinder/widgets/snackbars/app_snackbar.dart';
 import 'package:app_petfinder/widgets/loaders/app_loading_overlay.dart';
+import 'package:app_petfinder/widgets/state/app_empty_state.dart';
 
 class LostPetDetailScreen extends StatefulWidget {
   final int lostPetId;
@@ -159,14 +160,11 @@ class _LostPetDetailScreenState extends State<LostPetDetailScreen> {
       final data = response.data;
 
       setState(() {
-        if (data != null && data['lost_pet_event_id'] != null) {
-          payload['id'] = data['lost_pet_event_id'];
-
-          final SightReportModel newSighting = SightReportModel.fromJson(payload);
+        if (data != null && data['new_event'] != null && data['new_event'] is Map<String, dynamic>) {
+          final SightReportModel newSighting = SightReportModel.fromJson(data['new_event']);
           
           setState(() {
             _sightings.add(newSighting);
-
             _sightings.sort((a, b) => b.eventDate.compareTo(a.eventDate));
           });
         }
@@ -289,21 +287,27 @@ class _LostPetDetailScreenState extends State<LostPetDetailScreen> {
                   const SizedBox(height: 24),
 
                   // Avistamientos
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Avistamientos',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        '${_sightings.length} reportes',
+                        style: const TextStyle(color: Colors.grey, fontSize: 13),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  
                   if (_sightings.isNotEmpty) ...[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Ruta de Avistamientos',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          '${_sightings.length} reportes',
-                          style: const TextStyle(color: Colors.grey, fontSize: 13),
-                        ),
-                      ],
+                    const Text(
+                      'Ruta en Mapa',
+                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 8),
                     AppTrackingMap(
                       mainLatitude: _lostPet!.latitude,
                       mainLongitude: _lostPet!.longitude,
@@ -329,6 +333,11 @@ class _LostPetDetailScreenState extends State<LostPetDetailScreen> {
                       onSightingSelected: _handleSightingSelected,
                       onSightingDeleted: (sightId) => _deleteEvent(sightId) 
                     ),
+                  ]else...[
+                    AppEmptyState(
+                      icon: Icons.location_off_outlined,
+                      description: 'No hay avistamientos registrados'
+                    )
                   ],
                   const SizedBox(height: 80),
                 ],
