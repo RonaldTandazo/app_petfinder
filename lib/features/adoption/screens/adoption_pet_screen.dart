@@ -3,7 +3,6 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:app_petfinder/models/adoption/adoption_pet_model.dart';
 import 'package:app_petfinder/core/network/api_exception.dart';
 import 'package:app_petfinder/core/utils/api_error_handler.dart';
-import 'package:app_petfinder/core/utils/common_helpers.dart';
 import 'package:app_petfinder/features/lost_pet/widgets/lost_pet_detail_skeleton.dart';
 import 'package:app_petfinder/repository/adoption/adoption_repository.dart';
 import 'package:app_petfinder/widgets/images/app_bar_image_carousel.dart';
