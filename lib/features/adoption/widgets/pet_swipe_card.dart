@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:app_petfinder/models/adoption/adoption_pet_model.dart';
+import 'package:app_petfinder/models/adoption/adoption_pet_list_model.dart';
 import 'package:app_petfinder/widgets/badges/app_badge.dart';
 import 'package:app_petfinder/widgets/images/app_image_placeholders.dart';
 
 class PetSwipeCard extends StatelessWidget {
-  final AdoptionPetModel pet;
+  final AdoptionPetListModel pet;
   final DismissDirectionCallback onDismissed;
   final VoidCallback? onTap;
+  final String? distance;
 
   const PetSwipeCard({
     super.key,
     required this.pet,
     required this.onDismissed,
     this.onTap,
+    this.distance,
   });
 
   @override
@@ -105,25 +107,52 @@ class PetSwipeCard extends StatelessWidget {
                   bottom: 24,
                   left: 20,
                   right: 20,
-                  child: Row(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Expanded(
-                        child: Text(
-                          '${pet.name}, ${pet.age}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 26,
-                            fontWeight: FontWeight.bold,
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              '${pet.name}, ${pet.age}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 26,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-                          overflow: TextOverflow.ellipsis,
+                          const SizedBox(width: 8),
+                          Icon(
+                            isMale ? Icons.male : Icons.female,
+                            color: Colors.white,
+                            size: 28,
+                          ),
+                        ],
+                      ),
+                      if (distance != null) ...[
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.location_on_outlined,
+                              size: 16,
+                              color: Colors.tealAccent,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '$distance de ti',
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      Icon(
-                        isMale ? Icons.male : Icons.female,
-                        color: Colors.white,
-                        size: 28,
-                      ),
+                      ],
                     ],
                   ),
                 ),

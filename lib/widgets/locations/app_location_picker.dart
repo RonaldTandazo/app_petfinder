@@ -1,3 +1,4 @@
+import 'package:app_petfinder/core/utils/common_helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -71,6 +72,13 @@ class _AppLocationPickerState extends State<AppLocationPicker> {
     setState(() => _isLocating = false);
   }
 
+  LatLng _formatLatLng(LatLng point) {
+    return LatLng(
+      truncateDecimals(point.latitude, 8),
+      truncateDecimals(point.longitude, 8),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -78,7 +86,12 @@ class _AppLocationPickerState extends State<AppLocationPicker> {
         title: const Text('Mueve el mapa para fijar el punto', style: TextStyle(fontSize: 16)),
         actions: [
           TextButton(
-            onPressed: _isInitializing ? null : () => Navigator.pop(context, _selectedLatLng),
+            onPressed: _isInitializing
+              ? null 
+              : () {
+                final LatLng result = _formatLatLng(_selectedLatLng);
+                Navigator.pop(context, result);
+              },
             child: const Text('Confirmar', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
           ),
         ],

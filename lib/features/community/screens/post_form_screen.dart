@@ -5,7 +5,7 @@ import 'package:app_petfinder/core/network/api_exception.dart';
 import 'package:app_petfinder/core/utils/api_error_handler.dart';
 import 'package:app_petfinder/core/utils/api_success_handler.dart';
 import 'package:app_petfinder/core/utils/image_url_helper.dart';
-import 'package:app_petfinder/features/pet/styles/pet_form_styles.dart';
+import 'package:app_petfinder/features/adoption/styles/pet_form_styles.dart';
 import 'package:app_petfinder/models/catalog/news_type_model.dart';
 import 'package:app_petfinder/models/community/post_model.dart';
 import 'package:app_petfinder/models/community/post_image_model.dart';

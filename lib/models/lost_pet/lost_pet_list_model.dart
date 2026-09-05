@@ -8,7 +8,7 @@ class LostPetListModel {
   final String? race;
   final int speciesId;
   final String species;
-  final String animalGenderTag;
+  final String genderTag;
   final String city;
   final String? eventAddress;
   final double? latitude;
@@ -24,7 +24,7 @@ class LostPetListModel {
     this.race,
     required this.speciesId,
     required this.species,
-    required this.animalGenderTag,
+    required this.genderTag,
     required this.city,
     this.eventAddress,
     this.latitude,
@@ -42,11 +42,11 @@ class LostPetListModel {
       race: (json['race'] ?? '') as String,
       speciesId: json['species_id'] as int,
       species: json['species'] as String,
-      animalGenderTag: json['gender_tag'] as String,
+      genderTag: json['gender_tag'] as String,
       city: json['city'] as String,
       eventAddress: (json['event_address'] ?? '') as String,
-      longitude: (json['longitude'] ?? 0.00) as double,
-      latitude: (json['latitude'] ?? 0.00) as double,
+      longitude: (json['longitude'] as num?)?.toDouble(),
+      latitude: (json['latitude'] as num?)?.toDouble(),
       eventDate: json['event_date'] is DateTime ? json['event_date'] as DateTime : DateTime.parse(json['event_date'] as String),
       reportStatusTag: json['report_status_tag'] as String,
       reportStatus: json['report_status'] as String,

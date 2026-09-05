@@ -17,3 +17,7 @@ String formatDate(Object? date) {
 
   return DateFormat('dd MMM. yyyy', 'es').format(parsedDate);
 }
+
+double truncateDecimals(double value, int decimals) {
+  return double.parse(value.toStringAsFixed(decimals));
+}

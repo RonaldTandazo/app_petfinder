@@ -5,11 +5,12 @@ class AppPetHeaderInfo extends StatelessWidget {
   final String species;
   final String? race;
   final String size;
-  final String animalGenderTag;
+  final String genderTag;
   final String? reportStatus;
   final String? reportStatusTag;
   final bool hasReward;
   final double? rewardAmount;
+  final bool isUrgent;
 
   const AppPetHeaderInfo({
     super.key,
@@ -17,16 +18,19 @@ class AppPetHeaderInfo extends StatelessWidget {
     required this.species,
     this.race,
     required this.size,
-    required this.animalGenderTag,
+    required this.genderTag,
     this.reportStatus,
     this.reportStatusTag,
     this.hasReward = false,
     this.rewardAmount,
+    this.isUrgent = false,
   });
+
+  bool get _hasStatus => reportStatus != null && reportStatusTag != null && reportStatus!.isNotEmpty && reportStatusTag!.isNotEmpty;
 
   @override
   Widget build(BuildContext context) {
-    final bool isMale = animalGenderTag == 'MALE';
+    final bool isMale = genderTag == 'MALE';
     final bool showReward = hasReward && (rewardAmount ?? 0) > 0;
 
     final String quickInfoText = race != null && race!.isNotEmpty
@@ -36,24 +40,29 @@ class AppPetHeaderInfo extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final bool isSmallScreen = constraints.maxWidth < 500;
+        final bool showTopSection = _hasStatus || isUrgent || showReward;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Estado + recompensa
-            if (reportStatus != null || reportStatusTag != null || showReward)
+            if (showTopSection)
               if (isSmallScreen)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (_hasStatus)
-                      _buildStatusChip(),
-
-                    if (_hasStatus && showReward)
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        if (_hasStatus) _buildStatusChip(),
+                        if (isUrgent) _buildUrgentChip(),
+                      ],
+                    ),
+                    if ((_hasStatus || isUrgent) && showReward)
                       const SizedBox(height: 8),
-
-                    if (showReward)
-                      _buildReward(),
+                    if (showReward) _buildReward(),
                   ],
                 )
               else
@@ -61,16 +70,20 @@ class AppPetHeaderInfo extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (_hasStatus)
-                      _buildStatusChip()
-                    else
-                      const SizedBox.shrink(),
-
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        if (_hasStatus) _buildStatusChip(),
+                        if (isUrgent) _buildUrgentChip(),
+                      ],
+                    ),
                     if (showReward) _buildReward(),
                   ],
                 ),
 
-            const SizedBox(height: 8),
+            if (showTopSection) const SizedBox(height: 8),
 
             // Nombre + género
             Row(
@@ -114,8 +127,6 @@ class AppPetHeaderInfo extends StatelessWidget {
     );
   }
 
-  bool get _hasStatus => reportStatus != null && reportStatusTag != null && reportStatus!.isNotEmpty && reportStatusTag!.isNotEmpty;
-
   Widget _buildStatusChip() {
     return Chip(
       label: Text(
@@ -126,11 +137,29 @@ class AppPetHeaderInfo extends StatelessWidget {
           fontSize: 11,
         ),
       ),
-      backgroundColor:
-          reportStatusTag == 'ACTIVE'
-              ? Colors.redAccent
-              : Colors.teal,
+      backgroundColor: reportStatusTag == 'ACTIVE' ? Colors.redAccent : Colors.teal,
       visualDensity: VisualDensity.compact,
+    );
+  }
+
+  Widget _buildUrgentChip() {
+    return Chip(
+      avatar: const Icon(
+        Icons.warning_amber_rounded,
+        color: Colors.white,
+        size: 16,
+      ),
+      label: const Text(
+        'URGENTE',
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 11,
+        ),
+      ),
+      backgroundColor: Colors.deepOrangeAccent,
+      visualDensity: VisualDensity.compact,
+      padding: EdgeInsets.zero,
     );
   }
 

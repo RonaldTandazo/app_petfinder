@@ -14,14 +14,14 @@ class LostPetModel {
   final String reportType;
   final String speciesTag;
   final String species;
-  final String animalGenderTag;
-  final String animalGender;
+  final String genderTag;
+  final String gender;
   final String sizeTag;
   final String size;
   final bool hasReward;
   final double? rewardAmount;
   final String city;
-  final String? eventAddress;
+  final String eventAddress;
   final double? latitude;
   final double? longitude;
   final DateTime eventDate;
@@ -42,14 +42,14 @@ class LostPetModel {
     required this.reportType,
     required this.speciesTag,
     required this.species,
-    required this.animalGenderTag,
-    required this.animalGender,
+    required this.genderTag,
+    required this.gender,
     required this.sizeTag,
     required this.size,
     required this.hasReward,
     this.rewardAmount,
     required this.city,
-    this.eventAddress,
+    required this.eventAddress,
     this.latitude,
     this.longitude,
     required this.eventDate,
@@ -72,8 +72,8 @@ class LostPetModel {
       reportType: json['report_type'] as String,
       speciesTag: json['species_tag'] as String,
       species: json['species'] as String,
-      animalGenderTag: json['gender_tag'] as String,
-      animalGender: json['gender'] as String,
+      genderTag: json['gender_tag'] as String,
+      gender: json['gender'] as String,
       sizeTag: json['size_tag'] as String,
       size: json['size'] as String,
       hasReward: json['has_reward'] as bool,

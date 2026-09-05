@@ -2,7 +2,7 @@ import 'package:app_petfinder/core/network/api_exception.dart';
 import 'package:app_petfinder/core/router/account/account_routes.dart';
 import 'package:app_petfinder/core/utils/api_error_handler.dart';
 import 'package:app_petfinder/core/utils/api_success_handler.dart';
-import 'package:app_petfinder/features/pet/styles/pet_form_styles.dart';
+import 'package:app_petfinder/features/adoption/styles/pet_form_styles.dart';
 import 'package:app_petfinder/models/account/account_profile.dart';
 import 'package:app_petfinder/models/catalog/country_summary_model.dart';
 import 'package:app_petfinder/models/catalog/gender_summary_model.dart';

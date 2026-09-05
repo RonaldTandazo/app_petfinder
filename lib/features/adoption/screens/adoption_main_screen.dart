@@ -1,16 +1,18 @@
-import 'package:app_petfinder/core/router/pet/pet_routes.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:app_petfinder/core/router/adoption/adoption_routes.dart';
+import 'package:app_petfinder/core/services/location_service.dart';
 import 'package:app_petfinder/core/network/api_exception.dart';
 import 'package:app_petfinder/core/utils/api_error_handler.dart';
 import 'package:app_petfinder/widgets/state/app_empty_state.dart';
-import 'package:app_petfinder/models/adoption/adoption_pet_model.dart';
+import 'package:app_petfinder/models/adoption/adoption_pet_list_model.dart';
 import 'package:app_petfinder/features/adoption/widgets/adoption_search_bar.dart';
 import 'package:app_petfinder/widgets/loaders/app_skeleton_loader.dart';
 import 'package:app_petfinder/features/adoption/widgets/pet_grid_view.dart';
 import 'package:app_petfinder/features/adoption/widgets/pet_swipe_view.dart';
 import 'package:app_petfinder/features/adoption/widgets/species_selector_chips.dart';
 import 'package:app_petfinder/repository/adoption/adoption_repository.dart';
-import 'package:go_router/go_router.dart';
 
 enum ViewMode { grid, swipe }
 
@@ -27,18 +29,19 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
 
   ViewMode _currentViewMode = ViewMode.grid;
   String _selectedCategory = 'Todos';
+  LatLng? _userLocation;
   
-  final List<AdoptionPetModel> _pets = [];
+  final List<AdoptionPetListModel> _pets = [];
   
   bool _isLoadingPets = true;
-  bool _isLoadingMore = true;
+  bool _isLoadingMore = false;
   bool _hasMore = false;
   final int _limit = 20;
   int _page = 1;
 
   final List<String> _categories = ['Todos', 'Perros', 'Gatos', 'Otros'];
 
-  List<AdoptionPetModel> get _filteredPets {
+  List<AdoptionPetListModel> get _filteredPets {
     if (_selectedCategory == 'Todos') return _pets;
     return _pets.where((p) => p.species == _selectedCategory).toList();
   }
@@ -55,6 +58,7 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
   @override
   void initState() {
     super.initState();
+    _getUserLocation();
     _loadAdoptionPets(reset: true);
     _scrollController.addListener(_onScroll);
   }
@@ -104,7 +108,7 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
         final List newPetsJson = data['pets'];
 
         final newPets = newPetsJson
-            .map((e) => AdoptionPetModel.fromJson(e as Map<String, dynamic>))
+            .map((e) => AdoptionPetListModel.fromJson(e as Map<String, dynamic>))
             .toList();
 
         setState(() {
@@ -125,8 +129,8 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
     }
   }
 
-  void _navigateToDetail(AdoptionPetModel pet) {
-    context.push(PetRoutes.petDetail, extra: pet);
+  void _navigateToDetail(AdoptionPetListModel pet) {
+    context.push(AdoptionRoutes.adoptionPet, extra: pet.id);
   }
 
   IconData _getToggleIcon() {
@@ -142,6 +146,25 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
     setState(() {
       _currentViewMode = _currentViewMode == ViewMode.grid ? ViewMode.swipe : ViewMode.grid;
     });
+  }
+
+  Future<void> _getUserLocation() async {
+    final location = await LocationService.getCurrentLocation();
+    if (mounted) {
+      setState(() => _userLocation = location);
+    }
+  }
+
+  String? _getDistanceForPet(AdoptionPetListModel pet) {
+    if (_userLocation == null || pet.latitude == null || pet.longitude == null) {
+      return null;
+    }
+
+    return LocationService.calculateFormattedDistance(
+      userLocation: _userLocation!,
+      targetLat: pet.latitude!,
+      targetLng: pet.longitude!,
+    );
   }
 
   @override
@@ -167,32 +190,53 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
           Expanded(
             child: _isLoadingPets
                 ? AppSkeletonLoader(mode: _skeletonMode)
-                : AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 300),
-                    child: _currentViewMode == ViewMode.grid
-                      ? PetGridView(
-                          pets: _filteredPets,
-                          onTap: _navigateToDetail,
-                          emptyStateWidget: const AppEmptyState(icon: Icons.pets, description: 'No hay mascotas en adopción'),
-                        )
-                      : _currentViewMode == ViewMode.swipe
-                        ? PetSwipeView(
+                : RefreshIndicator(
+                    color: Colors.teal,
+                    backgroundColor: Colors.white,
+                    onRefresh: () async {
+                      await _loadAdoptionPets(reset: true);
+                    },
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      child: _currentViewMode == ViewMode.grid
+                        ? PetGridView(
+                            controller: _scrollController,
                             pets: _filteredPets,
+                            isLoadingMore: _isLoadingMore,
+                            getDistance: _getDistanceForPet,
                             onTap: _navigateToDetail,
-                            onDismissed: (index) {
-                              setState(() => _pets.removeAt(index));
-
-                              if (_pets.length <= 3 && _hasMore && !_isLoadingMore) {
-                                _loadAdoptionPets();
-                              }
-                            },
-                            emptyStateWidget: const AppEmptyState(icon: Icons.pets, description: 'No hay mascotas en adopción'),
+                            emptyStateWidget: const AppEmptyState(
+                              icon: Icons.pets,
+                              description: 'No hay mascotas en adopción'
+                            ),
                           )
-                        : PetGridView(
-                            pets: _filteredPets,
-                            onTap: _navigateToDetail,
-                            emptyStateWidget: const AppEmptyState(icon: Icons.pets, description: 'No hay mascotas en adopción'),
+                        : LayoutBuilder(
+                            builder: (context, constraints) {
+                              return SingleChildScrollView(
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                child: SizedBox(
+                                  height: constraints.maxHeight,
+                                  child: PetSwipeView(
+                                    pets: _filteredPets,
+                                    getDistance: _getDistanceForPet,
+                                    onTap: _navigateToDetail,
+                                    onDismissed: (index) {
+                                      setState(() => _pets.removeAt(index));
+
+                                      if (_pets.length <= 3 && _hasMore && !_isLoadingMore) {
+                                        _loadAdoptionPets();
+                                      }
+                                    },
+                                    emptyStateWidget: const AppEmptyState(
+                                      icon: Icons.pets,
+                                      description: 'No hay mascotas en adopción',
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
                           ),
+                    ),
                   ),
           ),
         ],

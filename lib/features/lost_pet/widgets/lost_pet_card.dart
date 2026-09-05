@@ -23,8 +23,8 @@ class LostPetCard extends StatelessWidget {
     final String badgeText = lostPet.reportStatus;
     
     // Identificación de género
-    final bool isMale = lostPet.animalGenderTag == 'MALE';
-    final bool hasGender = lostPet.animalGenderTag.isNotEmpty;
+    final bool isMale = lostPet.genderTag == 'MALE';
+    final bool hasGender = lostPet.genderTag.isNotEmpty;
 
     // Sublínea: Raza • Especie (o solo Especie)
     final String description = (lostPet.race != null && lostPet.race!.trim().isNotEmpty)
@@ -186,13 +186,23 @@ class LostPetCard extends StatelessWidget {
                                 color: Colors.teal.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(4),
                               ),
-                              child: Text(
-                                distance!,
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  color: Colors.teal,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.location_on_outlined,
+                                    size: 12,
+                                    color: Colors.teal.shade600,
+                                  ),
+                                  const SizedBox(width: 2),
+                                  Text(
+                                    distance!,
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.teal.shade700,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],

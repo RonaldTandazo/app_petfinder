@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:app_petfinder/core/router/pet/pet_routes.dart';
+import 'package:app_petfinder/core/router/adoption/adoption_routes.dart';
 import 'package:app_petfinder/core/router/lost_pet/lost_pet_routes.dart';
 
 class QuickActionBottomSheet {
@@ -41,7 +41,7 @@ class QuickActionBottomSheet {
               onTap: () {
                 Navigator.of(modalContext).pop();
                 
-                context.push(PetRoutes.publish);
+                context.push(AdoptionRoutes.publish);
               },
             ),
             const Divider(),

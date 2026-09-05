@@ -1,6 +1,6 @@
 import 'package:go_router/go_router.dart';
 import 'package:app_petfinder/features/lost_pet/screens/publish_lost_pet_screen.dart';
-import 'package:app_petfinder/features/lost_pet/screens/lost_pet_detail_screen.dart';
+import 'package:app_petfinder/features/lost_pet/screens/lost_pet_screen.dart';
 
 class LostPetRoutes {
   static const String prefix = '/lost-pet';
@@ -18,7 +18,7 @@ class LostPetRoutes {
         path: lostPetDetail,
         builder: (context, state) {
           final int lostPetId = state.extra as int;
-          return LostPetDetailScreen(lostPetId: lostPetId);
+          return LostPetScreen(lostPetId: lostPetId);
         },
       ),
     ];

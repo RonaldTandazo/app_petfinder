@@ -1,12 +1,13 @@
 import 'package:app_petfinder/core/utils/session_info.dart';
 import 'package:app_petfinder/models/storage/temp_file_model.dart';
 import 'package:app_petfinder/widgets/images/app_image_picker_grid.dart';
+import 'package:app_petfinder/widgets/locations/app_location_picket_tile.dart';
 import 'package:app_petfinder/widgets/snackbars/app_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:app_petfinder/widgets/datepickers/app_datepicker.dart';
 import 'package:app_petfinder/widgets/locations/app_location_picker.dart';
-import 'package:app_petfinder/features/pet/styles/pet_form_styles.dart';
+import 'package:app_petfinder/features/adoption/styles/pet_form_styles.dart';
 
 class ReportSightingBottomSheet extends StatefulWidget {
   const ReportSightingBottomSheet({super.key});
@@ -121,72 +122,19 @@ class _ReportSightingBottomSheetState extends State<ReportSightingBottomSheet> {
                 ),
                 const SizedBox(height: 12),
 
-                // 3. Botón para seleccionar ubicación exacta en el mapa
-                InkWell(
-                  onTap: () async {
-                    final LatLng? result = await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => AppLocationPicker(
-                          initialPosition: (_latitude != null && _longitude != null)
-                              ? LatLng(_latitude!, _longitude!)
-                              : null,
-                        ),
-                      ),
-                    );
-
-                    if (result != null) {
-                      setState(() {
-                        _latitude = result.latitude;
-                        _longitude = result.longitude;
-                      });
-                    }
+                // 3. Selección de avistamiento en el mapa
+                AppLocationPickerTile(
+                  latitude: _latitude,
+                  longitude: _longitude,
+                  isRequired: false,
+                  title: 'Marcar lugar de avistamiento',
+                  customHint: 'Indica el punto de referencia donde viste a la mascota',
+                  onLocationSelected: (LatLng result) {
+                    setState(() {
+                      _latitude = result.latitude;
+                      _longitude = result.longitude;
+                    });
                   },
-                  borderRadius: BorderRadius.circular(12),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: _latitude != null ? Colors.teal.shade50 : Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: _latitude != null ? Colors.teal : Colors.grey.shade300,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          _latitude != null ? Icons.pin_drop_rounded : Icons.map_rounded,
-                          color: _latitude != null ? Colors.teal : Colors.grey.shade600,
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                _latitude != null
-                                    ? 'Punto exacto marcado'
-                                    : 'Marcar posición en mapa (Opcional)',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                  color: _latitude != null ? Colors.teal.shade900 : Colors.black87,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                _latitude != null
-                                    ? 'Lat: ${_latitude!.toStringAsFixed(5)}, Lng: ${_longitude!.toStringAsFixed(5)}'
-                                    : 'Abre el mapa para seleccionar el lugar preciso del extravío',
-                                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Icon(Icons.chevron_right_rounded, color: Colors.grey.shade500),
-                      ],
-                    ),
-                  ),
                 ),
                 const SizedBox(height: 12),
 
@@ -236,8 +184,8 @@ class _ReportSightingBottomSheetState extends State<ReportSightingBottomSheet> {
                           'tutor_id': currentTutorId,
                           'event_date': _selectedEventDate?.toIso8601String(),
                           'event_address': _addressController.text.trim(),
-                          'latitude': _latitude != null ? double.parse(_latitude!.toStringAsFixed(8)) : null,
-                          'longitude': _longitude != null ? double.parse(_longitude!.toStringAsFixed(8)) : null,
+                          'latitude': _latitude,
+                          'longitude': _longitude,
                           'comment': _commentController.text.trim().isEmpty ? null : _commentController.text.trim(),
                           'photos': photosPayload,
                         };

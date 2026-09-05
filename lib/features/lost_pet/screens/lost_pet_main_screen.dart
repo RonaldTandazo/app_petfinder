@@ -25,12 +25,11 @@ class _LostPetHomeScreenState extends State<LostPetHomeScreen> {
   final _lostPetRepository = LostPetRepository();
 
   String _selectedCategory = 'Todos';
-
   final List<LostPetListModel> _lostPets = [];
   
   LatLng? _userLocation;
   bool _isLoadingLostPets = true;
-  bool _isLoadingMore = true;
+  bool _isLoadingMore = false;
   bool _hasMore = false;
   final int _limit = 20;
   int _page = 1;
@@ -45,8 +44,8 @@ class _LostPetHomeScreenState extends State<LostPetHomeScreen> {
   @override
   void initState() {
     super.initState();
-    _loadLostPets(reset: true);
     _getUserLocation();
+    _loadLostPets(reset: true);
     _scrollController.addListener(_onScroll);
   }
 
@@ -184,20 +183,47 @@ class _LostPetHomeScreenState extends State<LostPetHomeScreen> {
           Expanded(
             child:  _isLoadingLostPets
               ? AppSkeletonLoader(mode: SkeletonViewMode.list) 
-              : _filteredLostPets.isEmpty
-              ? AppEmptyState(icon: Icons.pets, description: 'No hay reportes de mascotas perdidas')
-              : ListView.builder(
-                  itemCount: _filteredLostPets.length,
-                  itemBuilder: (context, index) {
-                    final lostPet = _filteredLostPets[index];
-                    final distance = _getDistanceForPet(lostPet);
-                    
-                    return LostPetCard(
-                      lostPet: lostPet,
-                      distance: distance,
-                      onTap: _navigateToDetail,
-                    );
+              : RefreshIndicator(
+                  color: Colors.teal,
+                  backgroundColor: Colors.white,
+                  onRefresh: () async {
+                    await _loadLostPets(reset: true);
                   },
+                  child: _filteredLostPets.isEmpty
+                    ? ListView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        children: const [
+                          SizedBox(height: 120),
+                          AppEmptyState(
+                            icon: Icons.pets,
+                            description: 'No hay reportes de mascotas perdidas',
+                          ),
+                        ],
+                      )
+                    : ListView.builder(
+                      controller: _scrollController,
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      itemCount: _filteredLostPets.length + (_isLoadingMore ? 1 : 0),
+                      itemBuilder: (context, index) {
+                        if (index == _filteredLostPets.length) {
+                          return const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 16.0),
+                            child: Center(
+                              child: CircularProgressIndicator(color: Colors.teal),
+                            ),
+                          );
+                        }
+
+                        final lostPet = _filteredLostPets[index];
+                        final distance = _getDistanceForPet(lostPet);
+                        
+                        return LostPetCard(
+                          lostPet: lostPet,
+                          distance: distance,
+                          onTap: _navigateToDetail,
+                        );
+                      },
+                    ),
                 ),
           ),
         ],

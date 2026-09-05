@@ -1,6 +1,8 @@
+import 'package:app_petfinder/widgets/contact/app_contact_phone_fields.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:app_petfinder/models/storage/temp_file_model.dart';
 import 'package:app_petfinder/models/catalog/size_model.dart';
 import 'package:app_petfinder/models/catalog/animal_gender_model.dart';
@@ -15,9 +17,8 @@ import 'package:app_petfinder/widgets/datepickers/app_datepicker.dart';
 import 'package:app_petfinder/widgets/snackbars/app_snackbar.dart';
 import 'package:app_petfinder/widgets/images/app_image_picker_grid.dart';
 import 'package:app_petfinder/widgets/toggles/app_toggle_tile.dart';
-import 'package:app_petfinder/widgets/locations/app_location_picker.dart';
-import 'package:app_petfinder/features/pet/styles/pet_form_styles.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:app_petfinder/features/adoption/styles/pet_form_styles.dart';
+import 'package:app_petfinder/widgets/locations/app_location_picket_tile.dart';
 
 class PublishLostPetScreen extends StatefulWidget {
   const PublishLostPetScreen({super.key});
@@ -352,130 +353,25 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
                   ),
                   const SizedBox(height: 12),
 
-                  InkWell(
-                    onTap: () async {
-                      final LatLng? result = await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => AppLocationPicker(
-                            initialPosition: (_latitude != null && _longitude != null)
-                                ? LatLng(_latitude!, _longitude!)
-                                : null,
-                          ),
-                        ),
-                      );
-
-                      if (result != null) {
-                        setState(() {
-                          _latitude = result.latitude;
-                          _longitude = result.longitude;
-                        });
-                      }
+                  AppLocationPickerTile(
+                    latitude: _latitude,
+                    longitude: _longitude,
+                    isRequired: false,
+                    title: 'Marcar lugar de extravío',
+                    customHint: 'Indica el punto de referencia donde se extravió',
+                    onLocationSelected: (LatLng result) {
+                      setState(() {
+                        _latitude = result.latitude;
+                        _longitude = result.longitude;
+                      });
                     },
-                    borderRadius: BorderRadius.circular(12),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      decoration: BoxDecoration(
-                        color: _latitude != null ? Colors.teal.shade50 : Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: _latitude != null ? Colors.teal : Colors.grey.shade300,
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            _latitude != null ? Icons.pin_drop_rounded : Icons.map_rounded,
-                            color: _latitude != null ? Colors.teal : Colors.grey.shade600,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  _latitude != null ? 'Punto exacto marcado' : 'Marcar posición en mapa (Opcional)',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
-                                    color: _latitude != null ? Colors.teal.shade900 : Colors.black87,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  _latitude != null 
-                                      ? 'Lat: ${_latitude!.toStringAsFixed(5)}, Lng: ${_longitude!.toStringAsFixed(5)}'
-                                      : 'Abre el mapa para seleccionar el lugar preciso del extravío',
-                                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Icon(Icons.chevron_right_rounded, color: Colors.grey.shade500),
-                        ],
-                      ),
-                    ),
                   ),
                   const SizedBox(height: 24),
 
                   // INFORMACION DE CONTACTO
-                  PetFormStyles.buildSectionHeader('Información de Contacto', 'Teléfonos de referencia para recibir información',),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextFormField(
-                          controller: _phoneMobileController,
-                          keyboardType: TextInputType.phone,
-                          maxLength: 15,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.allow(RegExp(r'[\d+\s]')),
-                            TextInputFormatter.withFunction((oldValue, newValue) {
-                              final text = newValue.text;
-                              // Si intenta poner un '+' que no esté en la primera posición, cancela el cambio
-                              if (text.contains('+') && !text.startsWith('+')) {
-                                return oldValue;
-                              }
-                              // Evita múltiples signos '+' al inicio
-                              if (text.indexOf('+') != text.lastIndexOf('+')) {
-                                return oldValue;
-                              }
-
-                              final spaceCount = text.split(' ').length - 1;
-                              if (spaceCount > 1) {
-                                return oldValue;
-                              }
-
-                              return newValue;
-                            }),
-                            LengthLimitingTextInputFormatter(15),
-                          ],
-                          decoration: PetFormStyles.inputDecoration(
-                            'Teléfono Celular',
-                            Icons.smartphone_rounded,
-                          ).copyWith(
-                            hintText: '+593 987654321',
-                            counterText: ''
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: TextFormField(
-                          controller: _phoneHomeController,
-                          keyboardType: TextInputType.phone,
-                          maxLength: 10,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                            LengthLimitingTextInputFormatter(10)
-                          ],
-                          decoration: PetFormStyles.inputDecoration(
-                            'Teléfono Convencional',
-                            Icons.phone_rounded,
-                          ).copyWith(counterText: ''),
-                        ),
-                      ),
-                    ],
+                  AppContactPhoneFields(
+                    mobileController: _phoneMobileController,
+                    homeController: _phoneHomeController
                   ),
                   const SizedBox(height: 24),
 

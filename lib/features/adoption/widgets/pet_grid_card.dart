@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:app_petfinder/models/adoption/adoption_pet_model.dart';
+import 'package:app_petfinder/models/adoption/adoption_pet_list_model.dart';
 import 'package:app_petfinder/widgets/badges/app_badge.dart';
 import 'package:app_petfinder/widgets/images/app_image_placeholders.dart';
 
 class PetGridCard extends StatelessWidget {
-  final AdoptionPetModel pet;
+  final AdoptionPetListModel pet;
   final VoidCallback? onTap;
+  final String? distance;
 
   const PetGridCard({
     super.key,
     required this.pet,
     this.onTap,
+    this.distance
   });
 
   @override
@@ -120,12 +122,43 @@ class PetGridCard extends StatelessWidget {
                     ),
                   ],
                   const SizedBox(height: 8),
-                  Text(
-                    pet.age,
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Colors.grey.shade600,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        pet.age,
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                      if (distance != null)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.teal.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.location_on_outlined,
+                                size: 12,
+                                color: Colors.teal.shade600,
+                              ),
+                              const SizedBox(width: 2),
+                              Text(
+                                distance!,
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.teal.shade700,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
                   ),
                 ],
               ),

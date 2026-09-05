@@ -22,18 +22,18 @@ import 'package:app_petfinder/widgets/snackbars/app_snackbar.dart';
 import 'package:app_petfinder/widgets/loaders/app_loading_overlay.dart';
 import 'package:app_petfinder/widgets/state/app_empty_state.dart';
 
-class LostPetDetailScreen extends StatefulWidget {
+class LostPetScreen extends StatefulWidget {
   final int lostPetId;
-  const LostPetDetailScreen({
+  const LostPetScreen({
     super.key,
     required this.lostPetId,
   });
 
   @override
-  State<LostPetDetailScreen> createState() => _LostPetDetailScreenState();
+  State<LostPetScreen> createState() => _LostPetScreenState();
 }
 
-class _LostPetDetailScreenState extends State<LostPetDetailScreen> {
+class _LostPetScreenState extends State<LostPetScreen> {
   final MapController _mapController = MapController();
   final _lostPetRepository = LostPetRepository();
   final _lostPetEventRepository = LostPetEventRepository();
@@ -83,7 +83,7 @@ class _LostPetDetailScreenState extends State<LostPetDetailScreen> {
           });
         }
 
-         if (data['is_following'] != null) {
+        if (data['is_following'] != null) {
           setState(() {
             _isFollowing = data['is_following'];
           });
@@ -234,6 +234,8 @@ class _LostPetDetailScreenState extends State<LostPetDetailScreen> {
       ),
     ];
 
+    final bool hasDescription = _lostPet!.description != null && _lostPet!.description!.isNotEmpty;
+
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       body: CustomScrollView(
@@ -259,7 +261,7 @@ class _LostPetDetailScreenState extends State<LostPetDetailScreen> {
                     species: _lostPet!.species,
                     race: _lostPet!.race,
                     size: _lostPet!.size,
-                    animalGenderTag: _lostPet!.animalGenderTag,
+                    genderTag: _lostPet!.genderTag,
                     reportStatus: _lostPet!.reportStatus,
                     reportStatusTag: _lostPet!.reportStatusTag,
                     hasReward: _lostPet!.hasReward,
@@ -272,8 +274,11 @@ class _LostPetDetailScreenState extends State<LostPetDetailScreen> {
                   const SizedBox(height: 16),
 
                   // Descripción opcional
-                  if (_lostPet!.description != null && _lostPet!.description!.isNotEmpty) ...[
-                    const Text('Descripción', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  if (hasDescription) ...[
+                    const Text(
+                      'Descripción',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)
+                    ),
                     const SizedBox(height: 6),
                     Text(
                       _lostPet!.description!,
@@ -292,7 +297,7 @@ class _LostPetDetailScreenState extends State<LostPetDetailScreen> {
                     children: [
                       const Text(
                         'Avistamientos',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                       Text(
                         '${_sightings.length} reportes',
@@ -305,7 +310,7 @@ class _LostPetDetailScreenState extends State<LostPetDetailScreen> {
                   if (_sightings.isNotEmpty) ...[
                     const Text(
                       'Ruta en Mapa',
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
                     AppTrackingMap(
@@ -324,7 +329,7 @@ class _LostPetDetailScreenState extends State<LostPetDetailScreen> {
                     
                     const Text(
                       'Historial de Avistamientos',
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
                     AppSightingsList(

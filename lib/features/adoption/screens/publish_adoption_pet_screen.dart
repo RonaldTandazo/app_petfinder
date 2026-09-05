@@ -1,9 +1,10 @@
+import 'package:app_petfinder/repository/adoption/adoption_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:app_petfinder/models/storage/temp_file_model.dart';
 import 'package:app_petfinder/core/utils/api_error_handler.dart';
 import 'package:app_petfinder/core/utils/api_success_handler.dart';
-import 'package:app_petfinder/repository/pet/pet_repository.dart';
 import 'package:app_petfinder/widgets/loaders/app_loading_overlay.dart';
 import 'package:app_petfinder/core/network/api_exception.dart';
 import 'package:app_petfinder/models/catalog/animal_gender_model.dart';
@@ -14,21 +15,23 @@ import 'package:app_petfinder/repository/catalog/catalog_repository.dart';
 import 'package:app_petfinder/widgets/datepickers/app_datepicker.dart';
 import 'package:app_petfinder/widgets/snackbars/app_snackbar.dart';
 import 'package:app_petfinder/widgets/images/app_image_picker_grid.dart';
-import 'package:app_petfinder/features/pet/styles/pet_form_styles.dart';
-import 'package:app_petfinder/features/pet/widgets/health_status_card.dart';
+import 'package:app_petfinder/features/adoption/styles/pet_form_styles.dart';
+import 'package:app_petfinder/features/adoption/widgets/health_status_card.dart';
 import 'package:app_petfinder/widgets/toggles/app_toggle_tile.dart';
+import 'package:app_petfinder/widgets/contact/app_contact_phone_fields.dart';
+import 'package:app_petfinder/widgets/locations/app_location_picket_tile.dart';
 
-class PublishPetScreen extends StatefulWidget {
-  const PublishPetScreen({super.key});
+class PublishAdoptionPetScreen extends StatefulWidget {
+  const PublishAdoptionPetScreen({super.key});
 
   @override
-  State<PublishPetScreen> createState() => _PublishPetScreenState();
+  State<PublishAdoptionPetScreen> createState() => _PublishAdoptionPetScreenState();
 }
 
-class _PublishPetScreenState extends State<PublishPetScreen> {
+class _PublishAdoptionPetScreenState extends State<PublishAdoptionPetScreen> {
   final _formKey = GlobalKey<FormState>();
   final _catalogRepository = CatalogRepository();
-  final _petRepository = PetRepository();
+  final _adoptionRepository = AdoptionRepository();
 
   final Set<int> _selectedHealthConditionIds = {};
   List<TempFileModel> _selectedImages = [];
@@ -36,6 +39,10 @@ class _PublishPetScreenState extends State<PublishPetScreen> {
   final _nameController = TextEditingController();
   final _raceController = TextEditingController();
   final _colorController = TextEditingController();
+  final _cityController = TextEditingController();
+  final _addressController = TextEditingController();
+  final _phoneHomeController = TextEditingController();
+  final _phoneMobileController = TextEditingController();
   final _descriptionController = TextEditingController();
 
   bool _isLoadingCatalog = true;
@@ -45,6 +52,8 @@ class _PublishPetScreenState extends State<PublishPetScreen> {
   int? _selectedSpeciesId;
   DateTime? _selectedBornDate;
   bool _isUrgent = false;
+  double? _latitude;
+  double? _longitude;
 
   List<SpeciesModel> _speciesList = [];
   List<AnimalGenderModel> _gendersList = [];
@@ -62,6 +71,10 @@ class _PublishPetScreenState extends State<PublishPetScreen> {
     _nameController.dispose();
     _raceController.dispose();
     _colorController.dispose();
+    _cityController.dispose();
+    _addressController.dispose();
+    _phoneMobileController.dispose();
+    _phoneHomeController.dispose();
     _descriptionController.dispose();
     super.dispose();
   }
@@ -160,9 +173,15 @@ class _PublishPetScreenState extends State<PublishPetScreen> {
       'race': _raceController.text.trim().isEmpty ? null : _raceController.text.trim(),
       'color': _colorController.text.trim().isEmpty ? null : _colorController.text.trim(),
       'born_date': _selectedBornDate?.toIso8601String().split('T').first,
-      'description': _descriptionController.text.trim().isEmpty ? null : _descriptionController.text.trim(),
-      'health_conditions': _selectedHealthConditionIds.toList(),
+      'city': _cityController.text.trim(),
+      'address': _addressController.text.trim(),
+      'latitude': _latitude,
+      'longitude': _longitude,
+      'phone_home': _phoneHomeController.text.trim().isEmpty ? null : _phoneHomeController.text.trim(),
+      'phone_mobile': _phoneMobileController.text.trim().isEmpty ? null : _phoneMobileController.text.trim(),
       'is_urgent': _isUrgent,
+      'health_conditions': _selectedHealthConditionIds.toList(),
+      'description': _descriptionController.text.trim().isEmpty ? null : _descriptionController.text.trim(),
       'photos': photosPayload,
     };
 
@@ -173,7 +192,7 @@ class _PublishPetScreenState extends State<PublishPetScreen> {
     );
 
     try {
-      final response = await _petRepository.store(payload);
+      final response = await _adoptionRepository.store(payload);
       if (!mounted) return;
 
       ApiSuccessHandler.handle(context, title: '¡Publicación creada!', description: response.message);
@@ -281,7 +300,7 @@ class _PublishPetScreenState extends State<PublishPetScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: AppDatePicker(
-                    label: 'Aprox. Nacimiento *',
+                    label: 'Fecha Aprox. Nacimiento *',
                     icon: Icons.cake_rounded,
                     selectionType: DateSelectionType.single,
                     filterType: DateFilterType.disableFuture,
@@ -319,6 +338,51 @@ class _PublishPetScreenState extends State<PublishPetScreen> {
                   ),
                 ),
               ],
+            ),
+            const SizedBox(height: 24),
+
+            // BOTÓN PARA SELECCIONAR POSICIÓN OPCIONAL EN EL MAPA
+            PetFormStyles.buildSectionHeader('Ubicación de Referencia', '¿Dónde se encuentra la mascota actualmente?'),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    controller: _cityController,
+                    decoration: PetFormStyles.inputDecoration('Ciudad *', Icons.location_city_rounded),
+                    validator: (val) => val == null || val.trim().isEmpty ? 'Ingresa la ciudad' : null,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: TextFormField(
+                    controller: _addressController,
+                    decoration: PetFormStyles.inputDecoration('Dirección de Referencia / Sector / Barrio *', Icons.place_rounded),
+                    validator: (val) => val == null || val.trim().isEmpty ? 'Ingresa el sector' : null,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+
+            AppLocationPickerTile(
+              latitude: _latitude,
+              longitude: _longitude,
+              isRequired: false,
+              customHint: 'Punto de referencia para el encuentro',
+              onLocationSelected: (LatLng result) {
+                setState(() {
+                  _latitude = result.latitude;
+                  _longitude = result.longitude;
+                });
+              },
+            ),
+            const SizedBox(height: 24),
+
+            // INFORMACION DE CONTACTO
+            AppContactPhoneFields(
+              mobileController: _phoneMobileController,
+              homeController: _phoneHomeController
             ),
             const SizedBox(height: 24),
 

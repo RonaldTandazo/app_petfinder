@@ -31,7 +31,7 @@ class AppTrackingMap extends StatelessWidget {
     );
 
     return Container(
-      height: 250,
+      height: 400,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.grey.shade300),
