@@ -1,4 +1,3 @@
-import 'package:app_petfinder/widgets/locations/app_location_map.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:app_petfinder/models/adoption/adoption_pet_model.dart';
@@ -12,6 +11,7 @@ import 'package:app_petfinder/widgets/pets/app_pet_quick_info_grid.dart';
 import 'package:app_petfinder/widgets/snackbars/app_snackbar.dart';
 import 'package:app_petfinder/widgets/contact/app_contact_action_buttons.dart';
 import 'package:app_petfinder/widgets/pets/app_pet_header_info.dart';
+import 'package:app_petfinder/widgets/locations/app_location_map.dart';
 
 class AdoptionPetScreen extends StatefulWidget {
   final int petId;
@@ -129,6 +129,7 @@ class _AdoptionPetScreenState extends State<AdoptionPetScreen> {
     ];
 
     final bool hasDescription = _adoptionPet!.description != null && _adoptionPet!.description!.isNotEmpty;
+    final bool hasHealthConditions = _adoptionPet!.healthConditions.isNotEmpty;
     final bool hasAddress = _adoptionPet!.address.isNotEmpty;
     final bool hasCoordinates = _adoptionPet!.latitude != null && _adoptionPet!.longitude != null;
 
@@ -175,9 +176,43 @@ class _AdoptionPetScreenState extends State<AdoptionPetScreen> {
                     const SizedBox(height: 20),
                   ],
 
+                  if(hasHealthConditions)...[
+                    const Text('Estado de Salud', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 6),
+                    Wrap(
+                      spacing: 8.0,
+                      runSpacing: 8.0,
+                      children: _adoptionPet!.healthConditions.map((condition) {
+                        return RawChip(
+                          avatar: const Icon(
+                            Icons.check_circle_outline_rounded,
+                            size: 18,
+                            color: Color(0xFF0F766E),
+                          ),
+                          label: Text(
+                            condition,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF0F766E),
+                            ),
+                          ),
+                          backgroundColor: const Color(0xFFCCFBF1),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          side: BorderSide.none,
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+
                   // Botones de Contacto (Llamar / WhatsApp)
                   AppContactActionButtons(phoneNumber: _adoptionPet!.phoneMobile, phoneHome: _adoptionPet!.phoneHome),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
 
                   if (hasAddress || hasCoordinates) ...[
                     const Text(

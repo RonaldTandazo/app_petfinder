@@ -22,6 +22,7 @@ class AdoptionPetModel {
   final String petStatusTag;
   final String petStatus;
   final String age;
+  final List<String> healthConditions;
   final List<String> pictures;
 
   AdoptionPetModel({
@@ -48,6 +49,7 @@ class AdoptionPetModel {
     required this.petStatusTag,
     required this.petStatus,
     required this.age,
+    required this.healthConditions,
     required this.pictures 
   });
 
@@ -76,6 +78,7 @@ class AdoptionPetModel {
       petStatusTag: json['pet_status_tag'] as String,
       petStatus: json['pet_status'] as String,
       age: json['age'] as String,
+      healthConditions: List<String>.from(json['health_conditions'] ?? []),
       pictures: List<String>.from(json['pictures'] ?? []),
     );
   }
