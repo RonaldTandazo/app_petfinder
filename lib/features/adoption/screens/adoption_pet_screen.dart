@@ -110,8 +110,8 @@ class _AdoptionPetScreenState extends State<AdoptionPetScreen> {
     final List<QuickInfoItem> quickInfoItems = [
       QuickInfoItem(
         icon: Icons.calendar_today,
-        label: 'Nació Aprox. el',
-        value: formatDate(_adoptionPet!.bornDate),
+        label: 'Edad',
+        value: _adoptionPet!.age,
       ),
 
       if (_adoptionPet!.color != null && _adoptionPet!.color!.isNotEmpty)
