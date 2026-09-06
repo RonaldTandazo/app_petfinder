@@ -196,7 +196,7 @@ class _LostPetHomeScreenState extends State<LostPetHomeScreen> {
                         children: const [
                           SizedBox(height: 120),
                           AppEmptyState(
-                            icon: Icons.pets,
+                            icon: Icons.search_off,
                             description: 'No hay reportes de mascotas perdidas',
                           ),
                         ],

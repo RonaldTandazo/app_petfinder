@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:app_petfinder/core/utils/session_storage_service.dart';
 import 'package:app_petfinder/enums/snackbar/snackbar_position.dart';
 import 'package:app_petfinder/enums/snackbar/snackbar_type.dart';
 import 'package:app_petfinder/core/network/api_exception.dart';
@@ -39,6 +40,7 @@ class _LostPetScreenState extends State<LostPetScreen> {
   final MapController _mapController = MapController();
   final _lostPetRepository = LostPetRepository();
   final _lostPetEventRepository = LostPetEventRepository();
+  final int? currentTutorId = SessionStorageService.tutorId;
 
   int? _selectedSightId;
   bool _isFollowing = false;
@@ -336,6 +338,7 @@ class _LostPetScreenState extends State<LostPetScreen> {
                     ),
                     const SizedBox(height: 8),
                     AppSightingsList(
+                      currentTutorId: currentTutorId,
                       sightings: _sightings,
                       selectedSightId: _selectedSightId,
                       onSightingSelected: _handleSightingSelected,

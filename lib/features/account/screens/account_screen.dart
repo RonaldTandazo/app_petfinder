@@ -411,7 +411,7 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
                         isMyProfile: isMyProfile,
                         isLoadingMore: _isLoadingMoreLostPets,
                         emptyStateWidget: const AppEmptyState(
-                          icon: Icons.pets,
+                          icon: Icons.search_off,
                           description: 'No has publicado reportes de mascotas perdidas'
                         ),
                         onEdit: _handlePetEdit,

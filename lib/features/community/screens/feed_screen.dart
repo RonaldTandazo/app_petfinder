@@ -1,8 +1,8 @@
 import 'dart:async';
-
 import 'package:app_petfinder/core/network/api_exception.dart';
 import 'package:app_petfinder/core/router/community/community_routes.dart';
 import 'package:app_petfinder/core/utils/api_error_handler.dart';
+import 'package:app_petfinder/core/utils/session_storage_service.dart';
 import 'package:app_petfinder/features/community/widgets/feed_skeleton.dart';
 import 'package:app_petfinder/features/community/widgets/post_card.dart';
 import 'package:app_petfinder/features/community/widgets/reaction_button.dart';
@@ -24,6 +24,7 @@ class CommunityFeedScreen extends StatefulWidget {
 class _CommunityFeedScreenState extends State<CommunityFeedScreen> {
   final _communityRepository = CommunityRepository();
   final ScrollController _scrollController = ScrollController();
+  final bool isShelter = SessionStorageService.isShelter;
 
   final _searchController = TextEditingController();
   Timer? _debounce;
@@ -205,8 +206,6 @@ class _CommunityFeedScreenState extends State<CommunityFeedScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final bool canPublish = _me?.isShelter ?? false;
-
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAF9),
       appBar: AppBar(
@@ -217,7 +216,7 @@ class _CommunityFeedScreenState extends State<CommunityFeedScreen> {
           style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 20),
         ),
         actions: [
-          if (canPublish)
+          if (isShelter)
             IconButton(
               icon: const Icon(Icons.post_add_rounded, color: Colors.teal),
               tooltip: 'Crear publicación',

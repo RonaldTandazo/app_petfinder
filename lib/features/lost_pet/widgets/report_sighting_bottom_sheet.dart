@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:app_petfinder/enums/snackbar/snackbar_type.dart';
-import 'package:app_petfinder/core/utils/session_storage_service.dart';
 import 'package:app_petfinder/enums/datepicker/date_filter_type.dart';
 import 'package:app_petfinder/enums/datepicker/date_selection_type.dart';
 import 'package:app_petfinder/models/storage/temp_file_model.dart';
@@ -33,7 +32,6 @@ class _ReportSightingBottomSheetState extends State<ReportSightingBottomSheet> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _commentController = TextEditingController();
-  final int? currentTutorId = SessionStorageService.tutorId;
 
   DateTime? _selectedEventDate;
   double? _latitude;
@@ -183,7 +181,6 @@ class _ReportSightingBottomSheetState extends State<ReportSightingBottomSheet> {
                         }).toList();
                         
                         final Map<String, dynamic> payload = {
-                          'tutor_id': currentTutorId,
                           'event_date': _selectedEventDate?.toIso8601String(),
                           'event_address': _addressController.text.trim(),
                           'latitude': _latitude,
