@@ -14,9 +14,14 @@ Future<ApiResponse<T>> safeApiCall<T>(
       fromJson,
     );
   } on DioException catch (e) {
+    if (CancelToken.isCancel(e) || e.type == DioExceptionType.cancel) {
+      rethrow;
+    }
+
     if (e.error is ApiException) {
       throw e.error as ApiException;
     }
+
     throw ApiException(
       message: 'Error de conexión con el servidor',
       code: 500,

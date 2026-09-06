@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class AdoptionSearchBar extends StatelessWidget {
+class AdoptionSearchBar extends StatefulWidget {
   final ValueChanged<String>? onChanged;
   final VoidCallback? onFilterTap;
 
@@ -9,6 +9,25 @@ class AdoptionSearchBar extends StatelessWidget {
     this.onChanged,
     this.onFilterTap
   });
+
+  @override
+  State<AdoptionSearchBar> createState() => _AdoptionSearchBarState();
+}
+
+class _AdoptionSearchBarState extends State<AdoptionSearchBar> {
+  final TextEditingController _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _clearSearch() {
+    _controller.clear();
+    widget.onChanged?.call('');
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,18 +47,32 @@ class AdoptionSearchBar extends StatelessWidget {
           ],
         ),
         child: TextField(
-          onChanged: onChanged,
+          controller: _controller,
+          onChanged: (value) {
+            setState(() {});
+            widget.onChanged?.call(value);
+          },
           decoration: InputDecoration(
-            hintText: 'Buscar por nombre, raza...',
+            hintText: 'Buscar por nombre, raza, color...',
             hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
             icon: Icon(Icons.search, color: Colors.teal),
-            suffixIcon: onFilterTap != null
-              ? IconButton(
-                  icon: const Icon(Icons.tune_rounded, color: Colors.teal),
-                  onPressed: onFilterTap,
-                  tooltip: 'Filtros',
-                )
-              : null,
+            suffixIcon: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (_controller.text.isNotEmpty)
+                  IconButton(
+                    icon: const Icon(Icons.close_rounded, color: Colors.grey, size: 20),
+                    onPressed: _clearSearch,
+                    tooltip: 'Limpiar',
+                  ),
+                if (widget.onFilterTap != null)
+                  IconButton(
+                    icon: const Icon(Icons.tune_rounded, color: Colors.teal),
+                    onPressed: widget.onFilterTap,
+                    tooltip: 'Filtros',
+                  ),
+              ],
+            ),
             border: InputBorder.none,
           ),
         ),

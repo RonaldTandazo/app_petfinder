@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
@@ -30,12 +32,15 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
   final _adoptionRepository = AdoptionRepository();
   final _catalogRepository = CatalogRepository();
 
+  Timer? _debounceTimer;
   ViewMode _currentViewMode = ViewMode.grid;
   LatLng? _userLocation;
 
   PetFilterModel _activeFilters = PetFilterModel();
   Map<String, dynamic> _filtersData = {};
-  
+  int _requestId = 0;
+  CancelToken? _cancelToken;
+
   final List<AdoptionPetListModel> _pets = [];
   
   bool _isLoadingPets = true;
@@ -64,6 +69,7 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
 
   @override
   void dispose() {
+    _debounceTimer?.cancel();
     _scrollController.dispose();
     super.dispose();
   }
@@ -86,20 +92,35 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
       final response = await _catalogRepository.getPetCatalogs();
       if(!mounted) return;
 
-      setState(() => _filtersData = response.data!);
-    } catch (_) {}
+      final data = response.data;
+
+      setState(() {
+        if (data != null) {
+          _filtersData = data;
+        }
+      });
+    } on ApiException catch (e) {
+      ApiErrorHandler.handle(context, e);
+    }
   }
 
   Future<void> _loadAdoptionPets({bool reset = false}) async {
     if (reset) {
+      _cancelToken?.cancel('Nueva búsqueda iniciada');
+      _cancelToken = CancelToken();
+
       setState(() {
         _isLoadingPets = true;
         _page = 1;
         _pets.clear();
       });
     } else {
+      if (_isLoadingMore || !_hasMore) return;
+
       setState(() => _isLoadingMore = true);
     }
+
+    final currentRequestId = ++_requestId;
 
     final Map<String, dynamic> payload = {
       'page': _page,
@@ -108,8 +129,9 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
     };
 
     try {
-      final response = await _adoptionRepository.getAdoptionPets(payload);
-      if (!mounted) return;
+      final response = await _adoptionRepository.getAdoptionPets(payload, cancelToken: _cancelToken);
+      
+      if (currentRequestId != _requestId || !mounted) return;
 
       final data = response.data;
 
@@ -126,37 +148,27 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
           if (_hasMore) _page++;
         });
       }
+    } on DioException catch (e) {
+      if (CancelToken.isCancel(e)) return;
+
+      if (currentRequestId != _requestId || !mounted) return;
+
+      ApiErrorHandler.handle(
+        context, 
+        ApiException(message: 'Error de red inesperado', code: 500),
+      );
     } on ApiException catch (e) {
+      if (currentRequestId != _requestId) return;
+
       ApiErrorHandler.handle(context, e);
     } finally {
-      if (mounted) {
+      if (currentRequestId == _requestId && mounted) {
         setState(() {
           _isLoadingPets = false;
           _isLoadingMore = false;
         });
       }
     }
-  }
-
-  void _openFilterBottomSheet() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return FractionallySizedBox(
-          heightFactor: 0.75,
-          child: AppPetFiltersBottomSheet(
-            filtersData: _filtersData,
-            currentFilters: _activeFilters,
-            onApply: (newFilters) {
-              setState(() => _activeFilters = newFilters);
-              _loadAdoptionPets(reset: true);
-            },
-          ),
-        );
-      },
-    );
   }
 
   void _navigateToDetail(AdoptionPetListModel pet) {
@@ -197,6 +209,55 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
     );
   }
 
+  void _onSearchChanged(String query) {
+    if (_debounceTimer?.isActive ?? false) _debounceTimer!.cancel();
+
+    final trimmedQuery = query.trim();
+
+    if (trimmedQuery.isEmpty) {
+      if (_activeFilters.search != null) {
+        setState(() {
+          _activeFilters = _activeFilters.copyWith(search: null);
+        });
+        _loadAdoptionPets(reset: true);
+      }
+      return;
+    }
+
+    if (trimmedQuery.length < 3) return;
+
+    _debounceTimer = Timer(const Duration(milliseconds: 400), () {
+      if (_activeFilters.search == trimmedQuery) return;
+
+      setState(() {
+        _activeFilters = _activeFilters.copyWith(search: trimmedQuery);
+      });
+
+      _loadAdoptionPets(reset: true);
+    });
+  }
+
+  void _openFilterBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return FractionallySizedBox(
+          heightFactor: 0.75,
+          child: AppPetFiltersBottomSheet(
+            filtersData: _filtersData,
+            currentFilters: _activeFilters,
+            onApply: (newFilters) {
+              setState(() => _activeFilters = newFilters);
+              _loadAdoptionPets(reset: true);
+            },
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -205,9 +266,7 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
       body: Column(
         children: [
           AdoptionSearchBar(
-            onChanged: (value) {
-              // TODO: Implementar búsqueda local o por API
-            },
+            onChanged: _onSearchChanged,
             onFilterTap: _openFilterBottomSheet,
           ),
           const SizedBox(height: 12),
