@@ -11,8 +11,10 @@ import 'package:app_petfinder/features/adoption/widgets/adoption_search_bar.dart
 import 'package:app_petfinder/widgets/loaders/app_skeleton_loader.dart';
 import 'package:app_petfinder/features/adoption/widgets/pet_grid_view.dart';
 import 'package:app_petfinder/features/adoption/widgets/pet_swipe_view.dart';
-import 'package:app_petfinder/features/adoption/widgets/species_selector_chips.dart';
 import 'package:app_petfinder/repository/adoption/adoption_repository.dart';
+import 'package:app_petfinder/models/filters/pet_filter_model.dart';
+import 'package:app_petfinder/repository/catalog/catalog_repository.dart';
+import 'package:app_petfinder/widgets/filters/app_pet_filter_bottom_sheet.dart';
 
 enum ViewMode { grid, swipe }
 
@@ -26,10 +28,13 @@ class AdoptionHomeScreen extends StatefulWidget {
 class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
   final ScrollController _scrollController = ScrollController();
   final _adoptionRepository = AdoptionRepository();
+  final _catalogRepository = CatalogRepository();
 
   ViewMode _currentViewMode = ViewMode.grid;
-  String _selectedCategory = 'Todos';
   LatLng? _userLocation;
+
+  PetFilterModel _activeFilters = PetFilterModel();
+  Map<String, dynamic> _filtersData = {};
   
   final List<AdoptionPetListModel> _pets = [];
   
@@ -38,13 +43,6 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
   bool _hasMore = false;
   final int _limit = 20;
   int _page = 1;
-
-  final List<String> _categories = ['Todos', 'Perros', 'Gatos', 'Otros'];
-
-  List<AdoptionPetListModel> get _filteredPets {
-    if (_selectedCategory == 'Todos') return _pets;
-    return _pets.where((p) => p.species == _selectedCategory).toList();
-  }
 
   SkeletonViewMode get _skeletonMode {
     switch (_currentViewMode) {
@@ -59,6 +57,7 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
   void initState() {
     super.initState();
     _getUserLocation();
+    _loadPetFilters();
     _loadAdoptionPets(reset: true);
     _scrollController.addListener(_onScroll);
   }
@@ -81,6 +80,15 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
       }
     }
   }
+  
+  Future<void> _loadPetFilters() async {
+    try {
+      final response = await _catalogRepository.getPetCatalogs();
+      if(!mounted) return;
+
+      setState(() => _filtersData = response.data!);
+    } catch (_) {}
+  }
 
   Future<void> _loadAdoptionPets({bool reset = false}) async {
     if (reset) {
@@ -95,7 +103,8 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
 
     final Map<String, dynamic> payload = {
       'page': _page,
-      'limit': _limit
+      'limit': _limit,
+      ..._activeFilters.toMap(),
     };
 
     try {
@@ -127,6 +136,27 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
         });
       }
     }
+  }
+
+  void _openFilterBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return FractionallySizedBox(
+          heightFactor: 0.75,
+          child: AppPetFiltersBottomSheet(
+            filtersData: _filtersData,
+            currentFilters: _activeFilters,
+            onApply: (newFilters) {
+              setState(() => _activeFilters = newFilters);
+              _loadAdoptionPets(reset: true);
+            },
+          ),
+        );
+      },
+    );
   }
 
   void _navigateToDetail(AdoptionPetListModel pet) {
@@ -178,13 +208,7 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
             onChanged: (value) {
               // TODO: Implementar búsqueda local o por API
             },
-          ),
-          CategorySelectorChips(
-            categories: _categories,
-            selectedCategory: _selectedCategory,
-            onSelected: (category) {
-              setState(() => _selectedCategory = category);
-            },
+            onFilterTap: _openFilterBottomSheet,
           ),
           const SizedBox(height: 12),
           Expanded(
@@ -201,7 +225,7 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
                       child: _currentViewMode == ViewMode.grid
                         ? PetGridView(
                             controller: _scrollController,
-                            pets: _filteredPets,
+                            pets: _pets,
                             isLoadingMore: _isLoadingMore,
                             getDistance: _getDistanceForPet,
                             onTap: _navigateToDetail,
@@ -217,7 +241,7 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
                                 child: SizedBox(
                                   height: constraints.maxHeight,
                                   child: PetSwipeView(
-                                    pets: _filteredPets,
+                                    pets: _pets,
                                     getDistance: _getDistanceForPet,
                                     onTap: _navigateToDetail,
                                     onDismissed: (index) {

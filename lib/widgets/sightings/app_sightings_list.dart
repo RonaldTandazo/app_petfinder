@@ -1,5 +1,5 @@
 import 'package:app_petfinder/core/utils/common_helpers.dart';
-import 'package:app_petfinder/core/utils/session_info.dart';
+import 'package:app_petfinder/core/utils/session_storage_service.dart';
 import 'package:app_petfinder/widgets/images/app_full_screen_gallery.dart';
 import 'package:flutter/material.dart';
 import 'package:app_petfinder/models/lost_pet/sight_report_model.dart';
@@ -58,7 +58,7 @@ class AppSightingsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final int? currentTutorId = SessionInfo.tutorId;
+    final int? currentTutorId = SessionStorageService.tutorId;
 
     return ListView.builder(
       shrinkWrap: true,

@@ -1,6 +1,6 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-class SessionInfo {
+class SessionStorageService {
   static const _storage = FlutterSecureStorage();
 
   static const String _kMainId = 'main_id';

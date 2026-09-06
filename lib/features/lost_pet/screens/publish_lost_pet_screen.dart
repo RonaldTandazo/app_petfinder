@@ -81,7 +81,7 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
 
   Future<void> _loadFormCatalogs() async {
     try {
-      final response = await _catalogRepository.getCatalogs();
+      final response = await _catalogRepository.getPetCatalogs();
       if (!mounted) return;
 
       final data = response.data;

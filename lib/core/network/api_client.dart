@@ -5,7 +5,8 @@ import 'package:app_petfinder/core/router/app_router.dart';
 import 'package:app_petfinder/core/network/api_exception.dart';
 import 'package:app_petfinder/core/router/auth/auth_routes.dart';
 import 'package:app_petfinder/core/utils/token_storage_service.dart';
-import 'package:app_petfinder/core/utils/session_info.dart';
+import 'package:app_petfinder/core/utils/session_storage_service.dart';
+import 'package:app_petfinder/core/utils/catalog_storage_service.dart';
 
 class ApiClient {
   static final ApiClient _instance = ApiClient._internal();
@@ -22,6 +23,7 @@ class ApiClient {
     dio = Dio(
       BaseOptions(
         baseUrl: baseUrl,
+        listFormat: ListFormat.multiCompatible,
         connectTimeout: const Duration(seconds: 30),
         receiveTimeout: const Duration(seconds: 30),
         headers: {
@@ -55,7 +57,8 @@ class ApiClient {
 
           if (statusCode == 401) {
             await TokenStorageService.deleteToken();
-            await SessionInfo.clearSession();
+            await SessionStorageService.clearSession();
+            await CatalogStorageService.clearCatalogs();
 
             final context = rootNavigatorKey.currentContext;
             if (context != null) {

@@ -1,4 +1,4 @@
-import 'package:app_petfinder/core/utils/session_info.dart';
+import 'package:app_petfinder/core/utils/session_storage_service.dart';
 import 'package:app_petfinder/models/storage/temp_file_model.dart';
 import 'package:app_petfinder/widgets/images/app_image_picker_grid.dart';
 import 'package:app_petfinder/widgets/locations/app_location_picket_tile.dart';
@@ -31,7 +31,7 @@ class _ReportSightingBottomSheetState extends State<ReportSightingBottomSheet> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _commentController = TextEditingController();
-  final int? currentTutorId = SessionInfo.tutorId;
+  final int? currentTutorId = SessionStorageService.tutorId;
 
   DateTime? _selectedEventDate;
   double? _latitude;

@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 
 class AdoptionSearchBar extends StatelessWidget {
   final ValueChanged<String>? onChanged;
+  final VoidCallback? onFilterTap;
 
-  const AdoptionSearchBar({super.key, this.onChanged});
+  const AdoptionSearchBar({
+    super.key,
+    this.onChanged,
+    this.onFilterTap
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -24,10 +29,17 @@ class AdoptionSearchBar extends StatelessWidget {
         ),
         child: TextField(
           onChanged: onChanged,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             hintText: 'Buscar por nombre, raza...',
             hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
             icon: Icon(Icons.search, color: Colors.teal),
+            suffixIcon: onFilterTap != null
+              ? IconButton(
+                  icon: const Icon(Icons.tune_rounded, color: Colors.teal),
+                  onPressed: onFilterTap,
+                  tooltip: 'Filtros',
+                )
+              : null,
             border: InputBorder.none,
           ),
         ),

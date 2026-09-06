@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:app_petfinder/core/router/app_router.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:app_petfinder/core/utils/session_info.dart';
+import 'package:app_petfinder/core/utils/session_storage_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await SessionInfo.loadSession();
+  await SessionStorageService.loadSession();
 
   runApp(const MyApp());
 }

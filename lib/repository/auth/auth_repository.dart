@@ -1,7 +1,8 @@
 import 'package:app_petfinder/core/network/api_response.dart';
 import 'package:app_petfinder/core/repository/base_repository.dart';
+import 'package:app_petfinder/core/utils/catalog_storage_service.dart';
 import 'package:app_petfinder/core/utils/token_storage_service.dart';
-import 'package:app_petfinder/core/utils/session_info.dart';
+import 'package:app_petfinder/core/utils/session_storage_service.dart';
 
 class AuthRepository extends BaseRepository {
   static const String _prefix = '/auth';
@@ -38,7 +39,7 @@ class AuthRepository extends BaseRepository {
       }
 
       if (res['session_info'] != null) {
-        await SessionInfo.saveSession(res['session_info'] as Map<String, dynamic>);
+        await SessionStorageService.saveSession(res['session_info'] as Map<String, dynamic>);
       }
     }
 
@@ -52,10 +53,11 @@ class AuthRepository extends BaseRepository {
     );
 
     if (response.data != null) {
-      await SessionInfo.saveSession(response.data!);
+      await SessionStorageService.saveSession(response.data!);
     } else {
       await TokenStorageService.deleteToken();
-      await SessionInfo.clearSession();
+      await SessionStorageService.clearSession();
+      await CatalogStorageService.clearCatalogs();
     }
 
     return response;
@@ -68,7 +70,8 @@ class AuthRepository extends BaseRepository {
     );
 
     await TokenStorageService.deleteToken();
-    await SessionInfo.clearSession();
+    await SessionStorageService.clearSession();
+    await CatalogStorageService.clearCatalogs();
 
     return response;
   }
