@@ -1,5 +1,5 @@
-import 'package:app_petfinder/core/utils/common_helpers.dart';
 import 'package:flutter/material.dart';
+import 'package:app_petfinder/core/utils/common_helpers.dart';
 import 'package:app_petfinder/widgets/images/app_image_placeholders.dart';
 import 'package:app_petfinder/models/lost_pet/lost_pet_list_model.dart';
 
@@ -22,16 +22,14 @@ class LostPetCard extends StatelessWidget {
     final Color badgeColor = isLost ? Colors.redAccent : Colors.teal;
     final String badgeText = lostPet.reportStatus;
     
-    // Identificación de género
     final bool isMale = lostPet.genderTag == 'MALE';
-    final bool hasGender = lostPet.genderTag.isNotEmpty;
+    final IconData genderIcon = getGenderIcon(isMale);
+    final Color genderColor = getGenderColor(isMale);
 
-    // Sublínea: Raza • Especie (o solo Especie)
     final String description = (lostPet.race != null && lostPet.race!.trim().isNotEmpty)
       ? '${lostPet.species} • ${lostPet.race}'
       : lostPet.species;
 
-    // Ubicación: Dirección + Ciudad (o fallback a solo Ciudad)
     final String location = (lostPet.eventAddress != null && lostPet.eventAddress!.trim().isNotEmpty)
       ? '${lostPet.eventAddress}, ${lostPet.city}'
       : lostPet.city;
@@ -132,14 +130,12 @@ class LostPetCard extends StatelessWidget {
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
-                                if (hasGender) ...[
-                                  const SizedBox(width: 4),
-                                  Icon(
-                                    isMale ? Icons.male : Icons.female,
-                                    size: 18,
-                                    color: isMale ? Colors.blue : Colors.pink,
-                                  ),
-                                ],
+                                const SizedBox(width: 4),
+                                Icon(
+                                  genderIcon,
+                                  size: 18,
+                                  color: genderColor,
+                                ),
                               ],
                             ),
                           ),

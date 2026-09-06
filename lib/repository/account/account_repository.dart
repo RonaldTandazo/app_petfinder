@@ -4,6 +4,15 @@ import 'package:app_petfinder/core/repository/base_repository.dart';
 class AccountRepository extends BaseRepository {
   static const String _prefix = '/account';
 
+  Future<ApiResponse<Map<String, dynamic>>> getProfileData(Map<String, dynamic> data) async {
+    final response = await safeCall<Map<String, dynamic>>(
+      () => api.get('$_prefix/profile', queryParameters: data),
+      fromJson: (json) => json as Map<String, dynamic>,
+    );
+
+    return response;
+  }
+
   Future<ApiResponse<Map<String, dynamic>>> getFormCatalog() async {
     final response = await safeCall<Map<String, dynamic>>(
       () => api.get('$_prefix/form-catalog'),

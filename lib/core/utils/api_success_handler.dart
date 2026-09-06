@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:app_petfinder/enums/snackbar/snackbar_type.dart';
 import 'package:app_petfinder/widgets/snackbars/app_snackbar.dart';
 
 class ApiSuccessHandler {

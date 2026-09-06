@@ -64,9 +64,7 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
     } on ApiException catch (e) {
       ApiErrorHandler.handle(context, e);
     } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -161,7 +159,7 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
                         decoration: const InputDecoration(
                           labelText: 'Dirección',
                           border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.home),
+                          prefixIcon: Icon(Icons.pets),
                         ),
                       ),
                     ),

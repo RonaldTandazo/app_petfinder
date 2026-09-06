@@ -74,8 +74,8 @@ class FloatingBottomBar extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   _buildNavItem(
-                    icon: Icons.home_rounded,
-                    label: 'Inicio',
+                    icon: Icons.pets,
+                    label: 'Adopciones',
                     index: 0,
                     scale: scale,
                   ),

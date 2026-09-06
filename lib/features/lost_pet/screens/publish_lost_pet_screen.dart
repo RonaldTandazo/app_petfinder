@@ -1,8 +1,8 @@
-import 'package:app_petfinder/widgets/contact/app_contact_phone_fields.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:app_petfinder/enums/snackbar/snackbar_type.dart';
 import 'package:app_petfinder/models/storage/temp_file_model.dart';
 import 'package:app_petfinder/models/catalog/size_model.dart';
 import 'package:app_petfinder/models/catalog/animal_gender_model.dart';
@@ -19,6 +19,9 @@ import 'package:app_petfinder/widgets/images/app_image_picker_grid.dart';
 import 'package:app_petfinder/widgets/toggles/app_toggle_tile.dart';
 import 'package:app_petfinder/features/adoption/styles/pet_form_styles.dart';
 import 'package:app_petfinder/widgets/locations/app_location_picket_tile.dart';
+import 'package:app_petfinder/enums/datepicker/date_filter_type.dart';
+import 'package:app_petfinder/enums/datepicker/date_selection_type.dart';
+import 'package:app_petfinder/widgets/contact/app_contact_phone_fields.dart';
 
 class PublishLostPetScreen extends StatefulWidget {
   const PublishLostPetScreen({super.key});
@@ -110,9 +113,7 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
     } on ApiException catch (e) {
       ApiErrorHandler.handle(context, e);
     } finally {
-      if (mounted) {
-        setState(() => _isLoadingCatalog = false);
-      }
+      if (mounted) setState(() => _isLoadingCatalog = false);
     }
   }
 
@@ -187,7 +188,7 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
     } on ApiException catch (e) {
       ApiErrorHandler.handle(context, e);
     } finally {
-      AppLoadingOverlay.hide();
+      if(mounted) AppLoadingOverlay.hide();
     }
   }
 

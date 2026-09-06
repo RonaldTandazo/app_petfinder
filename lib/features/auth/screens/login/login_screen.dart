@@ -53,13 +53,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
       ApiSuccessHandler.handle(context, title: response.message);
 
-      context.go(MainRoutes.home);
+      context.go(MainRoutes.adoptions);
     } on ApiException catch (e) {
         ApiErrorHandler.handle(context, e);
     } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 

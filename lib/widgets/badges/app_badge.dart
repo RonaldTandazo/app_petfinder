@@ -1,18 +1,6 @@
 import 'package:flutter/material.dart';
-
-enum BadgeType {
-  error,
-  information,
-  success,
-  warning,
-}
-
-enum BadgePosition {
-  topLeft,
-  topRight,
-  bottomLeft,
-  bottomRight,
-}
+import 'package:app_petfinder/enums/badge/badge_position.dart';
+import 'package:app_petfinder/enums/badge/badge_type.dart';
 
 class AppBadge extends StatelessWidget {
   final String text;

@@ -26,7 +26,7 @@ class _CheckAuthScreenState extends State<CheckAuthScreen> {
       if (!mounted) return;
 
       if (response.ok) {
-        context.go(MainRoutes.home);
+        context.go(MainRoutes.adoptions);
       } else {
         context.go(AuthRoutes.login);
       }

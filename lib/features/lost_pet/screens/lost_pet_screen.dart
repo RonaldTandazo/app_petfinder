@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:app_petfinder/enums/snackbar/snackbar_position.dart';
+import 'package:app_petfinder/enums/snackbar/snackbar_type.dart';
 import 'package:app_petfinder/core/network/api_exception.dart';
 import 'package:app_petfinder/core/utils/api_error_handler.dart';
 import 'package:app_petfinder/core/utils/common_helpers.dart';
@@ -92,11 +94,7 @@ class _LostPetScreenState extends State<LostPetScreen> {
     } on ApiException catch (e) {
       ApiErrorHandler.handle(context, e);
     } finally {
-      if (mounted) {
-        setState(() {
-          _isLoadingLostPet = false;
-        });
-      }
+      if (mounted) setState(() => _isLoadingLostPet = false);
     }
   }
 
@@ -109,7 +107,12 @@ class _LostPetScreenState extends State<LostPetScreen> {
       ? 'Ahora sigues el caso de ${_lostPet!.name}. Lo verás en tus casos guardados'
       : 'Dejaste de seguir el caso de ${_lostPet!.name}';
 
-    AppSnackBar.show(context, title: message, type: SnackBarType.information, position: SnackBarPosition.bottom);
+    AppSnackBar.show(
+      context,
+      title: message,
+      type: SnackBarType.information,
+      position: SnackBarPosition.bottom
+    );
     
     final Map<String, dynamic> payload = {
       'is_following': _isFollowing,
@@ -172,7 +175,7 @@ class _LostPetScreenState extends State<LostPetScreen> {
     } on ApiException catch (e) {
       ApiErrorHandler.handle(context, e);
     } finally {
-      AppLoadingOverlay.hide();
+      if(mounted) AppLoadingOverlay.hide();
     }
   }
 
@@ -200,7 +203,7 @@ class _LostPetScreenState extends State<LostPetScreen> {
     } on ApiException catch (e) {
       ApiErrorHandler.handle(context, e);
     } finally {
-      AppLoadingOverlay.hide();
+      if(mounted) AppLoadingOverlay.hide();
     }
   }
 

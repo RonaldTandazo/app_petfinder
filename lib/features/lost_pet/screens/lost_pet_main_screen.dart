@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:app_petfinder/enums/skeleton/skeleton_view_mode.dart';
 import 'package:app_petfinder/core/services/location_service.dart';
 import 'package:app_petfinder/core/router/lost_pet/lost_pet_routes.dart';
 import 'package:app_petfinder/core/network/api_exception.dart';

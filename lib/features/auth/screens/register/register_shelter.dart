@@ -73,9 +73,7 @@ class _RegisterShelterScreenState extends State<RegisterShelterScreen> {
     } on ApiException catch (e) {
       ApiErrorHandler.handle(context, e);
     } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 

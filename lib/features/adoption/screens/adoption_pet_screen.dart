@@ -1,3 +1,5 @@
+import 'package:app_petfinder/enums/snackbar/snackbar_position.dart';
+import 'package:app_petfinder/enums/snackbar/snackbar_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:app_petfinder/models/adoption/adoption_pet_model.dart';
@@ -67,11 +69,7 @@ class _AdoptionPetScreenState extends State<AdoptionPetScreen> {
     } on ApiException catch (e) {
       ApiErrorHandler.handle(context, e);
     } finally {
-      if (mounted) {
-        setState(() {
-          _isLoadingAdoptionPet = false;
-        });
-      }
+      if (mounted) setState(() => _isLoadingAdoptionPet = false);
     }
   }
 
@@ -84,7 +82,12 @@ class _AdoptionPetScreenState extends State<AdoptionPetScreen> {
       ? 'Ahora sigues la adopción de ${_adoptionPet!.name}. Lo verás en tus adopciones guardadas'
       : 'Dejaste de seguir la adopción de ${_adoptionPet!.name}';
 
-    AppSnackBar.show(context, title: message, type: SnackBarType.information, position: SnackBarPosition.bottom);
+    AppSnackBar.show(
+      context,
+      title: message,
+      type: SnackBarType.information,
+      position: SnackBarPosition.bottom
+    );
     
     final Map<String, dynamic> payload = {
       'is_following': _isFollowing,

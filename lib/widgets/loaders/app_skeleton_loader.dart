@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-enum SkeletonViewMode { grid, swipe, list }
+import 'package:app_petfinder/enums/skeleton/skeleton_view_mode.dart';
 
 class AppSkeletonLoader extends StatefulWidget {
   final SkeletonViewMode mode;

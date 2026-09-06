@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-
-enum SnackBarType { success, error, warning, information }
-enum SnackBarPosition { top, bottom }
+import 'package:app_petfinder/enums/snackbar/snackbar_position.dart';
+import 'package:app_petfinder/enums/snackbar/snackbar_type.dart';
 
 class AppSnackBar {
   static void show(

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:app_petfinder/core/utils/common_helpers.dart';
+import 'package:app_petfinder/enums/badge/badge_position.dart';
 import 'package:app_petfinder/models/adoption/adoption_pet_list_model.dart';
 import 'package:app_petfinder/widgets/badges/app_badge.dart';
 import 'package:app_petfinder/widgets/images/app_image_placeholders.dart';
@@ -17,8 +19,10 @@ class PetGridCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool hasImage = pet.picture.trim().isNotEmpty;
     final bool isMale = pet.genderTag == 'MALE';
+    final bool hasImage = pet.picture.trim().isNotEmpty;
+    final IconData genderIcon = getGenderIcon(isMale);
+    final Color genderColor = getGenderColor(isMale);
 
     return GestureDetector(
       onTap: onTap,
@@ -103,9 +107,9 @@ class PetGridCard extends StatelessWidget {
                         ),
                       ),
                       Icon(
-                        isMale ? Icons.male : Icons.female,
+                        genderIcon,
                         size: 20,
-                        color: isMale ? Colors.blue : Colors.pink,
+                        color: genderColor,
                       ),
                     ],
                   ),

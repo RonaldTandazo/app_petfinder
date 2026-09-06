@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 final DateFormat spanishDateFormat = DateFormat('dd MMM. yyyy', 'es');
@@ -20,4 +21,12 @@ String formatDate(Object? date) {
 
 double truncateDecimals(double value, int decimals) {
   return double.parse(value.toStringAsFixed(decimals));
+}
+
+IconData getGenderIcon(bool isMale) {
+  return isMale ? Icons.male : Icons.female;
+}
+
+Color getGenderColor(bool isMale) {
+  return isMale ? Colors.blue : Colors.pink;
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:app_petfinder/core/utils/common_helpers.dart';
 
 class AppPetHeaderInfo extends StatelessWidget {
   final String name;
@@ -31,6 +32,9 @@ class AppPetHeaderInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isMale = genderTag == 'MALE';
+    final IconData genderIcon = getGenderIcon(isMale);
+    final Color genderColor = getGenderColor(isMale);
+
     final bool showReward = hasReward && (rewardAmount ?? 0) > 0;
 
     final String quickInfoText = race != null && race!.isNotEmpty
@@ -102,9 +106,9 @@ class AppPetHeaderInfo extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Icon(
-                  isMale ? Icons.male : Icons.female,
-                  color: isMale ? Colors.blue : Colors.pink,
+                  genderIcon,
                   size: 26,
+                  color: genderColor,
                 ),
               ],
             ),

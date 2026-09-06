@@ -1,7 +1,10 @@
-import 'package:app_petfinder/repository/adoption/adoption_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:app_petfinder/enums/snackbar/snackbar_type.dart';
+import 'package:app_petfinder/enums/datepicker/date_filter_type.dart';
+import 'package:app_petfinder/enums/datepicker/date_selection_type.dart';
+import 'package:app_petfinder/repository/adoption/adoption_repository.dart';
 import 'package:app_petfinder/models/storage/temp_file_model.dart';
 import 'package:app_petfinder/core/utils/api_error_handler.dart';
 import 'package:app_petfinder/core/utils/api_success_handler.dart';
@@ -116,9 +119,7 @@ class _PublishAdoptionPetScreenState extends State<PublishAdoptionPetScreen> {
     } on ApiException catch (e) {
       ApiErrorHandler.handle(context, e);
     } finally {
-      if (mounted) {
-        setState(() => _isLoadingCatalog = false);
-      }
+      if (mounted) setState(() => _isLoadingCatalog = false);
     }
   }
 
@@ -201,7 +202,7 @@ class _PublishAdoptionPetScreenState extends State<PublishAdoptionPetScreen> {
     } on ApiException catch (e) {
       ApiErrorHandler.handle(context, e);
     } finally {
-      AppLoadingOverlay.hide();
+      if (mounted) AppLoadingOverlay.hide();
     }
   }
 

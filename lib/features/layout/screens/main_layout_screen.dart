@@ -23,7 +23,7 @@ class MainLayoutScreen extends StatelessWidget {
   void _onItemTapped(int index, BuildContext context) {
     switch (index) {
       case 0:
-        context.go('$prefix/home');
+        context.go('$prefix/adoptions');
         break;
       case 1:
         context.go('$prefix/lost-pets');

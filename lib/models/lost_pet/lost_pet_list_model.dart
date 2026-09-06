@@ -1,7 +1,3 @@
-// lib/models/lost_found/pet_report_model.dart
-
-enum ReportType { lost, found }
-
 class LostPetListModel {
   final int id;
   final String name;

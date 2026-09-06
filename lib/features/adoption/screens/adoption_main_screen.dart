@@ -3,6 +3,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:app_petfinder/enums/adoption/view_mode.dart';
+import 'package:app_petfinder/enums/skeleton/skeleton_view_mode.dart';
 import 'package:app_petfinder/core/router/adoption/adoption_routes.dart';
 import 'package:app_petfinder/core/services/location_service.dart';
 import 'package:app_petfinder/core/network/api_exception.dart';
@@ -17,8 +19,6 @@ import 'package:app_petfinder/repository/adoption/adoption_repository.dart';
 import 'package:app_petfinder/models/filters/pet_filter_model.dart';
 import 'package:app_petfinder/repository/catalog/catalog_repository.dart';
 import 'package:app_petfinder/widgets/filters/app_pet_filter_bottom_sheet.dart';
-
-enum ViewMode { grid, swipe }
 
 class AdoptionHomeScreen extends StatefulWidget {
   const AdoptionHomeScreen({super.key});

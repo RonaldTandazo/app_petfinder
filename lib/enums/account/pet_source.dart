@@ -1,0 +1,4 @@
+enum PetSource { 
+  adoption,
+  lost
+}

@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
-enum DateSelectionType { single, range }
-
-enum DateFilterType { none, disablePast, disableFuture }
+import 'package:app_petfinder/enums/datepicker/date_filter_type.dart';
+import 'package:app_petfinder/enums/datepicker/date_selection_type.dart';
 
 class AppDatePicker extends StatelessWidget {
   final String label;

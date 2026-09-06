@@ -1,7 +1,8 @@
-import 'package:app_petfinder/core/utils/api_error_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
+import 'package:app_petfinder/core/utils/api_error_handler.dart';
+import 'package:app_petfinder/enums/snackbar/snackbar_type.dart';
 import 'package:app_petfinder/models/storage/temp_file_model.dart';
 import 'package:app_petfinder/repository/file/file_repository.dart';
 import 'package:app_petfinder/widgets/images/app_add_image_tile.dart';
