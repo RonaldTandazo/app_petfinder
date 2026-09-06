@@ -210,27 +210,37 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
   }
 
   void _onSearchChanged(String query) {
-    if (_debounceTimer?.isActive ?? false) _debounceTimer!.cancel();
+    if (_debounceTimer?.isActive ?? false) {
+      _debounceTimer!.cancel();
+    }
 
     final trimmedQuery = query.trim();
 
     if (trimmedQuery.isEmpty) {
       if (_activeFilters.search != null) {
         setState(() {
-          _activeFilters = _activeFilters.copyWith(search: null);
+          _activeFilters = _activeFilters.copyWith(search: () => null);
         });
         _loadAdoptionPets(reset: true);
       }
       return;
     }
 
-    if (trimmedQuery.length < 3) return;
+    if (trimmedQuery.length < 3) {
+      if (_activeFilters.search != null) {
+        setState(() {
+          _activeFilters = _activeFilters.copyWith(search: () => null);
+        });
+        _loadAdoptionPets(reset: true);
+      }
+      return;
+    }
 
     _debounceTimer = Timer(const Duration(milliseconds: 400), () {
       if (_activeFilters.search == trimmedQuery) return;
 
       setState(() {
-        _activeFilters = _activeFilters.copyWith(search: trimmedQuery);
+        _activeFilters = _activeFilters.copyWith(search: () => trimmedQuery);
       });
 
       _loadAdoptionPets(reset: true);

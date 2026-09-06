@@ -25,8 +25,8 @@ class _AdoptionSearchBarState extends State<AdoptionSearchBar> {
 
   void _clearSearch() {
     _controller.clear();
-    widget.onChanged?.call('');
     setState(() {});
+    widget.onChanged?.call('');
   }
 
   @override

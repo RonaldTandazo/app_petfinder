@@ -13,7 +13,7 @@ class PetFilterModel {
     this.healthConditionIds = const [],
   });
 
-  bool get isEmpty => search != null && search!.isEmpty && speciesIds.isEmpty && genderIds.isEmpty && sizeIds.isEmpty && healthConditionIds.isEmpty;
+  bool get isEmpty => (search == null || search!.isEmpty) && speciesIds.isEmpty && genderIds.isEmpty && sizeIds.isEmpty && healthConditionIds.isEmpty;
 
   Map<String, dynamic> toMap() {
     return {
@@ -26,14 +26,14 @@ class PetFilterModel {
   }
 
   PetFilterModel copyWith({
-    String? search,
+    String? Function()? search,
     List<int>? speciesIds,
     List<int>? genderIds,
     List<int>? sizeIds,
     List<int>? healthConditionIds,
   }) {
     return PetFilterModel(
-      search: search ?? this.search,
+      search: search != null ? search() : this.search,
       speciesIds: speciesIds ?? this.speciesIds,
       genderIds: genderIds ?? this.genderIds,
       sizeIds: sizeIds ?? this.sizeIds,
