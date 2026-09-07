@@ -39,7 +39,7 @@ class RegisterTypeBottomSheet {
               onTap: () {
                 Navigator.of(modalContext).pop();
                 
-                context.push(AuthRoutes.registerTutor);
+                context.go(AuthRoutes.registerTutor);
               },
             ),
             const Divider(),
@@ -52,7 +52,7 @@ class RegisterTypeBottomSheet {
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               onTap: () {
                 Navigator.of(modalContext).pop();
-                context.push(AuthRoutes.registerShelter);
+                context.go(AuthRoutes.registerShelter);
               },
             ),
             const SizedBox(height: 30),

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:app_petfinder/enums/account/pet_source.dart';
 import 'package:app_petfinder/features/account/widgets/pet_card_with_actions.dart';
-import 'package:app_petfinder/models/adoption/adoption_pet_list_model.dart';
+import 'package:app_petfinder/models/lost_pet/lost_pet_list_model.dart';
 
 typedef PetActionCallback = void Function(int id, PetSource source);
 
-class AdoptionPetsGrid extends StatelessWidget {
-  final List<AdoptionPetListModel> pets;
+class AccountLostPetsGrid extends StatelessWidget {
+  final List<LostPetListModel> lostPets;
   final bool isMyProfile;
   final bool isLoadingMore;
   final Widget emptyStateWidget;
@@ -14,9 +14,9 @@ class AdoptionPetsGrid extends StatelessWidget {
   final PetActionCallback? onDelete;
   final PetActionCallback? onStatusChange;
 
-  const AdoptionPetsGrid({
+  const AccountLostPetsGrid({
     super.key,
-    required this.pets,
+    required this.lostPets,
     required this.isMyProfile,
     required this.isLoadingMore,
     required this.emptyStateWidget,
@@ -27,7 +27,7 @@ class AdoptionPetsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (pets.isEmpty) {
+    if (lostPets.isEmpty) {
       return ListView(
         physics: const AlwaysScrollableScrollPhysics(),
         children: [
@@ -42,7 +42,7 @@ class AdoptionPetsGrid extends StatelessWidget {
         Expanded(
           child: GridView.builder(
             padding: const EdgeInsets.all(12),
-            itemCount: pets.length,
+            itemCount: lostPets.length,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
               crossAxisSpacing: 10,
@@ -50,20 +50,20 @@ class AdoptionPetsGrid extends StatelessWidget {
               childAspectRatio: 0.78,
             ),
             itemBuilder: (context, index) {
-              final AdoptionPetListModel pet = pets[index];
+              final LostPetListModel lostPet = lostPets[index];
 
               return PetCardWithActions(
-                title: pet.name,
-                picture: pet.picture,
-                genderTag: pet.genderTag,
-                isUrgent: pet.isUrgent,
-                badgeLabel: 'En adopción',
-                badgeColor: Colors.blue,
-                iconData: Icons.pets,
+                title: lostPet.name,
+                picture: lostPet.picture,
+                genderTag: lostPet.genderTag,
+                badgeLabel: 'Perdida',
+                badgeColor: Colors.amber[800]!,
+                iconData: Icons.warning_amber_rounded,
+                statusActionLabel: 'Marcar como Encontrada',
                 showActions: isMyProfile,
-                onStatusChange: () => onStatusChange?.call(pet.id, PetSource.adoption),
-                onEdit: () => onEdit?.call(pet.id, PetSource.adoption),
-                onDelete: () => onDelete?.call(pet.id, PetSource.adoption),
+                onStatusChange: () => onStatusChange?.call(lostPet.id, PetSource.lost),
+                onEdit: () => onEdit?.call(lostPet.id, PetSource.lost),
+                onDelete: () => onDelete?.call(lostPet.id, PetSource.lost),
               );
             },
           ),

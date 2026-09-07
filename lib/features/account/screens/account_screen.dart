@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:app_petfinder/core/router/auth/auth_routes.dart';
+import 'package:app_petfinder/core/router/account/account_routes.dart';
+import 'package:app_petfinder/repository/auth/auth_repository.dart';
 import 'package:app_petfinder/core/network/api_exception.dart';
 import 'package:app_petfinder/core/utils/api_error_handler.dart';
 import 'package:app_petfinder/core/utils/session_storage_service.dart';
 import 'package:app_petfinder/features/account/widgets/account_skeleton.dart';
-import 'package:app_petfinder/features/account/widgets/adoption_pets_grid.dart';
-import 'package:app_petfinder/features/account/widgets/lost_pets_grid.dart';
+import 'package:app_petfinder/features/account/widgets/account_adoptions_grid.dart';
+import 'package:app_petfinder/features/account/widgets/account_lost_pets_grid.dart';
 import 'package:app_petfinder/features/account/widgets/metric_item.dart';
-import 'package:app_petfinder/features/account/widgets/profile_drawer.dart';
+import 'package:app_petfinder/features/account/widgets/account_drawer.dart';
 import 'package:app_petfinder/features/account/widgets/sticky_tab_bar.dart';
 import 'package:app_petfinder/models/account/metric_model.dart';
 import 'package:app_petfinder/models/adoption/adoption_pet_list_model.dart';
@@ -31,6 +35,7 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
   final AccountRepository _accountRepository = AccountRepository();
   final AdoptionRepository _adoptionRepository = AdoptionRepository();
   final LostPetRepository _lostPetRepository = LostPetRepository();
+  final AuthRepository _authRepository = AuthRepository();
   late TabController _tabController;
 
   bool get isMyProfile {
@@ -54,6 +59,8 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
   int _pageAdoptions = 1;
   int _pageLostPets = 1;
   final int _limit = 20;
+
+  final bool isShelter = SessionStorageService.isShelter;
 
   @override
   void initState() {
@@ -293,136 +300,152 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
     }
   }
 
+  void _onEditProfile(){
+    isShelter ? context.push(AccountRoutes.editShelter) : context.push(AccountRoutes.editUser);
+  }
+
+  void _onSecurity(){
+    context.push(AccountRoutes.changePassword);
+  }
+
+  void _onLogout(){
+    _authRepository.logout();
+    context.go(AuthRoutes.login);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
       drawer: isMyProfile
-          ? ProfileDrawer(
-              name: _name,
-              email: _email,
-              avatar: _avatar,
-            )
-          : null,
+        ? AccountDrawer(
+            name: _name,
+            email: _email,
+            avatar: _avatar,
+            onEditProfile: _onEditProfile,
+            onSecurity: _onSecurity,
+            onLogout: _onLogout,
+          )
+        : null,
       body: _isLoading
-          ? AccountSkeleton(isMyProfile: isMyProfile)
-          : RefreshIndicator(
-              onRefresh: _onRefresh,
-              child: NestedScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                headerSliverBuilder: (context, innerBoxIsScrolled) {
-                  return [
-                    SliverToBoxAdapter(
-                      child: Column(
-                        children: [
-                          const SizedBox(height: 16),
-                          CircleAvatar(
-                            radius: 46,
-                            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                            backgroundImage: _avatar != null ? NetworkImage(_avatar!) : null,
-                            child: _avatar == null
-                                ? Icon(
-                                    Icons.person_rounded,
-                                    size: 50,
-                                    color: Theme.of(context).colorScheme.onPrimaryContainer,
-                                  )
-                                : null,
+        ? AccountSkeleton(isMyProfile: isMyProfile)
+        : RefreshIndicator(
+            onRefresh: _onRefresh,
+            child: NestedScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              headerSliverBuilder: (context, innerBoxIsScrolled) {
+                return [
+                  SliverToBoxAdapter(
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 16),
+                        CircleAvatar(
+                          radius: 46,
+                          backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                          backgroundImage: _avatar != null ? NetworkImage(_avatar!) : null,
+                          child: _avatar == null
+                            ? Icon(
+                                Icons.person_rounded,
+                                size: 50,
+                                color: Theme.of(context).colorScheme.onPrimaryContainer,
+                              )
+                            : null,
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          _name,
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
                           ),
-                          const SizedBox(height: 10),
-                          Text(
-                            _name,
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                  fontWeight: FontWeight.bold,
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          _email,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              for (int i = 0; i < _metrics.length; i++) ...[
+                                MetricItem(
+                                  label: _metrics[i].label,
+                                  count: _metrics[i].count.toString(),
+                                  onTap: () => _handleMetricTap(_metrics[i].action),
                                 ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            _email,
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: Colors.grey[600],
-                                ),
-                          ),
-                          const SizedBox(height: 20),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                for (int i = 0; i < _metrics.length; i++) ...[
-                                  MetricItem(
-                                    label: _metrics[i].label,
-                                    count: _metrics[i].count.toString(),
-                                    onTap: () => _handleMetricTap(_metrics[i].action),
-                                  ),
-                                  if (i < _metrics.length - 1) _buildDivider(),
-                                ],
+                                if (i < _metrics.length - 1) _buildDivider(),
                               ],
-                            ),
+                            ],
                           ),
-                          const SizedBox(height: 20),
+                        ),
+                        const SizedBox(height: 20),
+                      ],
+                    ),
+                  ),
+                  SliverPersistentHeader(
+                    pinned: true,
+                    delegate: StickyTabBar(
+                      TabBar(
+                        controller: _tabController,
+                        labelColor: Theme.of(context).colorScheme.primary,
+                        unselectedLabelColor: Colors.grey,
+                        indicatorColor: Theme.of(context).colorScheme.primary,
+                        tabs: const [
+                          Tab(
+                            icon: Icon(Icons.pets_rounded),
+                            text: 'En Adopción',
+                          ),
+                          Tab(
+                            icon: Icon(Icons.search_off_rounded),
+                            text: 'Perdidas',
+                          ),
                         ],
                       ),
                     ),
-                    SliverPersistentHeader(
-                      pinned: true,
-                      delegate: StickyTabBar(
-                        TabBar(
-                          controller: _tabController,
-                          labelColor: Theme.of(context).colorScheme.primary,
-                          unselectedLabelColor: Colors.grey,
-                          indicatorColor: Theme.of(context).colorScheme.primary,
-                          tabs: const [
-                            Tab(
-                              icon: Icon(Icons.pets_rounded),
-                              text: 'En Adopción',
-                            ),
-                            Tab(
-                              icon: Icon(Icons.search_off_rounded),
-                              text: 'Perdidas',
-                            ),
-                          ],
-                        ),
+                  ),
+                ];
+              },
+              body: TabBarView(
+                controller: _tabController,
+                children: [
+                  NotificationListener<ScrollNotification>(
+                    onNotification: (scrollInfo) => _handleScrollNotification(scrollInfo, _loadMoreAdoptions),
+                    child: AccountAdoptionsGrid(
+                      pets: _adoptionPets,
+                      isMyProfile: isMyProfile,
+                      isLoadingMore: _isLoadingMoreAdoptions,
+                      emptyStateWidget: const AppEmptyState(
+                        icon: Icons.pets,
+                        description: 'No has publicado mascotas en adopción'
                       ),
+                      onEdit: _handlePetEdit,
+                      onDelete: _handlePetDelete,
+                      onStatusChange: _handlePetStatusChange,
                     ),
-                  ];
-                },
-                body: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    NotificationListener<ScrollNotification>(
-                      onNotification: (scrollInfo) => _handleScrollNotification(scrollInfo, _loadMoreAdoptions),
-                      child: AdoptionPetsGrid(
-                        pets: _adoptionPets,
-                        isMyProfile: isMyProfile,
-                        isLoadingMore: _isLoadingMoreAdoptions,
-                        emptyStateWidget: const AppEmptyState(
-                          icon: Icons.pets,
-                          description: 'No has publicado mascotas en adopción'
-                        ),
-                        onEdit: _handlePetEdit,
-                        onDelete: _handlePetDelete,
-                        onStatusChange: _handlePetStatusChange,
+                  ),
+                  NotificationListener<ScrollNotification>(
+                    onNotification: (scrollInfo) => _handleScrollNotification(scrollInfo, _loadMoreLostPets),
+                    child: AccountLostPetsGrid(
+                      lostPets: _lostPets,
+                      isMyProfile: isMyProfile,
+                      isLoadingMore: _isLoadingMoreLostPets,
+                      emptyStateWidget: const AppEmptyState(
+                        icon: Icons.search_off,
+                        description: 'No has publicado reportes de mascotas perdidas'
                       ),
+                      onEdit: _handlePetEdit,
+                      onDelete: _handlePetDelete,
+                      onStatusChange: _handlePetStatusChange,
                     ),
-                    NotificationListener<ScrollNotification>(
-                      onNotification: (scrollInfo) => _handleScrollNotification(scrollInfo, _loadMoreLostPets),
-                      child: LostPetsGrid(
-                        lostPets: _lostPets,
-                        isMyProfile: isMyProfile,
-                        isLoadingMore: _isLoadingMoreLostPets,
-                        emptyStateWidget: const AppEmptyState(
-                          icon: Icons.search_off,
-                          description: 'No has publicado reportes de mascotas perdidas'
-                        ),
-                        onEdit: _handlePetEdit,
-                        onDelete: _handlePetDelete,
-                        onStatusChange: _handlePetStatusChange,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
+          ),
     );
   }
 

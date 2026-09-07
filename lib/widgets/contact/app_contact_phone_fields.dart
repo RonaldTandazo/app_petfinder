@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class AppContactPhoneFields extends StatelessWidget {
-  final TextEditingController mobileController;
-  final TextEditingController homeController;
+  final TextEditingController? mobileController;
+  final TextEditingController? homeController;
 
   final bool showHeader;
   final bool showPhoneMobile;
@@ -17,8 +17,8 @@ class AppContactPhoneFields extends StatelessWidget {
 
   const AppContactPhoneFields({
     super.key,
-    required this.mobileController,
-    required this.homeController,
+    this.mobileController,
+    this.homeController,
     this.showHeader = true,
     this.showPhoneMobile = true,
     this.showPhoneHome = true,

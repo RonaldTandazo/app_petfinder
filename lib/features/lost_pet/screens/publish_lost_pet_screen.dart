@@ -128,7 +128,7 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
       return;
     }
 
-    final hasUploading = _selectedImages.any((img) => img.isUploading);
+    final bool hasUploading = _selectedImages.any((img) => img.isUploading);
     if (hasUploading) {
       AppSnackBar.show(
         context,
@@ -141,7 +141,7 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
 
     if (!_formKey.currentState!.validate()) return;
 
-    final photosPayload = _selectedImages.asMap().entries.map((entry) {
+    final List<Map<String, dynamic>> photosPayload = _selectedImages.asMap().entries.map((entry) {
       final idx = entry.key;
       final item = entry.value;
       return {
