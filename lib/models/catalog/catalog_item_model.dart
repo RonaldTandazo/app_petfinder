@@ -1,4 +1,3 @@
-// 1. Modelo Base Abstracto
 abstract class CatalogItemModel {
   final int id;
   final String name;

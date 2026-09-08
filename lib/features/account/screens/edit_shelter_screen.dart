@@ -1,5 +1,3 @@
-import 'package:app_petfinder/enums/snackbar/snackbar_type.dart';
-import 'package:app_petfinder/widgets/snackbars/app_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:app_petfinder/models/catalog/country_model.dart';
@@ -13,6 +11,11 @@ import 'package:app_petfinder/features/adoption/styles/pet_form_styles.dart';
 import 'package:app_petfinder/models/storage/temp_file_model.dart';
 import 'package:app_petfinder/repository/account/account_repository.dart';
 import 'package:app_petfinder/widgets/images/app_image_picker_grid.dart';
+import 'package:app_petfinder/core/utils/account_storage_service.dart';
+import 'package:app_petfinder/core/utils/session_storage_service.dart';
+import 'package:app_petfinder/enums/snackbar/snackbar_type.dart';
+import 'package:app_petfinder/repository/catalog/catalog_repository.dart';
+import 'package:app_petfinder/widgets/snackbars/app_snackbar.dart';
 
 class EditShelterScreen extends StatefulWidget {
   const EditShelterScreen({super.key});
@@ -22,7 +25,10 @@ class EditShelterScreen extends StatefulWidget {
 }
 
 class _EditShelterScreenState extends State<EditShelterScreen> {
+  final CatalogRepository _catalogRepository = CatalogRepository();
   final AccountRepository _accountRepository = AccountRepository();
+  final String? _initName = SessionStorageService.name;
+  final String? _initEmail = SessionStorageService.email;
   final _formKey = GlobalKey<FormState>();
 
   final _nameController = TextEditingController();
@@ -40,14 +46,16 @@ class _EditShelterScreenState extends State<EditShelterScreen> {
   double? _longitude;
   List<TempFileModel> _avatarImages = [];
 
-  bool _isLoading = false;
-  bool _isSubmitting = false;
-  List<CountryModel> _countries = [];
+  bool _isLoadingData = true;
+  bool _isLoadingCatalog = true;
 
+  List<CountryModel> _countriesList = [];
+  
   @override
   void initState() {
     super.initState();
     _loadInitialData();
+    _loadFormCatalogs();
   }
 
   @override
@@ -65,49 +73,62 @@ class _EditShelterScreenState extends State<EditShelterScreen> {
   }
 
   Future<void> _loadInitialData() async {
-    // try {
-    //   final shelter = await _accountRepository.getProfile();
-    //   final countriesList = await _accountRepository.getCountries();
+    try {
+      final response = await _accountRepository.getProfileInfo();
 
-    //   if (!mounted) return;
+      if (!mounted) return;
 
-    //   setState(() {
-    //     _countries = countriesList;
+      final data = response.data;
 
-    //     _nameController.text = shelter['name'] ?? '';
-    //     _businessNameController.text = shelter['business_name'] ?? '';
-    //     _taxIdentificationController.text = shelter['tax_identification'] ?? '';
-    //     _emailController.text = shelter['email'] ?? '';
-    //     _telephoneController.text = shelter['telephone'] ?? '';
-    //     _physicalAddressController.text = shelter['physical_address'] ?? '';
-    //     _cityController.text = shelter['city'] ?? '';
-    //     _webPageController.text = shelter['web_page'] ?? '';
-    //     _businessHoursController.text = shelter['business_hours'] ?? '';
+      if(data != null){
+        setState(() {
+          _nameController.text = _initName ?? '';
+          _businessNameController.text = data['business_name'] ?? '';
+          _taxIdentificationController.text = data['tax_identification'] ?? '';
+          _emailController.text = _initEmail ?? '';
+          _telephoneController.text = data['telephone'] ?? '';
+          _physicalAddressController.text = data['physical_address'] ?? '';
+          _cityController.text = data['city'] ?? '';
+          _webPageController.text = data['web_page'] ?? '';
+          _businessHoursController.text = data['business_hours'] ?? '';
+          _selectedCountryId = data['country_id'];
 
-    //     _selectedCountryId = shelter['country_id'];
+          if (data['latitude'] != null) {
+            _latitude = (data['latitude'] as num?)?.toDouble();
+          }
+          if (data['longitude'] != null) {
+            _longitude = (data['_longitude'] as num?)?.toDouble();
+          }
+        });
+      }
+    } on ApiException catch (e) {
+      ApiErrorHandler.handle(context, e);
+    } finally {
+      if (mounted) setState(() => _isLoadingData = false);
+    }
+  }
 
-    //     if (shelter['latitude'] != null) {
-    //       _latitude = double.tryParse(shelter['latitude'].toString());
-    //     }
-    //     if (shelter['longitude'] != null) {
-    //       _longitude = double.tryParse(shelter['longitude'].toString());
-    //     }
+  Future<void> _loadFormCatalogs() async {
+    try {
+      final response = await _catalogRepository.getAccountCatalogs();
+      if (!mounted) return;
 
-    //     if (shelter['avatar_url'] != null || shelter['avatar'] != null) {
-    //       _avatarImages = [
-    //         TempFileModel(
-    //           uuid: 'existing_avatar',
-    //           path: shelter['avatar_url'] ?? shelter['avatar'],
-    //           key: shelter['avatar'],
-    //           isUploading: false,
-    //         ),
-    //       ];
-    //     }
-    //     _isLoading = false;
-    //   });
-    // } catch (_) {
-    //   if (mounted) setState(() => _isLoading = false);
-    // }
+      final data = response.data;
+
+      setState(() {
+        if (data != null) {
+          if (data['countries'] is List) {
+            _countriesList = (data['countries'] as List)
+                .map((e) => CountryModel.fromJson(e as Map<String, dynamic>))
+                .toList();
+          }
+        }
+      });
+    } on ApiException catch (e) {
+      ApiErrorHandler.handle(context, e);
+    } finally {
+      if (mounted) setState(() => _isLoadingCatalog = false);
+    }
   }
 
   Future<void> _submit() async {
@@ -133,11 +154,15 @@ class _EditShelterScreenState extends State<EditShelterScreen> {
       };
     }).toList();
 
-    final Map<String, dynamic> payload = {
+    final Map<String, dynamic> sessionFields = {
       'name': _nameController.text.trim(),
+      'email': _emailController.text.trim(),
+    };
+
+    final Map<String, dynamic> payload = {
+      ...sessionFields,
       'business_name': _businessNameController.text.trim().isEmpty ? null : _businessNameController.text.trim(),
       'tax_identification': _taxIdentificationController.text.trim().isEmpty ? null : _taxIdentificationController.text.trim(),
-      'email': _emailController.text.trim(),
       'telephone': _telephoneController.text.trim().isEmpty ? null : _telephoneController.text.trim(),
       'physical_address': _physicalAddressController.text.trim().isEmpty ? null : _physicalAddressController.text.trim(),
       'country_id': _selectedCountryId,
@@ -146,32 +171,32 @@ class _EditShelterScreenState extends State<EditShelterScreen> {
       'longitude': _longitude,
       'web_page': _webPageController.text.trim().isEmpty ? null : _webPageController.text.trim(),
       'business_hours': _businessHoursController.text.trim().isEmpty ? null : _businessHoursController.text.trim(),
-      'avatar': photosPayload,
+      // 'avatar': photosPayload,
     };
 
-    // AppLoadingOverlay.show(
-    //   context,
-    //   title: 'Actualizando Datos...',
-    //   description: 'Estamos actualizando tus datos',
-    // );
+    AppLoadingOverlay.show(
+      context,
+      title: 'Actualizando Datos...',
+      description: 'Estamos actualizando tus datos',
+    );
 
-    // try {
-    //   await _accountRepository.updateShelterProfile(payload);
-    //   if (!mounted) return;
+    try {
+      await _accountRepository.updateProfile(payload);
+      if (!mounted) return;
 
-    //   ApiSuccessHandler.handle(
-    //     context,
-    //     title: 'Refugio actualizado',
-    //     description: 'Tus datos se actualizaron correctamente.',
-    //   );
-    // } on ApiException catch (e) {
-    //   if (e.errors != null) {
-    //     setState(() => _fieldErrors = e.errors!);
-    //   }
-    //   ApiErrorHandler.handle(context, e);
-    // } finally {
-    //   if (mounted) AppLoadingOverlay.hide();
-    // }
+      ApiSuccessHandler.handle(
+        context,
+        title: 'Refugio actualizado',
+        description: 'Tus datos se actualizaron correctamente',
+      );
+
+      AccountStorageService.saveAccount(payload);
+      SessionStorageService.updateSession(sessionFields);
+    } on ApiException catch (e) {
+      ApiErrorHandler.handle(context, e);
+    } finally {
+      if (mounted) AppLoadingOverlay.hide();
+    }
   }
 
   @override
@@ -187,7 +212,7 @@ class _EditShelterScreenState extends State<EditShelterScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: _isLoading
+      body: _isLoadingData || _isLoadingCatalog
         ? const Center(child: CircularProgressIndicator(color: Colors.teal))
         : Form(
             key: _formKey,
@@ -253,7 +278,7 @@ class _EditShelterScreenState extends State<EditShelterScreen> {
                       child: DropdownButtonFormField<int>(
                         initialValue: _selectedCountryId,
                         decoration: PetFormStyles.inputDecoration('País', Icons.public),
-                        items: _countries.map((item) => DropdownMenuItem<int>(
+                        items: _countriesList.map((item) => DropdownMenuItem<int>(
                           value: item.id,
                           child: Text(item.name),
                         )).toList(),
@@ -304,7 +329,7 @@ class _EditShelterScreenState extends State<EditShelterScreen> {
                 const SizedBox(height: 14),
                 TextFormField(
                   controller: _businessHoursController,
-                  decoration: PetFormStyles.inputDecoration('Sitio Web', Icons.access_time_rounded),
+                  decoration: PetFormStyles.inputDecoration('Horarios de Atención', Icons.access_time_rounded),
                 ),
                 const SizedBox(height: 28),
 

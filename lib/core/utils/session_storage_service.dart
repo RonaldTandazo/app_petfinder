@@ -35,6 +35,16 @@ class SessionStorageService {
     ]);
   }
 
+  static Future<void> updateSession(Map<String, dynamic> userData) async {
+    name = userData['name'] as String?;
+    email = userData['email'] as String?;
+
+    await Future.wait([
+      if (name != null) _storage.write(key: _kName, value: name!),
+      if (email != null) _storage.write(key: _kEmail, value: email!),
+    ]);
+  }
+
   static Future<void> loadSession() async {
     final String? mId = await _storage.read(key: _kMainId);
     final String? tId = await _storage.read(key: _kTutorId);

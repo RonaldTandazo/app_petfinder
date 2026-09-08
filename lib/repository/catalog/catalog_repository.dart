@@ -22,4 +22,22 @@ class CatalogRepository extends BaseRepository {
 
     return response;
   }
+
+  Future<ApiResponse<Map<String, dynamic>>> getAccountCatalogs({ bool forceRefresh = false }) async {
+    if (!forceRefresh) {
+      final cachedData = await CatalogStorageService.getAccountCatalogs();
+      if (cachedData != null) {
+        return ApiResponse(ok: true, message: 'Catálogo Obtenido', data: cachedData, code: 200);
+      }
+    }
+
+    final response = await safeCall<Map<String, dynamic>>(
+      () => api.get('$_prefix/account'),
+      fromJson: (json) => json as Map<String, dynamic>,
+    );
+
+    await CatalogStorageService.saveAccountCatalogs(response.data!);
+
+    return response;
+  }
 }

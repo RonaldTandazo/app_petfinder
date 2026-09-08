@@ -11,6 +11,10 @@ import 'package:app_petfinder/features/adoption/styles/pet_form_styles.dart';
 import 'package:app_petfinder/models/storage/temp_file_model.dart';
 import 'package:app_petfinder/repository/account/account_repository.dart';
 import 'package:app_petfinder/widgets/images/app_image_picker_grid.dart';
+import 'package:app_petfinder/core/utils/account_storage_service.dart';
+import 'package:app_petfinder/core/utils/session_storage_service.dart';
+import 'package:app_petfinder/repository/catalog/catalog_repository.dart';
+import 'package:app_petfinder/widgets/loaders/app_loading_overlay.dart';
 
 class EditUserScreen extends StatefulWidget {
   const EditUserScreen({super.key});
@@ -20,7 +24,9 @@ class EditUserScreen extends StatefulWidget {
 }
 
 class _EditUserScreenState extends State<EditUserScreen> {
+  final CatalogRepository _catalogRepository = CatalogRepository();
   final AccountRepository _accountRepository = AccountRepository();
+  final String? _initEmail = SessionStorageService.email;
   final _formKey = GlobalKey<FormState>();
 
   final _firstNamesController = TextEditingController();
@@ -34,15 +40,17 @@ class _EditUserScreenState extends State<EditUserScreen> {
   int? _selectedCountryId;
   List<TempFileModel> _avatarImages = [];
 
-  bool _isLoading = false;
+  bool _isLoadingData = true;
+  bool _isLoadingCatalog = true;
 
-  List<CountryModel> _countries = [];
-  List<GenderModel> _genders = [];
+  List<CountryModel> _countriesList = [];
+  List<GenderModel> _gendersList = [];
 
   @override
   void initState() {
     super.initState();
     _loadInitialData();
+    _loadFormCatalogs();
   }
 
   @override
@@ -57,42 +65,59 @@ class _EditUserScreenState extends State<EditUserScreen> {
   }
 
   Future<void> _loadInitialData() async {
-    // try {
-    //   final user = await _accountRepository.getProfile();
-    //   final countriesList = await _accountRepository.getCountries();
-    //   final gendersList = await _accountRepository.getGenders();
+    try {
+      final response = await _accountRepository.getProfileInfo();
 
-    //   if (!mounted) return;
+      if (!mounted) return;
 
-    //   setState(() {
-    //     _countries = countriesList;
-    //     _genders = gendersList;
+      final data = response.data;
 
-    //     _firstNamesController.text = user['first_names'] ?? '';
-    //     _lastNamesController.text = user['last_names'] ?? '';
-    //     _emailController.text = user['email'] ?? '';
-    //     _telephoneController.text = user['telephone'] ?? '';
-    //     _cityController.text = user['city'] ?? '';
-    //     _addressController.text = user['address'] ?? '';
+      if(data != null){
+        setState(() {
+          _firstNamesController.text = data['first_names'] ?? '';
+          _lastNamesController.text = data['last_names'] ?? '';
+          _emailController.text = _initEmail ?? '';
+          _telephoneController.text = data['telephone'] ?? '';
+          _cityController.text = data['city'] ?? '';
+          _addressController.text = data['address'] ?? '';
+          _selectedGenderId = data['gender_id'];
+          _selectedCountryId = data['country_id'];
+        });
+      }
+    } on ApiException catch (e) {
+      ApiErrorHandler.handle(context, e);
+    } finally {
+      if (mounted) setState(() => _isLoadingData = false);
+    }
+  }
 
-    //     _selectedGenderId = user['gender_id'];
-    //     _selectedCountryId = user['country_id'];
+  Future<void> _loadFormCatalogs() async {
+    try {
+      final response = await _catalogRepository.getAccountCatalogs();
+      if (!mounted) return;
 
-    //     if (user['avatar_url'] != null || user['avatar'] != null) {
-    //       _avatarImages = [
-    //         TempFileModel(
-    //           uuid: 'existing_avatar',
-    //           path: user['avatar_url'] ?? user['avatar'],
-    //           key: user['avatar'],
-    //           isUploading: false,
-    //         ),
-    //       ];
-    //     }
-    //     _isLoading = false;
-    //   });
-    // } catch (_) {
-    //   if (mounted) setState(() => _isLoading = false);
-    // }
+      final data = response.data;
+
+      setState(() {
+        if (data != null) {
+          if (data['countries'] is List) {
+            _countriesList = (data['countries'] as List)
+                .map((e) => CountryModel.fromJson(e as Map<String, dynamic>))
+                .toList();
+          }
+
+          if (data['genders'] is List) {
+            _gendersList = (data['genders'] as List)
+                .map((e) => GenderModel.fromJson(e as Map<String, dynamic>))
+                .toList();
+          }
+        }
+      });
+    } on ApiException catch (e) {
+      ApiErrorHandler.handle(context, e);
+    } finally {
+      if (mounted) setState(() => _isLoadingCatalog = false);
+    }
   }
 
   Future<void> _submit() async {
@@ -121,38 +146,43 @@ class _EditUserScreenState extends State<EditUserScreen> {
     final Map<String, dynamic> payload = {
       'first_names': _firstNamesController.text.trim(),
       'last_names': _lastNamesController.text.trim(),
-      'email': _emailController.text.trim().isEmpty ? null : _emailController.text.trim(),
+      'email': _emailController.text.trim(),
       'telephone': _telephoneController.text.trim().isEmpty ? null : _telephoneController.text.trim(),
       'gender_id': _selectedGenderId,
       'country_id': _selectedCountryId,
       'city': _cityController.text.trim().isEmpty ? null : _cityController.text.trim(),
       'address': _addressController.text.trim().isEmpty ? null : _addressController.text.trim(),
-      'avatar': photosPayload,
+      // 'avatar': photosPayload,
     };
 
-    // AppLoadingOverlay.show(
-    //   context,
-    //   title: 'Actualizando Datos...',
-    //   description: 'Estamos actualizando tus datos',
-    // );
+    final Map<String, dynamic> sessionFields = {
+      'name': '${_firstNamesController.text.trim()} ${_lastNamesController.text.trim()}',
+      'email': payload['email'],
+    };
 
-    // try {
-    //   await _accountRepository.updateUserProfile(payload);
-    //   if (!mounted) return;
+    AppLoadingOverlay.show(
+      context,
+      title: 'Actualizando Datos...',
+      description: 'Estamos actualizando tus datos',
+    );
 
-    //   ApiSuccessHandler.handle(
-    //     context,
-    //     title: 'Perfil actualizado',
-    //     description: 'Tus datos se actualizaron correctamente.',
-    //   );
-    // } on ApiException catch (e) {
-    //   if (e.errors != null) {
-    //     setState(() => _fieldErrors = e.errors!);
-    //   }
-    //   ApiErrorHandler.handle(context, e);
-    // } finally {
-    //   if (mounted) AppLoadingOverlay.hide();
-    // }
+    try {
+      await _accountRepository.updateProfile(payload);
+      if (!mounted) return;
+
+      ApiSuccessHandler.handle(
+        context,
+        title: 'Perfil actualizado',
+        description: 'Tus datos se actualizaron correctamente.',
+      );
+
+      AccountStorageService.saveAccount(payload);
+      SessionStorageService.updateSession(sessionFields);
+    } on ApiException catch (e) {
+      ApiErrorHandler.handle(context, e);
+    } finally {
+      if (mounted) AppLoadingOverlay.hide();
+    }
   }
 
   @override
@@ -168,7 +198,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: _isLoading
+      body: _isLoadingData || _isLoadingCatalog
           ? const Center(child: CircularProgressIndicator(color: Colors.teal))
           : Form(
               key: _formKey,
@@ -238,7 +268,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
                         child: DropdownButtonFormField<int>(
                           initialValue: _selectedGenderId,
                           decoration: PetFormStyles.inputDecoration('Género', Icons.wc_rounded),
-                          items: _genders.map((item) => DropdownMenuItem<int>(
+                          items: _gendersList.map((item) => DropdownMenuItem<int>(
                             value: item.id,
                             child: Text(item.name),
                           )).toList(),
@@ -250,7 +280,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
                         child:  DropdownButtonFormField<int>(
                           initialValue: _selectedCountryId,
                           decoration: PetFormStyles.inputDecoration('País', Icons.public),
-                          items: _countries.map((item) => DropdownMenuItem<int>(
+                          items: _countriesList.map((item) => DropdownMenuItem<int>(
                             value: item.id,
                             child: Text(item.name),
                           )).toList(),

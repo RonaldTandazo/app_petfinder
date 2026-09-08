@@ -105,7 +105,7 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
     }
 
     try {
-      final response = await _accountRepository.getProfileData(payload);
+      final response = await _accountRepository.getProfile(payload);
       if (!mounted) return;
 
       final data = response.data;

@@ -31,9 +31,9 @@ class PublishLostPetScreen extends StatefulWidget {
 }
 
 class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
+  final CatalogRepository _catalogRepository = CatalogRepository();
+  final LostPetRepository _lostPetRepository = LostPetRepository();
   final _formKey = GlobalKey<FormState>();
-  final _catalogRepository = CatalogRepository();
-  final _lostPetRepository = LostPetRepository();
 
   List<TempFileModel> _selectedImages = [];
   int _mainImageIndex = 0;

@@ -1,3 +1,4 @@
+import 'package:app_petfinder/core/utils/account_storage_service.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
@@ -59,6 +60,7 @@ class ApiClient {
             await TokenStorageService.deleteToken();
             await SessionStorageService.clearSession();
             await CatalogStorageService.clearCatalogs();
+            await AccountStorageService.clearAccount();
 
             final context = rootNavigatorKey.currentContext;
             if (context != null) {
