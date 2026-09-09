@@ -22,7 +22,7 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
   final _lastNamesController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _phoneController = TextEditingController();
+  final _phoneMobileController = TextEditingController();
   final _cityController = TextEditingController();
   final _addressController = TextEditingController();
 
@@ -46,7 +46,7 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
     _lastNamesController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
-    _phoneController.dispose();
+    _phoneMobileController.dispose();
     _cityController.dispose();
     _addressController.dispose();
     super.dispose();
@@ -72,7 +72,7 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
       'last_names': _lastNamesController.text.trim(),
       'email': _emailController.text.trim(),
       'password': _passwordController.text,
-      if (_phoneController.text.trim().isNotEmpty) 'telephone': _phoneController.text.trim(),
+      if (_phoneMobileController.text.trim().isNotEmpty) 'phone_mobile': _phoneMobileController.text.trim(),
       if (_cityController.text.trim().isNotEmpty) 'city': _cityController.text.trim(),
       if (_addressController.text.trim().isNotEmpty) 'address': _addressController.text.trim(),
     };
@@ -228,7 +228,7 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
                   _buildSectionHeader(context, 'Contacto y Ubicación'),
                   const SizedBox(height: 12),
                   TextFormField(
-                    controller: _phoneController,
+                    controller: _phoneMobileController,
                     keyboardType: TextInputType.phone,
                     textInputAction: TextInputAction.next,
                     decoration: const InputDecoration(

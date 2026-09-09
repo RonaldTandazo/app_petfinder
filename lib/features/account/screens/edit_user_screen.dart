@@ -32,7 +32,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
   final _firstNamesController = TextEditingController();
   final _lastNamesController = TextEditingController();
   final _emailController = TextEditingController();
-  final _telephoneController = TextEditingController();
+  final _phoneMobileController = TextEditingController();
   final _cityController = TextEditingController();
   final _addressController = TextEditingController();
 
@@ -58,7 +58,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
     _firstNamesController.dispose();
     _lastNamesController.dispose();
     _emailController.dispose();
-    _telephoneController.dispose();
+    _phoneMobileController.dispose();
     _cityController.dispose();
     _addressController.dispose();
     super.dispose();
@@ -77,7 +77,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
           _firstNamesController.text = data['first_names'] ?? '';
           _lastNamesController.text = data['last_names'] ?? '';
           _emailController.text = _initEmail ?? '';
-          _telephoneController.text = data['telephone'] ?? '';
+          _phoneMobileController.text = data['phone_mobile'] ?? '';
           _cityController.text = data['city'] ?? '';
           _addressController.text = data['address'] ?? '';
           _selectedGenderId = data['gender_id'];
@@ -139,7 +139,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
 
       return {
         'path_temp': item.key,
-        'is_main': false,
+        'is_main': true,
       };
     }).toList();
 
@@ -147,15 +147,15 @@ class _EditUserScreenState extends State<EditUserScreen> {
       'first_names': _firstNamesController.text.trim(),
       'last_names': _lastNamesController.text.trim(),
       'email': _emailController.text.trim(),
-      'telephone': _telephoneController.text.trim().isEmpty ? null : _telephoneController.text.trim(),
+      'phone_mobile': _phoneMobileController.text.trim().isEmpty ? null : _phoneMobileController.text.trim(),
       'gender_id': _selectedGenderId,
       'country_id': _selectedCountryId,
       'city': _cityController.text.trim().isEmpty ? null : _cityController.text.trim(),
       'address': _addressController.text.trim().isEmpty ? null : _addressController.text.trim(),
-      // 'avatar': photosPayload,
+      'avatar': photosPayload,
     };
 
-    final Map<String, dynamic> sessionFields = {
+    Map<String, dynamic> sessionFields = {
       'name': '${_firstNamesController.text.trim()} ${_lastNamesController.text.trim()}',
       'email': payload['email'],
     };
@@ -167,8 +167,14 @@ class _EditUserScreenState extends State<EditUserScreen> {
     );
 
     try {
-      await _accountRepository.updateProfile(payload);
+      final response = await _accountRepository.updateProfile(payload);
       if (!mounted) return;
+
+      final data = response.data;
+
+      if(data != null){
+        sessionFields['avatar'] = data['avatar'];
+      }
 
       ApiSuccessHandler.handle(
         context,
@@ -252,7 +258,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
                       const SizedBox(width: 12),
                       Expanded(
                         child:  AppContactPhoneFields(
-                          mobileController: _telephoneController,
+                          mobileController: _phoneMobileController,
                           isPhoneHomeRequired: false,
                           showHeader: false,
                           showPhoneHome: false,

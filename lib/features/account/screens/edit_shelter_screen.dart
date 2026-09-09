@@ -35,8 +35,8 @@ class _EditShelterScreenState extends State<EditShelterScreen> {
   final _businessNameController = TextEditingController();
   final _taxIdentificationController = TextEditingController();
   final _emailController = TextEditingController();
-  final _telephoneController = TextEditingController();
-  final _physicalAddressController = TextEditingController();
+  final _phoneMobileController = TextEditingController();
+  final _addressController = TextEditingController();
   final _cityController = TextEditingController();
   final _webPageController = TextEditingController();
   final _businessHoursController = TextEditingController();
@@ -64,8 +64,8 @@ class _EditShelterScreenState extends State<EditShelterScreen> {
     _businessNameController.dispose();
     _taxIdentificationController.dispose();
     _emailController.dispose();
-    _telephoneController.dispose();
-    _physicalAddressController.dispose();
+    _phoneMobileController.dispose();
+    _addressController.dispose();
     _cityController.dispose();
     _webPageController.dispose();
     _businessHoursController.dispose();
@@ -86,8 +86,8 @@ class _EditShelterScreenState extends State<EditShelterScreen> {
           _businessNameController.text = data['business_name'] ?? '';
           _taxIdentificationController.text = data['tax_identification'] ?? '';
           _emailController.text = _initEmail ?? '';
-          _telephoneController.text = data['telephone'] ?? '';
-          _physicalAddressController.text = data['physical_address'] ?? '';
+          _phoneMobileController.text = data['phone_mobile'] ?? '';
+          _addressController.text = data['address'] ?? '';
           _cityController.text = data['city'] ?? '';
           _webPageController.text = data['web_page'] ?? '';
           _businessHoursController.text = data['business_hours'] ?? '';
@@ -150,11 +150,11 @@ class _EditShelterScreenState extends State<EditShelterScreen> {
       
       return {
         'path_temp': item.key,
-        'is_main': false,
+        'is_main': true,
       };
     }).toList();
 
-    final Map<String, dynamic> sessionFields = {
+    Map<String, dynamic> sessionFields = {
       'name': _nameController.text.trim(),
       'email': _emailController.text.trim(),
     };
@@ -163,15 +163,15 @@ class _EditShelterScreenState extends State<EditShelterScreen> {
       ...sessionFields,
       'business_name': _businessNameController.text.trim().isEmpty ? null : _businessNameController.text.trim(),
       'tax_identification': _taxIdentificationController.text.trim().isEmpty ? null : _taxIdentificationController.text.trim(),
-      'telephone': _telephoneController.text.trim().isEmpty ? null : _telephoneController.text.trim(),
-      'physical_address': _physicalAddressController.text.trim().isEmpty ? null : _physicalAddressController.text.trim(),
+      'phone_mobile': _phoneMobileController.text.trim().isEmpty ? null : _phoneMobileController.text.trim(),
+      'address': _addressController.text.trim().isEmpty ? null : _addressController.text.trim(),
       'country_id': _selectedCountryId,
       'city': _cityController.text.trim().isEmpty ? null : _cityController.text.trim(),
       'latitude': _latitude,
       'longitude': _longitude,
       'web_page': _webPageController.text.trim().isEmpty ? null : _webPageController.text.trim(),
       'business_hours': _businessHoursController.text.trim().isEmpty ? null : _businessHoursController.text.trim(),
-      // 'avatar': photosPayload,
+      'avatar': photosPayload,
     };
 
     AppLoadingOverlay.show(
@@ -181,8 +181,14 @@ class _EditShelterScreenState extends State<EditShelterScreen> {
     );
 
     try {
-      await _accountRepository.updateProfile(payload);
+      final response = await _accountRepository.updateProfile(payload);
       if (!mounted) return;
+
+      final data = response.data;
+
+      if(data != null){
+        sessionFields['avatar'] = data['avatar'];
+      }
 
       ApiSuccessHandler.handle(
         context,
@@ -262,7 +268,7 @@ class _EditShelterScreenState extends State<EditShelterScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: AppContactPhoneFields(
-                        mobileController: _telephoneController,
+                        mobileController: _phoneMobileController,
                         isPhoneHomeRequired: false,
                         showHeader: false,
                         showPhoneHome: false,
@@ -297,7 +303,7 @@ class _EditShelterScreenState extends State<EditShelterScreen> {
                 const SizedBox(height: 14),
                 
                 TextFormField(
-                  controller: _physicalAddressController,
+                  controller: _addressController,
                   decoration: PetFormStyles.inputDecoration('Dirección Física', Icons.home_work_outlined),
                 ),
                 const SizedBox(height: 14),

@@ -101,7 +101,7 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
     if (isMyProfile) {
       _name = SessionStorageService.name ?? 'Usuario';
       _email = SessionStorageService.email ?? '';
-      _avatar = null;
+      _avatar = SessionStorageService.avatar;
     }
 
     try {

@@ -23,7 +23,7 @@ class _RegisterShelterScreenState extends State<RegisterShelterScreen> {
   final _taxIdController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _phoneController = TextEditingController();
+  final _phoneMobileController = TextEditingController();
   final _cityController = TextEditingController();
   final _addressController = TextEditingController();
   final _hoursController = TextEditingController();
@@ -50,7 +50,7 @@ class _RegisterShelterScreenState extends State<RegisterShelterScreen> {
     _taxIdController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
-    _phoneController.dispose();
+    _phoneMobileController.dispose();
     _cityController.dispose();
     _addressController.dispose();
     _hoursController.dispose();
@@ -79,9 +79,9 @@ class _RegisterShelterScreenState extends State<RegisterShelterScreen> {
       if (_taxIdController.text.trim().isNotEmpty) 'tax_identification': _taxIdController.text.trim(),
       'email': _emailController.text.trim(),
       'password': _passwordController.text,
-      if (_phoneController.text.trim().isNotEmpty) 'telephone': _phoneController.text.trim(),
+      if (_phoneMobileController.text.trim().isNotEmpty) 'phone_mobile': _phoneMobileController.text.trim(),
       if (_cityController.text.trim().isNotEmpty) 'city': _cityController.text.trim(),
-      if (_addressController.text.trim().isNotEmpty) 'physical_address': _addressController.text.trim(),
+      if (_addressController.text.trim().isNotEmpty) 'address': _addressController.text.trim(),
       if (_hoursController.text.trim().isNotEmpty) 'business_hours': _hoursController.text.trim(),
       if (_webController.text.trim().isNotEmpty) 'web_page': _webController.text.trim(),
     };
@@ -248,7 +248,7 @@ class _RegisterShelterScreenState extends State<RegisterShelterScreen> {
                     children: [
                       Expanded(
                         child: TextFormField(
-                          controller: _phoneController,
+                          controller: _phoneMobileController,
                           keyboardType: TextInputType.phone,
                           textInputAction: TextInputAction.next,
                           decoration: const InputDecoration(
