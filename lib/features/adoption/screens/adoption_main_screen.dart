@@ -29,8 +29,8 @@ class AdoptionHomeScreen extends StatefulWidget {
 
 class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
   final ScrollController _scrollController = ScrollController();
-  final _adoptionRepository = AdoptionRepository();
-  final _catalogRepository = CatalogRepository();
+  final AdoptionRepository _adoptionRepository = AdoptionRepository();
+  final CatalogRepository _catalogRepository = CatalogRepository();
 
   Timer? _debounceTimer;
   ViewMode _currentViewMode = ViewMode.grid;
@@ -130,7 +130,6 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
 
     try {
       final response = await _adoptionRepository.getAdoptionPets(payload, cancelToken: _cancelToken);
-      
       if (currentRequestId != _requestId || !mounted) return;
 
       final data = response.data;

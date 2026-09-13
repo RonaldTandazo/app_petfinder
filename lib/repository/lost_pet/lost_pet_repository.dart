@@ -1,10 +1,11 @@
 import 'package:app_petfinder/core/network/api_response.dart';
 import 'package:app_petfinder/core/repository/base_repository.dart';
+import 'package:dio/dio.dart';
 
 class LostPetRepository extends BaseRepository {
   static const String _prefix = '/lost-pets';
 
-  Future<ApiResponse<Map<String, dynamic>>> getLostPets(Map<String, dynamic> data) async {
+  Future<ApiResponse<Map<String, dynamic>>> getLostPets(Map<String, dynamic> data, { CancelToken? cancelToken, }) async {
     final response = await safeCall<Map<String, dynamic>>(
       () => api.get('$_prefix/reports', queryParameters: data),
       fromJson: (json) => json as Map<String, dynamic>,
