@@ -10,7 +10,6 @@ import 'package:app_petfinder/core/network/api_exception.dart';
 import 'package:app_petfinder/core/utils/api_error_handler.dart';
 import 'package:app_petfinder/repository/lost_pet/lost_pet_repository.dart';
 import 'package:app_petfinder/models/lost_pet/lost_pet_list_model.dart';
-import 'package:app_petfinder/features/adoption/widgets/species_selector_chips.dart';
 import 'package:app_petfinder/features/lost_pet/widgets/lost_pet_card.dart';
 import 'package:app_petfinder/widgets/loaders/app_skeleton_loader.dart';
 import 'package:app_petfinder/widgets/state/app_empty_state.dart';
