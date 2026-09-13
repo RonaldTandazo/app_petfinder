@@ -25,6 +25,7 @@ import 'package:app_petfinder/widgets/contact/app_contact_phone_fields.dart';
 import 'package:app_petfinder/core/network/api_response.dart';
 import 'package:app_petfinder/features/lost_pet/widgets/publish_pet_skeleton.dart';
 import 'package:app_petfinder/models/lost_pet/lost_pet_model.dart';
+import 'package:app_petfinder/core/router/main/main_routes.dart';
 
 class PublishLostPetScreen extends StatefulWidget {
   final int? petId;
@@ -261,7 +262,7 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
         description: response.message
       );
 
-      context.pop();
+      !_isUpdate ? context.go(MainRoutes.lostPets) : context.go(MainRoutes.account);
     } on ApiException catch (e) {
       ApiErrorHandler.handle(context, e);
     } finally {

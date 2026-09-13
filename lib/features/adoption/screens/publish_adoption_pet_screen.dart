@@ -26,6 +26,7 @@ import 'package:app_petfinder/widgets/locations/app_location_picket_tile.dart';
 import 'package:app_petfinder/core/network/api_response.dart';
 import 'package:app_petfinder/features/lost_pet/widgets/publish_pet_skeleton.dart';
 import 'package:app_petfinder/models/adoption/adoption_pet_model.dart';
+import 'package:app_petfinder/core/router/main/main_routes.dart';
 
 class PublishAdoptionPetScreen extends StatefulWidget {
   final int? petId;
@@ -276,7 +277,7 @@ class _PublishAdoptionPetScreenState extends State<PublishAdoptionPetScreen> {
         description: response.message
       );
 
-      context.pop();
+      !_isUpdate ? context.go(MainRoutes.adoptions) : context.go(MainRoutes.account);
     } on ApiException catch (e) {
       ApiErrorHandler.handle(context, e);
     } finally {
