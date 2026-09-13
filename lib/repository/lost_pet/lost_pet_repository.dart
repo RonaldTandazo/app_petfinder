@@ -31,6 +31,24 @@ class LostPetRepository extends BaseRepository {
     return response;
   }
 
+  Future<ApiResponse<Map<String, dynamic>>> update(int lostPetId, Map<String, dynamic> data) async {
+    final response = await safeCall<Map<String, dynamic>>(
+      () => api.post('$_prefix/update/$lostPetId', data: data),
+      fromJson: (json) => json as Map<String, dynamic>,
+    );
+
+    return response;
+  }
+
+  Future<ApiResponse<Map<String, dynamic>>> delete(int petId) async {
+    final response = await safeCall<Map<String, dynamic>>(
+      () => api.delete('$_prefix/delete/$petId'),
+      fromJson: (json) => json as Map<String, dynamic>,
+    );
+
+    return response;
+  }
+
   Future<ApiResponse<Map<String, dynamic>>> setFollowState(int lostPetId, Map<String, dynamic> data) async {
     final response = await safeCall<Map<String, dynamic>>(
       () => api.post('$_prefix/follow/$lostPetId', data: data),

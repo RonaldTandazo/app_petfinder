@@ -12,7 +12,10 @@ class AdoptionRoutes {
     return [
       GoRoute(
         path: publish,
-        builder: (context, state) => const PublishAdoptionPetScreen(),
+        builder: (context, state) {
+          final int? petId = state.extra as int?;
+          return PublishAdoptionPetScreen(petId: petId);
+        }
       ),
       GoRoute(
         path: adoptionPet,

@@ -8,10 +8,13 @@ class LostPetModel {
   final String? phoneMobile;
   final String reportTypeTag;
   final String reportType;
+  final int speciesId;
   final String speciesTag;
   final String species;
+  final int genderId;
   final String genderTag;
   final String gender;
+  final int sizeId;
   final String sizeTag;
   final String size;
   final bool hasReward;
@@ -36,10 +39,13 @@ class LostPetModel {
     this.phoneMobile,
     required this.reportTypeTag,
     required this.reportType,
+    required this.speciesId,
     required this.speciesTag,
     required this.species,
+    required this.genderId,
     required this.genderTag,
     required this.gender,
+    required this.sizeId,
     required this.sizeTag,
     required this.size,
     required this.hasReward,
@@ -66,10 +72,13 @@ class LostPetModel {
       phoneMobile: (json['phone_mobile'] ?? '') as String,
       reportTypeTag: json['report_type_tag'] as String,
       reportType: json['report_type'] as String,
+      speciesId: json['species_id'] as int,
       speciesTag: json['species_tag'] as String,
       species: json['species'] as String,
+      genderId: json['gender_id'] as int,
       genderTag: json['gender_tag'] as String,
       gender: json['gender'] as String,
+      sizeId: json['size_id'] as int,
       sizeTag: json['size_tag'] as String,
       size: json['size'] as String,
       hasReward: json['has_reward'] as bool,

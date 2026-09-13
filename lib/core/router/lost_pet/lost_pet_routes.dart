@@ -12,7 +12,10 @@ class LostPetRoutes {
     return [
       GoRoute(
         path: publish,
-        builder: (context, state) => const PublishLostPetScreen(),
+        builder: (context, state) {
+          final int? petId = state.extra as int?;
+          return PublishLostPetScreen(petId: petId);
+        }
       ),
       GoRoute(
         path: lostPetDetail,

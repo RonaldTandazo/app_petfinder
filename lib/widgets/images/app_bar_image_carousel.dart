@@ -46,7 +46,7 @@ class _AppBarImageCarouselState extends State<AppBarImageCarousel> {
         IconButton(
           icon: Icon(
             widget.isFollowing ? Icons.bookmark : Icons.bookmark_border,
-            color: widget.isFollowing ? Colors.amber : Colors.white,
+            color: widget.isFollowing ? Colors.amber : Colors.black54,
             size: 28,
           ),
           tooltip: widget.isFollowing ? 'Dejar de seguir' : 'Seguir caso',

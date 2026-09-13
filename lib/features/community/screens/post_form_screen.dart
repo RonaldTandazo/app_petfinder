@@ -276,7 +276,7 @@ class _PostFormScreenState extends State<PostFormScreen> {
     AppLoadingOverlay.show(
       context,
       title: _isEditing ? 'Guardando publicación...' : 'Publicando...',
-      description: 'Estamos procesando tu publicación.',
+      description: 'Estamos procesando tu publicación',
     );
 
     try {

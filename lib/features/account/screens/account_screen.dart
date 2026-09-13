@@ -1,3 +1,9 @@
+import 'package:app_petfinder/core/network/api_response.dart';
+import 'package:app_petfinder/core/router/adoption/adoption_routes.dart';
+import 'package:app_petfinder/core/router/lost_pet/lost_pet_routes.dart';
+import 'package:app_petfinder/core/utils/api_success_handler.dart';
+import 'package:app_petfinder/widgets/dialog/app_confirm_dialog.dart';
+import 'package:app_petfinder/widgets/loaders/app_loading_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:app_petfinder/core/router/auth/auth_routes.dart';
@@ -229,45 +235,95 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
     return false;
   }
 
-  Future<bool> _showDeleteConfirmationDialog() async {
-    return await showDialog<bool>(
+  Future<bool> _confirmDelete() async {
+    final bool? confirm = await AppConfirmDialog.show(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Eliminar publicación'),
-        content: const Text('¿Estás seguro de que deseas eliminar este registro?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-    ) ??
-    false;
+      title: 'Eliminar publicación',
+      message: 'Esta acción eliminará esta publicación. \n¿Desea continuar?',
+      cancelText: 'No, cancelar',
+      confirmText: 'Sí, eliminar',
+      confirmColor: Colors.redAccent,
+    );
+
+    return confirm ?? false;
+  }
+
+  void _decrementPostingMetric() {
+    final index = _metrics.indexWhere((metric) => metric.tag == 'POSTINGS');
+    if (index != -1) {
+      final currentCount = _metrics[index].count;
+      final newCount = (currentCount > 0) ? currentCount - 1 : 0;
+
+      _metrics[index] = _metrics[index].copyWith(count: newCount);
+    }
+  }
+
+  void _handleTap(int id, PetSource source) {
+    switch (source) {
+      case PetSource.adoption:
+        context.push(AdoptionRoutes.adoptionPet, extra: id);
+        break;
+
+      case PetSource.lost:
+        context.push(LostPetRoutes.lostPetDetail, extra: id);
+        break;
+    }
+  }
+
+
+  void _handlePetEdit(int id, PetSource source) {
+    switch (source) {
+      case PetSource.adoption:
+        context.push(AdoptionRoutes.publish, extra: id);
+        break;
+
+      case PetSource.lost:
+        context.push(LostPetRoutes.publish, extra: id);
+        break;
+    }
   }
 
   Future<void> _handlePetDelete(int id, PetSource source) async {
-    final confirmed = await _showDeleteConfirmationDialog();
+    final confirmed = await _confirmDelete();
     if (!confirmed) return;
 
-    // try {
-    //   switch (source) {
-    //     case PetSource.adoption:
-    //       await _adoptionRepository.deletePet(id);
-    //       setState(() => _adoptionPets.removeWhere((pet) => pet.id == id));
-    //       break;
-    //     case PetSource.lost:
-    //       await _lostPetRepository.deletePet(id);
-    //       setState(() => _lostPets.removeWhere((pet) => pet.id == id));
-    //       break;
-    //   }
-    // } on ApiException catch (e) {
-    //   ApiErrorHandler.handle(context, e);
-    // }
+    AppLoadingOverlay.show(
+      context,
+      title: 'Eliminando publicación...',
+      description: 'Estamos quitando tu publicación, por favor espera un momento',
+    );
+
+    ApiResponse response;
+
+    try {
+      switch (source) {
+        case PetSource.adoption:
+          response = await _adoptionRepository.delete(id);
+          if (!mounted) return;
+          
+          setState(() {
+            _adoptionPets.removeWhere((pet) => pet.id == id);
+            _decrementPostingMetric();
+          });
+          break;
+
+        case PetSource.lost:
+          response = await _lostPetRepository.delete(id);
+          if (!mounted) return;
+          
+          setState(() {
+            _lostPets.removeWhere((pet) => pet.id == id);
+            _decrementPostingMetric();
+          });
+          break;
+      }
+
+      ApiSuccessHandler.handle(context, title: 'Publicación Eliminada!', description: response.message);
+    } on ApiException catch (e) {
+      ApiErrorHandler.handle(context, e);
+    } finally {
+      if(mounted) AppLoadingOverlay.hide();
+    }
   }
 
   Future<void> _handlePetStatusChange(int id, PetSource source) async {
@@ -284,8 +340,6 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
     //   ApiErrorHandler.handle(context, e);
     // }
   }
-
-  void _handlePetEdit(int id, PetSource source) {}
 
   void _handleMetricTap(MetricAction action) {
     switch (action) {
@@ -422,6 +476,7 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
                         icon: Icons.pets,
                         description: 'No has publicado mascotas en adopción'
                       ),
+                      onTap: _handleTap,
                       onEdit: _handlePetEdit,
                       onDelete: _handlePetDelete,
                       onStatusChange: _handlePetStatusChange,
@@ -437,6 +492,7 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
                         icon: Icons.search_off,
                         description: 'No has publicado reportes de mascotas perdidas'
                       ),
+                      onTap: _handleTap,
                       onEdit: _handlePetEdit,
                       onDelete: _handlePetDelete,
                       onStatusChange: _handlePetStatusChange,

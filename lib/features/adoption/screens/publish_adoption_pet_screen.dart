@@ -23,20 +23,28 @@ import 'package:app_petfinder/features/adoption/widgets/health_status_card.dart'
 import 'package:app_petfinder/widgets/toggles/app_toggle_tile.dart';
 import 'package:app_petfinder/widgets/contact/app_contact_phone_fields.dart';
 import 'package:app_petfinder/widgets/locations/app_location_picket_tile.dart';
+import 'package:app_petfinder/core/network/api_response.dart';
+import 'package:app_petfinder/features/lost_pet/widgets/publish_pet_skeleton.dart';
+import 'package:app_petfinder/models/adoption/adoption_pet_model.dart';
 
 class PublishAdoptionPetScreen extends StatefulWidget {
-  const PublishAdoptionPetScreen({super.key});
+  final int? petId;
+
+  const PublishAdoptionPetScreen({
+    super.key,
+    this.petId
+  });
 
   @override
   State<PublishAdoptionPetScreen> createState() => _PublishAdoptionPetScreenState();
 }
 
 class _PublishAdoptionPetScreenState extends State<PublishAdoptionPetScreen> {
+  final CatalogRepository _catalogRepository = CatalogRepository();
+  final AdoptionRepository _adoptionRepository = AdoptionRepository();
   final _formKey = GlobalKey<FormState>();
-  final _catalogRepository = CatalogRepository();
-  final _adoptionRepository = AdoptionRepository();
 
-  final Set<int> _selectedHealthConditionIds = {};
+  Set<int> _selectedHealthConditionIds = {};
   List<TempFileModel> _selectedImages = [];
 
   final _nameController = TextEditingController();
@@ -48,7 +56,11 @@ class _PublishAdoptionPetScreenState extends State<PublishAdoptionPetScreen> {
   final _phoneMobileController = TextEditingController();
   final _descriptionController = TextEditingController();
 
+  String titleScreen = 'Dar en Adopción';
+  String submitButton =  'Publicar en Adopción';
+
   bool _isLoadingCatalog = true;
+  bool _isLoadingPet = false;
   int _mainImageIndex = 0;
   int? _selectedSizeId;
   int? _selectedGenderId;
@@ -63,10 +75,21 @@ class _PublishAdoptionPetScreenState extends State<PublishAdoptionPetScreen> {
   List<SizeModel> _sizesList = [];
   List<HealthConditionModel> _healthConditionsList = [];
 
+  bool get _isLoadingForm => _isLoadingCatalog || _isLoadingPet;
+  bool get _isUpdate => widget.petId != null;
+
   @override
   void initState() {
     super.initState();
+
     _loadFormCatalogs();
+  
+    if (_isUpdate) {
+      titleScreen = 'Editar Adopción de Mascota';
+      submitButton = 'Guardar Cambios';
+
+      _loadPet();
+    }
   }
 
   @override
@@ -123,6 +146,50 @@ class _PublishAdoptionPetScreenState extends State<PublishAdoptionPetScreen> {
     }
   }
 
+  Future<void> _loadPet() async {
+    if (!mounted) return;
+
+    setState(() => _isLoadingPet = true);
+
+    try {
+      final response = await _adoptionRepository.getAdoptionPet(widget.petId!);
+      if (!mounted) return;
+
+      final data = response.data;
+
+      if (data != null) {
+        if (data['pet'] != null) {
+          final Map<String, dynamic> adoptionPetJson = data['pet'];
+
+          final AdoptionPetModel adoptionPet = AdoptionPetModel.fromJson(adoptionPetJson);
+
+          setState(() {
+            _nameController.text = adoptionPet.name;
+            _selectedSpeciesId = adoptionPet.speciesId;
+            _selectedGenderId = adoptionPet.genderId;
+            _selectedSizeId = adoptionPet.sizeId;
+            _selectedBornDate = adoptionPet.bornDate;
+            _raceController.text = adoptionPet.race ?? '';
+            _colorController.text = adoptionPet.color ?? '';
+            _cityController.text = adoptionPet.city;
+            _addressController.text = adoptionPet.address;
+            _latitude = adoptionPet.latitude;
+            _longitude = adoptionPet.longitude;
+            _phoneMobileController.text = adoptionPet.phoneMobile ?? '';
+            _phoneHomeController.text = adoptionPet.phoneHome ?? '';
+            _isUrgent = adoptionPet.isUrgent;
+            _selectedHealthConditionIds = adoptionPet.healthConditions.map((condition) => (condition['id'] as num).toInt()).toSet();
+            _descriptionController.text = adoptionPet.description ?? '';
+          });
+        }
+      }
+    } on ApiException catch (e) {
+      ApiErrorHandler.handle(context, e);
+    } finally {
+      if (mounted) setState(() => _isLoadingPet = false);
+    }
+  }
+
   void _toggleHealthCondition(int conditionId) {
     setState(() {
       if (_selectedHealthConditionIds.contains(conditionId)) {
@@ -133,7 +200,7 @@ class _PublishAdoptionPetScreenState extends State<PublishAdoptionPetScreen> {
     });
   }
 
-  void _submitForm() async {
+  Future<void> _submitForm() async {
     if (_selectedImages.isEmpty) {
       AppSnackBar.show(
         context,
@@ -188,15 +255,26 @@ class _PublishAdoptionPetScreenState extends State<PublishAdoptionPetScreen> {
 
     AppLoadingOverlay.show(
       context,
-      title: 'Publicando mascota en adopción...',
-      description: 'Estamos registrando los datos y procesando la información',
+      title: !_isUpdate ? 'Registrando adopción...' : 'Actualizando adopción...',
+      description: !_isUpdate ? 'Estamos enviando la adopción a la comunidad' : 'Estamos actualizando la adopción en la comunidad',
     );
 
+    ApiResponse response;
+
     try {
-      final response = await _adoptionRepository.store(payload);
+      if(!_isUpdate){
+        response = await _adoptionRepository.store(payload);
+      }else{
+        response = await _adoptionRepository.update(widget.petId!, payload);
+      }
+
       if (!mounted) return;
 
-      ApiSuccessHandler.handle(context, title: '¡Publicación creada!', description: response.message);
+      ApiSuccessHandler.handle(
+        context,
+        title: !_isUpdate ? '¡Adopción publicada!' : 'Adopción actualizada!',
+        description: response.message
+      );
 
       context.pop();
     } on ApiException catch (e) {
@@ -208,241 +286,241 @@ class _PublishAdoptionPetScreenState extends State<PublishAdoptionPetScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8FAF9),
-      appBar: AppBar(
-        title: const Text('Dar en Adopción', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
-      body: _isLoadingCatalog ? const Center(
-        child: CircularProgressIndicator(color: Colors.teal),
-      ) : Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          children: [
-            // FOTOGRAFIAS
-            PetFormStyles.buildSectionHeader('Fotografías', 'Sube hasta 5 fotos claras (mínimo 1)'),
-            const SizedBox(height: 12),
-            AppImagePickerGrid(
-              images: _selectedImages,
-              enableMainSelection: true,
-              selectedIndex: _mainImageIndex,
-              onImagesChanged: (updatedList) {
-                setState(() {
-                  _selectedImages = updatedList;
-                });
-              },
-              onSelectMain: (newIndex) {
-                setState(() {
-                  _mainImageIndex = newIndex;
-                });
-              },
-            ),
-            const SizedBox(height: 24),
-
-            // INFORMACIÓN DE LA MASCOTA
-            PetFormStyles.buildSectionHeader('Información de la Mascota', 'Datos requeridos de la mascota'),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _nameController,
-              decoration: PetFormStyles.inputDecoration('Nombre de la mascota *', Icons.pets),
-              validator: (val) => val == null || val.trim().isEmpty ? 'Ingresa un nombre' : null,
-            ),
-            const SizedBox(height: 14),
-
-            Row(
-              children: [
-                Expanded(
-                  child: DropdownButtonFormField<int>(
-                    initialValue: _selectedSpeciesId,
-                    decoration: PetFormStyles.inputDecoration('Especie *', Icons.category_rounded),
-                    items: _speciesList.map((item) => DropdownMenuItem<int>(
-                      value: item.id,
-                      child: Text(item.name), 
-                    )).toList(),
-                    onChanged: (val) => setState(() => _selectedSpeciesId = val),
-                    validator: (val) => val == null ? 'Selecciona' : null,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: DropdownButtonFormField<int>(
-                    initialValue: _selectedGenderId,
-                    decoration: PetFormStyles.inputDecoration('Sexo *', Icons.transgender_rounded),
-                    items: _gendersList.map((item) => DropdownMenuItem<int>(
-                      value: item.id,
-                      child: Text(item.name),
-                    )).toList(),
-                    onChanged: (val) => setState(() => _selectedGenderId = val),
-                    validator: (val) => val == null ? 'Selecciona' : null,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 14),
-
-            Row(
-              children: [
-                Expanded(
-                  child: DropdownButtonFormField<int>(
-                    initialValue: _selectedSizeId,
-                    decoration: PetFormStyles.inputDecoration('Tamaño *', Icons.straighten_rounded),
-                    items: _sizesList.map((item) => DropdownMenuItem<int>(
-                      value: item.id,
-                      child: Text(item.name),
-                    )).toList(),
-                    onChanged: (val) => setState(() => _selectedSizeId = val),
-                    validator: (val) => val == null ? 'Selecciona' : null,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: AppDatePicker(
-                    label: 'Fecha Aprox. Nacimiento *',
-                    icon: Icons.cake_rounded,
-                    selectionType: DateSelectionType.single,
-                    filterType: DateFilterType.disableFuture,
-                    selectedDate: _selectedBornDate,
-                    onDateSelected: (date) {
-                      setState(() {
-                        _selectedBornDate = date;
-                      });
-                    },
-                    validator: (value) {
-                      if (value == null || value.isEmpty || value == 'Seleccionar fecha') {
-                        return 'Selecciona fecha';
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 14),
-
-            Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: _raceController,
-                    decoration: PetFormStyles.inputDecoration('Raza / Mezcla', Icons.merge_type_rounded),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: TextFormField(
-                    controller: _colorController,
-                    decoration: PetFormStyles.inputDecoration('Color principal', Icons.palette_rounded),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-
-            // BOTÓN PARA SELECCIONAR POSICIÓN OPCIONAL EN EL MAPA
-            PetFormStyles.buildSectionHeader('Ubicación de Referencia', '¿Dónde se encuentra la mascota actualmente?'),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: _cityController,
-                    decoration: PetFormStyles.inputDecoration('Ciudad *', Icons.location_city_rounded),
-                    validator: (val) => val == null || val.trim().isEmpty ? 'Ingresa la ciudad' : null,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: TextFormField(
-                    controller: _addressController,
-                    decoration: PetFormStyles.inputDecoration('Dirección de Referencia / Sector / Barrio *', Icons.place_rounded),
-                    validator: (val) => val == null || val.trim().isEmpty ? 'Ingresa el sector' : null,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-
-            AppLocationPickerTile(
-              latitude: _latitude,
-              longitude: _longitude,
-              isRequired: false,
-              customHint: 'Punto de referencia para el encuentro',
-              onLocationSelected: (LatLng result) {
-                setState(() {
-                  _latitude = result.latitude;
-                  _longitude = result.longitude;
-                });
-              },
-            ),
-            const SizedBox(height: 24),
-
-            // INFORMACION DE CONTACTO
-            AppContactPhoneFields(
-              mobileController: _phoneMobileController,
-              homeController: _phoneHomeController
-            ),
-            const SizedBox(height: 24),
-
-            // PRIORIDAD DE ADOPCION
-            PetFormStyles.buildSectionHeader('Prioridad de Adopción', 'Identifica el nivel de prioridad'),
-            const SizedBox(height: 8),
-            AppToggleTile(
-              value: _isUrgent,
-              onChanged: (val) => setState(() => _isUrgent = val),
-              title: 'Caso Urgente',
-              subtitle: 'Marca esta opción si la mascota requiere adopción/hogar temporal de forma prioritaria',
-              icon: Icons.warning_amber_rounded,
-              activeColor: Colors.amber.shade800,
-            ),
-            const SizedBox(height: 24),
-
-            // ESTADO DE SALUD
-            PetFormStyles.buildSectionHeader('Estado de Salud', 'Información clave para los adoptantes'),
-            const SizedBox(height: 8),
-            HealthStatusCard(
-              healthConditions: _healthConditionsList,
-              selectedConditionIds: _selectedHealthConditionIds,
-              onConditionToggled: _toggleHealthCondition,
-            ),
-            const SizedBox(height: 24),
-
-            // HISTORIA Y PERSONALIDAD
-            PetFormStyles.buildSectionHeader('Historia y Personalidad', 'Cuéntale a la comunidad sobre la mascota'),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _descriptionController,
-              maxLines: 4,
-              decoration: PetFormStyles.inputDecoration(
-                'Describe su carácter, convivencia con niños u otros animales...',
-                Icons.description_rounded,
-              ),
-            ),
-            const SizedBox(height: 32),
-
-            // SUBMIT
-            SizedBox(
-              height: 54,
-              child: ElevatedButton(
-                onPressed: _submitForm,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.teal.shade600,
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                ),
-                child: const Text(
-                  'Publicar en Adopción',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-                ),
-              ),
-            ),
-            const SizedBox(height: 50),
-          ],
+    return _isLoadingForm 
+    ? const PublishPetSkeleton()
+    : Scaffold(
+        backgroundColor: const Color(0xFFF8FAF9),
+        appBar: AppBar(
+          title: Text(titleScreen, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          centerTitle: true,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
         ),
-      ),
-    );
+        body: Form(
+          key: _formKey,
+          child: ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            children: [
+              // FOTOGRAFIAS
+              PetFormStyles.buildSectionHeader('Fotografías', 'Sube hasta 5 fotos claras (mínimo 1)'),
+              const SizedBox(height: 12),
+              AppImagePickerGrid(
+                images: _selectedImages,
+                enableMainSelection: true,
+                selectedIndex: _mainImageIndex,
+                onImagesChanged: (updatedList) {
+                  setState(() {
+                    _selectedImages = updatedList;
+                  });
+                },
+                onSelectMain: (newIndex) {
+                  setState(() {
+                    _mainImageIndex = newIndex;
+                  });
+                },
+              ),
+              const SizedBox(height: 24),
+
+              // INFORMACIÓN DE LA MASCOTA
+              PetFormStyles.buildSectionHeader('Información de la Mascota', 'Datos requeridos de la mascota'),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _nameController,
+                decoration: PetFormStyles.inputDecoration('Nombre de la mascota *', Icons.pets),
+                validator: (val) => val == null || val.trim().isEmpty ? 'Ingresa un nombre' : null,
+              ),
+              const SizedBox(height: 14),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: DropdownButtonFormField<int>(
+                      initialValue: _selectedSpeciesId,
+                      decoration: PetFormStyles.inputDecoration('Especie *', Icons.category_rounded),
+                      items: _speciesList.map((item) => DropdownMenuItem<int>(
+                        value: item.id,
+                        child: Text(item.name), 
+                      )).toList(),
+                      onChanged: (val) => setState(() => _selectedSpeciesId = val),
+                      validator: (val) => val == null ? 'Selecciona' : null,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: DropdownButtonFormField<int>(
+                      initialValue: _selectedGenderId,
+                      decoration: PetFormStyles.inputDecoration('Sexo *', Icons.transgender_rounded),
+                      items: _gendersList.map((item) => DropdownMenuItem<int>(
+                        value: item.id,
+                        child: Text(item.name),
+                      )).toList(),
+                      onChanged: (val) => setState(() => _selectedGenderId = val),
+                      validator: (val) => val == null ? 'Selecciona' : null,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: DropdownButtonFormField<int>(
+                      initialValue: _selectedSizeId,
+                      decoration: PetFormStyles.inputDecoration('Tamaño *', Icons.straighten_rounded),
+                      items: _sizesList.map((item) => DropdownMenuItem<int>(
+                        value: item.id,
+                        child: Text(item.name),
+                      )).toList(),
+                      onChanged: (val) => setState(() => _selectedSizeId = val),
+                      validator: (val) => val == null ? 'Selecciona' : null,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: AppDatePicker(
+                      label: 'Fecha Aprox. Nacimiento *',
+                      icon: Icons.cake_rounded,
+                      selectionType: DateSelectionType.single,
+                      filterType: DateFilterType.disableFuture,
+                      selectedDate: _selectedBornDate,
+                      onDateSelected: (date) {
+                        setState(() {
+                          _selectedBornDate = date;
+                        });
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty || value == 'Seleccionar fecha') {
+                          return 'Selecciona fecha';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _raceController,
+                      decoration: PetFormStyles.inputDecoration('Raza / Mezcla', Icons.merge_type_rounded),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: TextFormField(
+                      controller: _colorController,
+                      decoration: PetFormStyles.inputDecoration('Color principal', Icons.palette_rounded),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+
+              // BOTÓN PARA SELECCIONAR POSICIÓN OPCIONAL EN EL MAPA
+              PetFormStyles.buildSectionHeader('Ubicación de Referencia', '¿Dónde se encuentra la mascota actualmente?'),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _cityController,
+                      decoration: PetFormStyles.inputDecoration('Ciudad *', Icons.location_city_rounded),
+                      validator: (val) => val == null || val.trim().isEmpty ? 'Ingresa la ciudad' : null,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: TextFormField(
+                      controller: _addressController,
+                      decoration: PetFormStyles.inputDecoration('Dirección de Referencia / Sector / Barrio *', Icons.place_rounded),
+                      validator: (val) => val == null || val.trim().isEmpty ? 'Ingresa el sector' : null,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+
+              AppLocationPickerTile(
+                latitude: _latitude,
+                longitude: _longitude,
+                isRequired: false,
+                customHint: 'Punto de referencia para el encuentro',
+                onLocationSelected: (LatLng result) {
+                  setState(() {
+                    _latitude = result.latitude;
+                    _longitude = result.longitude;
+                  });
+                },
+              ),
+              const SizedBox(height: 24),
+
+              // INFORMACION DE CONTACTO
+              AppContactPhoneFields(
+                mobileController: _phoneMobileController,
+                homeController: _phoneHomeController
+              ),
+              const SizedBox(height: 24),
+
+              // PRIORIDAD DE ADOPCION
+              PetFormStyles.buildSectionHeader('Prioridad de Adopción', 'Identifica el nivel de prioridad'),
+              const SizedBox(height: 8),
+              AppToggleTile(
+                value: _isUrgent,
+                onChanged: (val) => setState(() => _isUrgent = val),
+                title: 'Caso Urgente',
+                subtitle: 'Marca esta opción si la mascota requiere adopción/hogar temporal de forma prioritaria',
+                icon: Icons.warning_amber_rounded,
+                activeColor: Colors.amber.shade800,
+              ),
+              const SizedBox(height: 24),
+
+              // ESTADO DE SALUD
+              PetFormStyles.buildSectionHeader('Estado de Salud', 'Información clave para los adoptantes'),
+              const SizedBox(height: 8),
+              HealthStatusCard(
+                healthConditions: _healthConditionsList,
+                selectedConditionIds: _selectedHealthConditionIds,
+                onConditionToggled: _toggleHealthCondition,
+              ),
+              const SizedBox(height: 24),
+
+              // HISTORIA Y PERSONALIDAD
+              PetFormStyles.buildSectionHeader('Historia y Personalidad', 'Cuéntale a la comunidad sobre la mascota'),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _descriptionController,
+                maxLines: 4,
+                decoration: PetFormStyles.inputDecoration(
+                  'Describe su carácter, convivencia con niños u otros animales...',
+                  Icons.description_rounded,
+                ),
+              ),
+              const SizedBox(height: 32),
+
+              // SUBMIT
+              SizedBox(
+                height: 54,
+                child: ElevatedButton(
+                  onPressed: _submitForm,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.teal.shade600,
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                  child: Text(
+                    submitButton,
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 50),
+            ],
+          ),
+        ),
+      );
   }
 }

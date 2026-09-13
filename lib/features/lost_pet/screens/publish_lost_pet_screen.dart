@@ -22,9 +22,17 @@ import 'package:app_petfinder/widgets/locations/app_location_picket_tile.dart';
 import 'package:app_petfinder/enums/datepicker/date_filter_type.dart';
 import 'package:app_petfinder/enums/datepicker/date_selection_type.dart';
 import 'package:app_petfinder/widgets/contact/app_contact_phone_fields.dart';
+import 'package:app_petfinder/core/network/api_response.dart';
+import 'package:app_petfinder/features/lost_pet/widgets/publish_pet_skeleton.dart';
+import 'package:app_petfinder/models/lost_pet/lost_pet_model.dart';
 
 class PublishLostPetScreen extends StatefulWidget {
-  const PublishLostPetScreen({super.key});
+  final int? petId;
+
+  const PublishLostPetScreen({
+    super.key,
+    this.petId
+  });
 
   @override
   State<PublishLostPetScreen> createState() => _PublishLostPetScreenState();
@@ -47,13 +55,16 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
   final _rewardAmountController = TextEditingController();
   final _phoneHomeController = TextEditingController();
   final _phoneMobileController = TextEditingController();
+  
+  String titleScreen = 'Reportar Mascota Perdida';
+  String submitButton =  'Publicar Alerta de Pérdida';
 
   bool _isLoadingCatalog = true;
+  bool _isLoadingLostPet = false;
   int? _selectedSpeciesId;
   int? _selectedGenderId;
   int? _selectedSizeId;
   DateTime? _selectedEventDate;
-
   bool _hasReward = false;
   double? _latitude;
   double? _longitude;
@@ -62,10 +73,21 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
   List<AnimalGenderModel> _gendersList = [];
   List<SizeModel> _sizesList = [];
 
+  bool get _isLoadingForm => _isLoadingCatalog || _isLoadingLostPet;
+  bool get _isUpdate => widget.petId != null;
+
   @override
   void initState() {
     super.initState();
+
     _loadFormCatalogs();
+
+    if (_isUpdate) {
+      titleScreen = 'Editar Reporte de Mascota Perdida';
+      submitButton = 'Guardar Cambios';
+
+      _loadLostPet();
+    }
   }
 
   @override
@@ -117,7 +139,51 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
     }
   }
 
-  void _submitForm() async {
+  Future<void> _loadLostPet() async {
+    if (!mounted) return;
+
+    setState(() => _isLoadingLostPet = true);
+
+    try {
+      final response = await _lostPetRepository.getLostPet(widget.petId!);
+      if (!mounted) return;
+
+      final data = response.data;
+
+      if (data != null) {
+        if (data['lost_pet'] != null) {
+          final Map<String, dynamic> lostPetJson = data['lost_pet'];
+
+          final LostPetModel lostPet = LostPetModel.fromJson(lostPetJson);
+
+          setState(() {
+            _nameController.text = lostPet.name;
+            _selectedSpeciesId = lostPet.speciesId;
+            _selectedGenderId = lostPet.genderId;
+            _selectedSizeId = lostPet.sizeId;
+            _raceController.text = lostPet.race ?? '';
+            _colorController.text = lostPet.color ?? '';
+            _cityController.text = lostPet.city;
+            _selectedEventDate = lostPet.eventDate;
+            _eventAddressController.text = lostPet.eventAddress;
+            _latitude = lostPet.latitude;
+            _longitude = lostPet.longitude;
+            _phoneMobileController.text = lostPet.phoneMobile ?? '';
+            _phoneHomeController.text = lostPet.phoneHome ?? '';
+            _hasReward = lostPet.hasReward;
+            _rewardAmountController.text = lostPet.rewardAmount?.toString() ?? '';
+            _descriptionController.text = lostPet.description ?? '';
+          });
+        }
+      }
+    } on ApiException catch (e) {
+      ApiErrorHandler.handle(context, e);
+    } finally {
+      if (mounted) setState(() => _isLoadingLostPet = false);
+    }
+  }
+
+  Future<void> _submitForm() async {
     if (_selectedImages.isEmpty) {
       AppSnackBar.show(
         context,
@@ -174,15 +240,26 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
 
     AppLoadingOverlay.show(
       context,
-      title: 'Registrando reporte...',
-      description: 'Estamos enviando la alerta a la comunidad',
+      title: !_isUpdate ? 'Registrando reporte...' : 'Actualizando reporte...',
+      description: !_isUpdate ? 'Estamos enviando la alerta a la comunidad' : 'Estamos actualizando la alerta en la comunidad',
     );
 
+    ApiResponse response;
+
     try {
-      final response = await _lostPetRepository.store(payload);
+      if(!_isUpdate){
+        response = await _lostPetRepository.store(payload);
+      }else{
+        response = await _lostPetRepository.update(widget.petId!, payload);
+      }
+
       if (!mounted) return;
 
-      ApiSuccessHandler.handle(context, title: '¡Reporte publicado!', description: response.message);
+      ApiSuccessHandler.handle(
+        context,
+        title: !_isUpdate ? '¡Reporte publicado!' : '¡Reporte actualizado!',
+        description: response.message
+      );
 
       context.pop();
     } on ApiException catch (e) {
@@ -194,288 +271,288 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8FAF9),
-      appBar: AppBar(
-        title: const Text('Reportar Mascota Perdida', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
-      body: _isLoadingCatalog
-          ? const Center(child: CircularProgressIndicator(color: Colors.teal))
-          : Form(
-              key: _formKey,
-              child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+    return _isLoadingForm 
+      ? const PublishPetSkeleton()
+      : Scaffold(
+        backgroundColor: const Color(0xFFF8FAF9),
+        appBar: AppBar(
+          title: Text(titleScreen, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          centerTitle: true,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+        ),
+        body: Form(
+          key: _formKey,
+          child: ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            children: [
+              // FOTOGRAFIAS
+              PetFormStyles.buildSectionHeader('Fotografías', 'Sube imágenes recientes y claras de la mascota'),
+              const SizedBox(height: 12),
+              AppImagePickerGrid(
+                images: _selectedImages,
+                enableMainSelection: true,
+                selectedIndex: _mainImageIndex,
+                onImagesChanged: (updatedList) {
+                  setState(() {
+                    _selectedImages = updatedList;
+                  });
+                },
+                onSelectMain: (newIndex) {
+                  setState(() {
+                    _mainImageIndex = newIndex;
+                  });
+                },
+              ),
+              const SizedBox(height: 24),
+
+              // INFORMACION DE LA MASCOTA
+              PetFormStyles.buildSectionHeader('Información de la Mascota', 'Datos de identificación'),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _nameController,
+                decoration: PetFormStyles.inputDecoration('Nombre de la mascota *', Icons.pets_rounded),
+                validator: (val) => val == null || val.trim().isEmpty ? 'Ingresa el nombre' : null,
+              ),
+              const SizedBox(height: 14),
+
+              Row(
                 children: [
-                  // FOTOGRAFIAS
-                  PetFormStyles.buildSectionHeader('Fotografías', 'Sube imágenes recientes y claras de la mascota'),
-                  const SizedBox(height: 12),
-                  AppImagePickerGrid(
-                    images: _selectedImages,
-                    enableMainSelection: true,
-                    selectedIndex: _mainImageIndex,
-                    onImagesChanged: (updatedList) {
-                      setState(() {
-                        _selectedImages = updatedList;
-                      });
-                    },
-                    onSelectMain: (newIndex) {
-                      setState(() {
-                        _mainImageIndex = newIndex;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 24),
-
-                  // INFORMACION DE LA MASCOTA
-                  PetFormStyles.buildSectionHeader('Información de la Mascota', 'Datos de identificación'),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _nameController,
-                    decoration: PetFormStyles.inputDecoration('Nombre de la mascota *', Icons.pets_rounded),
-                    validator: (val) => val == null || val.trim().isEmpty ? 'Ingresa el nombre' : null,
-                  ),
-                  const SizedBox(height: 14),
-
-                  Row(
-                    children: [
-                      Expanded(
-                        child: DropdownButtonFormField<int>(
-                          initialValue: _selectedSpeciesId,
-                          decoration: PetFormStyles.inputDecoration('Especie *', Icons.category_rounded),
-                          items: _speciesList.map((item) => DropdownMenuItem<int>(
-                            value: item.id,
-                            child: Text(item.name),
-                          )).toList(),
-                          onChanged: (val) => setState(() => _selectedSpeciesId = val),
-                          validator: (val) => val == null ? 'Selecciona' : null,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: DropdownButtonFormField<int>(
-                          initialValue: _selectedGenderId,
-                          decoration: PetFormStyles.inputDecoration('Sexo *', Icons.transgender_rounded),
-                          items: _gendersList.map((item) => DropdownMenuItem<int>(
-                            value: item.id,
-                            child: Text(item.name),
-                          )).toList(),
-                          onChanged: (val) => setState(() => _selectedGenderId = val),
-                          validator: (val) => val == null ? 'Selecciona' : null,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-
-                  Row(
-                    children: [
-                      Expanded(
-                        child: DropdownButtonFormField<int>(
-                          initialValue: _selectedSizeId,
-                          decoration: PetFormStyles.inputDecoration('Tamaño *', Icons.straighten_rounded),
-                          items: _sizesList.map((item) => DropdownMenuItem<int>(
-                            value: item.id,
-                            child: Text(item.name),
-                          )).toList(),
-                          onChanged: (val) => setState(() => _selectedSizeId = val),
-                          validator: (val) => val == null ? 'Selecciona' : null,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: TextFormField(
-                          controller: _raceController,
-                          decoration: PetFormStyles.inputDecoration('Raza / Mezcla', Icons.merge_type_rounded),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextFormField(
-                          controller: _colorController,
-                          decoration: PetFormStyles.inputDecoration('Color principal', Icons.palette_rounded),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-
-                  // UBICACION Y FECHA
-                  PetFormStyles.buildSectionHeader('Ubicación y Fecha', '¿Dónde y cuándo sucedió?'),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextFormField(
-                          controller: _cityController,
-                          decoration: PetFormStyles.inputDecoration('Ciudad *', Icons.location_city_rounded),
-                          validator: (val) => val == null || val.trim().isEmpty ? 'Ingresa la ciudad' : null,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: AppDatePicker(
-                          label: 'Fecha de extravío *',
-                          icon: Icons.event_rounded,
-                          selectionType: DateSelectionType.single,
-                          filterType: DateFilterType.disableFuture,
-                          selectedDate: _selectedEventDate,
-                          onDateSelected: (date) {
-                            setState(() {
-                              _selectedEventDate = date;
-                            });
-                          },
-                          validator: (value) {
-                            if (value == null || value.isEmpty || value == 'Seleccionar fecha') {
-                              return 'Selecciona fecha';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-
-                  TextFormField(
-                    controller: _eventAddressController,
-                    validator: (val) => val == null || val.trim().isEmpty ? 'Ingresa la dirección' : null,
-                    decoration: PetFormStyles.inputDecoration(
-                      'Dirección de referencia / Sector *',
-                      Icons.place_rounded,
+                  Expanded(
+                    child: DropdownButtonFormField<int>(
+                      initialValue: _selectedSpeciesId,
+                      decoration: PetFormStyles.inputDecoration('Especie *', Icons.category_rounded),
+                      items: _speciesList.map((item) => DropdownMenuItem<int>(
+                        value: item.id,
+                        child: Text(item.name),
+                      )).toList(),
+                      onChanged: (val) => setState(() => _selectedSpeciesId = val),
+                      validator: (val) => val == null ? 'Selecciona' : null,
                     ),
                   ),
-                  const SizedBox(height: 12),
-
-                  AppLocationPickerTile(
-                    latitude: _latitude,
-                    longitude: _longitude,
-                    isRequired: false,
-                    title: 'Marcar lugar de extravío',
-                    customHint: 'Indica el punto de referencia donde se extravió',
-                    onLocationSelected: (LatLng result) {
-                      setState(() {
-                        _latitude = result.latitude;
-                        _longitude = result.longitude;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 24),
-
-                  // INFORMACION DE CONTACTO
-                  AppContactPhoneFields(
-                    mobileController: _phoneMobileController,
-                    homeController: _phoneHomeController
-                  ),
-                  const SizedBox(height: 24),
-
-                  // RECOMPENSA
-                  PetFormStyles.buildSectionHeader('Recompensa', 'Incentivo opcional por devolución o datos'),
-                  const SizedBox(height: 8),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.grey.shade200),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: Column(
-                      children: [
-                        AppToggleTile(
-                          value: _hasReward,
-                          onChanged: (val) {
-                            setState(() {
-                              _hasReward = val;
-                              if (!val) _rewardAmountController.clear();
-                            });
-                          },
-                          title: '¿Ofreces recompensa?',
-                          subtitle: 'Actívalo para motivar búsquedas comunitarias en la zona',
-                          icon: Icons.monetization_on_rounded,
-                          activeColor: Colors.teal.shade700,
-                        ),
-                        
-                        if (_hasReward) ...[
-                          const Divider(),
-                          const SizedBox(height: 8),
-                          TextFormField(
-                            controller: _rewardAmountController,
-                            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
-                            ],
-                            decoration: PetFormStyles.inputDecoration(
-                              'Monto de Recompensa (\$) *',
-                              Icons.attach_money_rounded,
-                            ),
-                            validator: (val) {
-                              if (_hasReward) {
-                                final cleanVal = val?.trim();
-
-                                if (cleanVal == null || cleanVal.isEmpty) {
-                                  return 'Ingresa un valor';
-                                }
-
-                                final amount = double.tryParse(cleanVal);
-
-                                if (amount == null) {
-                                  return 'Monto inválido';
-                                }
-
-                                if (amount <= 0) {
-                                  return 'El monto debe ser mayor a 0';
-                                }
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: 8),
-                        ]
-                      ],
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: DropdownButtonFormField<int>(
+                      initialValue: _selectedGenderId,
+                      decoration: PetFormStyles.inputDecoration('Sexo *', Icons.transgender_rounded),
+                      items: _gendersList.map((item) => DropdownMenuItem<int>(
+                        value: item.id,
+                        child: Text(item.name),
+                      )).toList(),
+                      onChanged: (val) => setState(() => _selectedGenderId = val),
+                      validator: (val) => val == null ? 'Selecciona' : null,
                     ),
                   ),
-                  const SizedBox(height: 24),
-
-                  // DETALLES ADICIONALES
-                  PetFormStyles.buildSectionHeader('Detalles Adicionales', 'Señas particulares y lo que sea de ayuda'),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _descriptionController,
-                    maxLines: 4,
-                    decoration: PetFormStyles.inputDecoration(
-                      'Describe collar, manchas, cicatrices, temperamento o si necesita medicación urgente...',
-                      Icons.description_rounded,
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-  
-                  // SUBMIT
-                  SizedBox(
-                    height: 54,
-                    child: ElevatedButton(
-                      onPressed: _submitForm,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.redAccent.shade400,
-                        elevation: 2,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                      ),
-                      child: const Text(
-                        'Publicar Alerta de Pérdida',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 50),
                 ],
               ),
-            ),
-    );
+              const SizedBox(height: 14),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: DropdownButtonFormField<int>(
+                      initialValue: _selectedSizeId,
+                      decoration: PetFormStyles.inputDecoration('Tamaño *', Icons.straighten_rounded),
+                      items: _sizesList.map((item) => DropdownMenuItem<int>(
+                        value: item.id,
+                        child: Text(item.name),
+                      )).toList(),
+                      onChanged: (val) => setState(() => _selectedSizeId = val),
+                      validator: (val) => val == null ? 'Selecciona' : null,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: TextFormField(
+                      controller: _raceController,
+                      decoration: PetFormStyles.inputDecoration('Raza / Mezcla', Icons.merge_type_rounded),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _colorController,
+                      decoration: PetFormStyles.inputDecoration('Color principal', Icons.palette_rounded),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+
+              // UBICACION Y FECHA
+              PetFormStyles.buildSectionHeader('Ubicación y Fecha', '¿Dónde y cuándo sucedió?'),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _cityController,
+                      decoration: PetFormStyles.inputDecoration('Ciudad *', Icons.location_city_rounded),
+                      validator: (val) => val == null || val.trim().isEmpty ? 'Ingresa la ciudad' : null,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: AppDatePicker(
+                      label: 'Fecha de extravío *',
+                      icon: Icons.event_rounded,
+                      selectionType: DateSelectionType.single,
+                      filterType: DateFilterType.disableFuture,
+                      selectedDate: _selectedEventDate,
+                      onDateSelected: (date) {
+                        setState(() {
+                          _selectedEventDate = date;
+                        });
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty || value == 'Seleccionar fecha') {
+                          return 'Selecciona fecha';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+
+              TextFormField(
+                controller: _eventAddressController,
+                validator: (val) => val == null || val.trim().isEmpty ? 'Ingresa la dirección' : null,
+                decoration: PetFormStyles.inputDecoration(
+                  'Dirección de referencia / Sector *',
+                  Icons.place_rounded,
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              AppLocationPickerTile(
+                latitude: _latitude,
+                longitude: _longitude,
+                isRequired: false,
+                title: 'Marcar lugar de extravío',
+                customHint: 'Indica el punto de referencia donde se extravió',
+                onLocationSelected: (LatLng result) {
+                  setState(() {
+                    _latitude = result.latitude;
+                    _longitude = result.longitude;
+                  });
+                },
+              ),
+              const SizedBox(height: 24),
+
+              // INFORMACION DE CONTACTO
+              AppContactPhoneFields(
+                mobileController: _phoneMobileController,
+                homeController: _phoneHomeController
+              ),
+              const SizedBox(height: 24),
+
+              // RECOMPENSA
+              PetFormStyles.buildSectionHeader('Recompensa', 'Incentivo opcional por devolución o datos'),
+              const SizedBox(height: 8),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.grey.shade200),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Column(
+                  children: [
+                    AppToggleTile(
+                      value: _hasReward,
+                      onChanged: (val) {
+                        setState(() {
+                          _hasReward = val;
+                          if (!val) _rewardAmountController.clear();
+                        });
+                      },
+                      title: '¿Ofreces recompensa?',
+                      subtitle: 'Actívalo para motivar búsquedas comunitarias en la zona',
+                      icon: Icons.monetization_on_rounded,
+                      activeColor: Colors.teal.shade700,
+                    ),
+                    
+                    if (_hasReward) ...[
+                      const Divider(),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        controller: _rewardAmountController,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+                        ],
+                        decoration: PetFormStyles.inputDecoration(
+                          'Monto de Recompensa (\$) *',
+                          Icons.attach_money_rounded,
+                        ),
+                        validator: (val) {
+                          if (_hasReward) {
+                            final cleanVal = val?.trim();
+
+                            if (cleanVal == null || cleanVal.isEmpty) {
+                              return 'Ingresa un valor';
+                            }
+
+                            final amount = double.tryParse(cleanVal);
+
+                            if (amount == null) {
+                              return 'Monto inválido';
+                            }
+
+                            if (amount <= 0) {
+                              return 'El monto debe ser mayor a 0';
+                            }
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 8),
+                    ]
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // DETALLES ADICIONALES
+              PetFormStyles.buildSectionHeader('Detalles Adicionales', 'Señas particulares y lo que sea de ayuda'),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _descriptionController,
+                maxLines: 4,
+                decoration: PetFormStyles.inputDecoration(
+                  'Describe collar, manchas, cicatrices, temperamento o si necesita medicación urgente...',
+                  Icons.description_rounded,
+                ),
+              ),
+              const SizedBox(height: 32),
+
+              // SUBMIT
+              SizedBox(
+                height: 54,
+                child: ElevatedButton(
+                  onPressed: _submitForm,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.redAccent.shade400,
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                  child: Text(
+                    submitButton,
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 50),
+            ],
+          ),
+        ),
+      );
   }
 }

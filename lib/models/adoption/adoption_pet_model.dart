@@ -22,7 +22,7 @@ class AdoptionPetModel {
   final String petStatusTag;
   final String petStatus;
   final String age;
-  final List<String> healthConditions;
+  final List<Map<String, dynamic>> healthConditions;
   final List<String> pictures;
 
   AdoptionPetModel({
@@ -78,7 +78,7 @@ class AdoptionPetModel {
       petStatusTag: json['pet_status_tag'] as String,
       petStatus: json['pet_status'] as String,
       age: json['age'] as String,
-      healthConditions: List<String>.from(json['health_conditions'] ?? []),
+      healthConditions: List<Map<String, dynamic>>.from(json['health_conditions'] ?? []),
       pictures: List<String>.from(json['pictures'] ?? []),
     );
   }

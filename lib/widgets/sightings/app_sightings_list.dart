@@ -1,3 +1,4 @@
+import 'package:app_petfinder/widgets/dialog/app_confirm_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:app_petfinder/core/utils/common_helpers.dart';
 import 'package:app_petfinder/widgets/images/app_full_screen_gallery.dart';
@@ -32,29 +33,17 @@ class AppSightingsList extends StatelessWidget {
     );
   }
 
-  void _confirmDelete(BuildContext context, SightReportModel sight) {
-    showDialog(
+  Future<void> _confirmDelete(BuildContext context, SightReportModel sight) async {
+    final bool? confirm = await AppConfirmDialog.show(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('¿Eliminar avistamiento?'),
-        content: const Text('Esta acción quitará el reporte de avistamiento.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            onPressed: () {
-              Navigator.pop(context);
-
-              onSightingDeleted(sight.id);
-            },
-            child: const Text('Eliminar'),
-          ),
-        ],
-      ),
+      title: 'Eliminar avistamiento',
+      message: 'Esta acción quitará el reporte de avistamiento. \n¿Desea continuar?',
+      cancelText: 'No, cancelar',
+      confirmText: 'Sí, eliminar',
+      confirmColor: Colors.redAccent,
     );
+
+    if (confirm == true) onSightingDeleted(sight.id);
   }
 
   @override

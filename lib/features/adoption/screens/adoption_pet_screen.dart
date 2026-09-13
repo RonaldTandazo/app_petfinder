@@ -39,10 +39,10 @@ class _AdoptionPetScreenState extends State<AdoptionPetScreen> {
   void initState() {
     super.initState();
 
-    _loadLostPet();
+    _loadPet();
   }
 
-  Future<void> _loadLostPet() async {
+  Future<void> _loadPet() async {
     try {
       final response = await _adoptionRepository.getAdoptionPet(widget.petId);
       if (!mounted) return;
@@ -192,7 +192,7 @@ class _AdoptionPetScreenState extends State<AdoptionPetScreen> {
                             color: Color(0xFF0F766E),
                           ),
                           label: Text(
-                            condition,
+                            condition['name'],
                             style: const TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,

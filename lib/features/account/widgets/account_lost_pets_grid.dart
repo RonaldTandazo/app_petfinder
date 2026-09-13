@@ -10,6 +10,7 @@ class AccountLostPetsGrid extends StatelessWidget {
   final bool isMyProfile;
   final bool isLoadingMore;
   final Widget emptyStateWidget;
+  final PetActionCallback? onTap;
   final PetActionCallback? onEdit;
   final PetActionCallback? onDelete;
   final PetActionCallback? onStatusChange;
@@ -20,6 +21,7 @@ class AccountLostPetsGrid extends StatelessWidget {
     required this.isMyProfile,
     required this.isLoadingMore,
     required this.emptyStateWidget,
+    this.onTap,
     this.onEdit,
     this.onDelete,
     this.onStatusChange,
@@ -61,9 +63,10 @@ class AccountLostPetsGrid extends StatelessWidget {
                 iconData: Icons.warning_amber_rounded,
                 statusActionLabel: 'Marcar como Encontrada',
                 showActions: isMyProfile,
-                onStatusChange: () => onStatusChange?.call(lostPet.id, PetSource.lost),
+                onTap: () => onTap?.call(lostPet.id, PetSource.lost),
                 onEdit: () => onEdit?.call(lostPet.id, PetSource.lost),
                 onDelete: () => onDelete?.call(lostPet.id, PetSource.lost),
+                onStatusChange: () => onStatusChange?.call(lostPet.id, PetSource.lost),
               );
             },
           ),

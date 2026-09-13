@@ -10,6 +10,7 @@ class AccountAdoptionsGrid extends StatelessWidget {
   final bool isMyProfile;
   final bool isLoadingMore;
   final Widget emptyStateWidget;
+  final PetActionCallback? onTap;
   final PetActionCallback? onEdit;
   final PetActionCallback? onDelete;
   final PetActionCallback? onStatusChange;
@@ -20,6 +21,7 @@ class AccountAdoptionsGrid extends StatelessWidget {
     required this.isMyProfile,
     required this.isLoadingMore,
     required this.emptyStateWidget,
+    this.onTap,
     this.onEdit,
     this.onDelete,
     this.onStatusChange,
@@ -61,9 +63,10 @@ class AccountAdoptionsGrid extends StatelessWidget {
                 badgeColor: Colors.blue,
                 iconData: Icons.pets,
                 showActions: isMyProfile,
-                onStatusChange: () => onStatusChange?.call(pet.id, PetSource.adoption),
+                onTap: () => onTap?.call(pet.id, PetSource.adoption),
                 onEdit: () => onEdit?.call(pet.id, PetSource.adoption),
                 onDelete: () => onDelete?.call(pet.id, PetSource.adoption),
+                onStatusChange: () => onStatusChange?.call(pet.id, PetSource.adoption),
               );
             },
           ),
