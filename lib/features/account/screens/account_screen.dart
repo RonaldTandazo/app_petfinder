@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:app_petfinder/core/router/auth/auth_routes.dart';
 import 'package:app_petfinder/core/router/account/account_routes.dart';
+import 'package:app_petfinder/models/pictures/picture_model.dart';
 import 'package:app_petfinder/repository/auth/auth_repository.dart';
 import 'package:app_petfinder/core/network/api_exception.dart';
 import 'package:app_petfinder/core/utils/api_error_handler.dart';
@@ -56,9 +57,9 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
   final List<AdoptionPetListModel> _adoptionPets = [];
   final List<LostPetListModel> _lostPets = [];
 
-  String? _avatar;
   String _name = '';
   String _email = '';
+  PictureModel? _avatar;
 
   bool _isLoading = true;
   bool _isLoadingMoreAdoptions = false;
@@ -110,7 +111,7 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
     if (isMyProfile) {
       _name = SessionStorageService.name ?? 'Usuario';
       _email = SessionStorageService.email ?? '';
-      _avatar = SessionStorageService.avatar;
+      _avatar = SessionStorageService.avatar != null ? PictureModel.fromJson(SessionStorageService.avatar!) : null;
     }
 
     try {
@@ -384,7 +385,7 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
         ? AccountDrawer(
             name: _name,
             email: _email,
-            avatar: _avatar,
+            avatar: _avatar?.url,
             onEditProfile: _onEditProfile,
             onSecurity: _onSecurity,
             onLogout: _onLogout,
@@ -405,7 +406,7 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
                         CircleAvatar(
                           radius: 46,
                           backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                          backgroundImage: _avatar != null ? NetworkImage(_avatar!) : null,
+                          backgroundImage: _avatar != null ? NetworkImage(_avatar!.url) : null,
                           child: _avatar == null
                             ? Icon(
                                 Icons.person_rounded,

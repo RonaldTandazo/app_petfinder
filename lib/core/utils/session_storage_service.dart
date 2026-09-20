@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SessionStorageService {
@@ -15,7 +16,7 @@ class SessionStorageService {
   static int? tutorId;
   static String? name;
   static String? email;
-  static String? avatar;
+  static Map<String, dynamic>? avatar;
   static bool isShelter = false;
   static bool isUser = false;
 
@@ -24,7 +25,7 @@ class SessionStorageService {
     tutorId = userData['tutor_id'] as int?;
     name = userData['name'] as String?;
     email = userData['email'] as String?;
-    avatar = userData['avatar'] as String?;
+    avatar = userData['avatar'] as Map<String, dynamic>?;
     isShelter = (userData['is_shelter'] as bool?) ?? false;
     isUser = (userData['is_user'] as bool?) ?? false;
 
@@ -33,7 +34,7 @@ class SessionStorageService {
       if (tutorId != null) _storage.write(key: _kTutorId, value: tutorId.toString()),
       if (name != null) _storage.write(key: _kName, value: name!),
       if (email != null) _storage.write(key: _kEmail, value: email!),
-      if (avatar != null) _storage.write(key: _kAvatar, value: avatar!),
+      if (avatar != null) _storage.write(key: _kAvatar, value: jsonEncode(avatar!)),
       _storage.write(key: _kIsShelter, value: isShelter.toString()),
       _storage.write(key: _kIsUser, value: isUser.toString()),
     ]);
@@ -42,12 +43,12 @@ class SessionStorageService {
   static Future<void> updateSession(Map<String, dynamic> userData) async {
     name = userData['name'] as String?;
     email = userData['email'] as String?;
-    avatar = userData['avatar'] as String?;
+    avatar = userData['avatar'] as Map<String, dynamic>?;
 
     await Future.wait([
       if (name != null) _storage.write(key: _kName, value: name!),
       if (email != null) _storage.write(key: _kEmail, value: email!),
-      if (avatar != null) _storage.write(key: _kAvatar, value: avatar!),
+      if (avatar != null) _storage.write(key: _kAvatar, value: jsonEncode(avatar!)),
     ]);
   }
 
@@ -64,7 +65,7 @@ class SessionStorageService {
     tutorId = tId != null ? int.tryParse(tId) : null;
     name = uName;
     email = uEmail;
-    avatar = uAvatar;
+    avatar = uAvatar != null ? jsonDecode(uAvatar) as Map<String, dynamic> : null;
     isShelter = shelter == 'true';
     isUser = user == 'true';
   }

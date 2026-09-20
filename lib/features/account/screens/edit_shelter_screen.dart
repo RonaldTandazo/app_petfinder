@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:app_petfinder/models/catalog/country_model.dart';
+import 'package:app_petfinder/models/pictures/picture_model.dart';
 import 'package:app_petfinder/widgets/contact/app_contact_phone_fields.dart';
 import 'package:app_petfinder/widgets/loaders/app_loading_overlay.dart';
 import 'package:app_petfinder/widgets/locations/app_location_picket_tile.dart';
@@ -25,11 +26,12 @@ class EditShelterScreen extends StatefulWidget {
 }
 
 class _EditShelterScreenState extends State<EditShelterScreen> {
+  final _formKey = GlobalKey<FormState>();
   final CatalogRepository _catalogRepository = CatalogRepository();
   final AccountRepository _accountRepository = AccountRepository();
   final String? _initName = SessionStorageService.name;
   final String? _initEmail = SessionStorageService.email;
-  final _formKey = GlobalKey<FormState>();
+  final PictureModel? _initAvatar = SessionStorageService.avatar != null ? PictureModel.fromJson(SessionStorageService.avatar!) : null;
 
   final _nameController = TextEditingController();
   final _businessNameController = TextEditingController();
@@ -81,7 +83,19 @@ class _EditShelterScreenState extends State<EditShelterScreen> {
       final data = response.data;
 
       if(data != null){
+        final List<TempFileModel> images = _initAvatar != null ? [
+          TempFileModel(
+            id: _initAvatar.id,
+            uuid: 'existing_${_initAvatar.id}',
+            file: null,
+            path: _initAvatar.url,
+            isExisting: true,
+            isUploading: false,
+          )
+        ].toList() : [];
+
         setState(() {
+          _avatarImages = images;
           _nameController.text = _initName ?? '';
           _businessNameController.text = data['business_name'] ?? '';
           _taxIdentificationController.text = data['tax_identification'] ?? '';
@@ -146,12 +160,13 @@ class _EditShelterScreenState extends State<EditShelterScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     final List<Map<String, dynamic>> photosPayload = _avatarImages.asMap().entries.map((entry) {
-      final item = entry.value;
-      
-      return {
-        'path_temp': item.key,
-        'is_main': true,
-      };
+      final int index = entry.key;
+      final TempFileModel image = entry.value;
+
+      return image.toFinalPayload(
+        isMain: true,
+        sortOrder: index,
+      );
     }).toList();
 
     Map<String, dynamic> sessionFields = {

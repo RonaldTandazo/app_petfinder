@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:app_petfinder/enums/snackbar/snackbar_type.dart';
+import 'package:app_petfinder/models/pictures/picture_model.dart';
 import 'package:app_petfinder/widgets/contact/app_contact_phone_fields.dart';
 import 'package:app_petfinder/widgets/snackbars/app_snackbar.dart';
 import 'package:app_petfinder/models/catalog/country_model.dart';
@@ -24,10 +25,11 @@ class EditUserScreen extends StatefulWidget {
 }
 
 class _EditUserScreenState extends State<EditUserScreen> {
+  final _formKey = GlobalKey<FormState>();
   final CatalogRepository _catalogRepository = CatalogRepository();
   final AccountRepository _accountRepository = AccountRepository();
   final String? _initEmail = SessionStorageService.email;
-  final _formKey = GlobalKey<FormState>();
+  final PictureModel? _initAvatar = SessionStorageService.avatar != null ? PictureModel.fromJson(SessionStorageService.avatar!) : null;
 
   final _firstNamesController = TextEditingController();
   final _lastNamesController = TextEditingController();
@@ -73,7 +75,19 @@ class _EditUserScreenState extends State<EditUserScreen> {
       final data = response.data;
 
       if(data != null){
+        final List<TempFileModel> images = _initAvatar != null ? [
+          TempFileModel(
+            id: _initAvatar.id,
+            uuid: 'existing_${_initAvatar.id}',
+            file: null,
+            path: _initAvatar.url,
+            isExisting: true,
+            isUploading: false,
+          )
+        ].toList() : [];
+
         setState(() {
+          _avatarImages = images;
           _firstNamesController.text = data['first_names'] ?? '';
           _lastNamesController.text = data['last_names'] ?? '';
           _emailController.text = _initEmail ?? '';
@@ -135,12 +149,13 @@ class _EditUserScreenState extends State<EditUserScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     final List<Map<String, dynamic>> photosPayload = _avatarImages.asMap().entries.map((entry) {
-      final item = entry.value;
+      final int index = entry.key;
+      final TempFileModel image = entry.value;
 
-      return {
-        'path_temp': item.key,
-        'is_main': true,
-      };
+      return image.toFinalPayload(
+        isMain: true,
+        sortOrder: index,
+      );
     }).toList();
 
     final Map<String, dynamic> payload = {
