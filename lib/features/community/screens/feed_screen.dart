@@ -103,7 +103,6 @@ class _CommunityFeedScreenState extends State<CommunityFeedScreen> {
       if (!mounted) return;
 
       final data = response.data;
-      print(data);
       if (data == null || data['me'] is! Map<String, dynamic>) return;
 
       setState(() {

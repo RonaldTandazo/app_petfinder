@@ -66,6 +66,8 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
   bool _isLoadingMoreLostPets = false;
   bool _hasMoreAdoptions = true;
   bool _hasMoreLostPets = true;
+  bool _avatarLoadError = false;
+
   int _pageAdoptions = 1;
   int _pageLostPets = 1;
   final int _limit = 20;
@@ -112,6 +114,7 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
       _name = SessionStorageService.name ?? 'Usuario';
       _email = SessionStorageService.email ?? '';
       _avatar = SessionStorageService.avatar != null ? PictureModel.fromJson(SessionStorageService.avatar!) : null;
+      _avatarLoadError = false;
     }
 
     try {
@@ -379,6 +382,8 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
 
   @override
   Widget build(BuildContext context) {
+    final bool hasAvatar = _avatar != null && _avatar!.url.isNotEmpty && !_avatarLoadError;
+
     return Scaffold(
       appBar: AppBar(),
       drawer: isMyProfile
@@ -406,8 +411,17 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
                         CircleAvatar(
                           radius: 46,
                           backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                          backgroundImage: _avatar != null ? NetworkImage(_avatar!.url) : null,
-                          child: _avatar == null
+                          backgroundImage: hasAvatar ? NetworkImage(_avatar!.url) : null,
+                          onBackgroundImageError: hasAvatar
+                            ? (_, _) {
+                                if (mounted) {
+                                  setState(() {
+                                    _avatarLoadError = true;
+                                  });
+                                }
+                              }
+                            : null,
+                          child: !hasAvatar
                             ? Icon(
                                 Icons.person_rounded,
                                 size: 50,
