@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:app_petfinder/enums/snackbar/snackbar_type.dart';
+import 'package:app_petfinder/models/pictures/picture_model.dart';
 import 'package:app_petfinder/enums/datepicker/date_filter_type.dart';
 import 'package:app_petfinder/enums/datepicker/date_selection_type.dart';
 import 'package:app_petfinder/repository/adoption/adoption_repository.dart';
@@ -164,7 +165,26 @@ class _PublishAdoptionPetScreenState extends State<PublishAdoptionPetScreen> {
 
           final AdoptionPetModel adoptionPet = AdoptionPetModel.fromJson(adoptionPetJson);
 
+          final images = adoptionPet.pictures.map((photo) {
+            return TempFileModel(
+              id: photo.id,
+              uuid: 'existing_${photo.id}',
+              file: null,
+              path: photo.url,
+              isExisting: true,
+              isUploading: false,
+            );
+          }).toList();
+
+          final PictureModel? mainImage = adoptionPet.pictures.where(
+            (image) => image.isMain,
+          ).firstOrNull;
+
+          final int mainIndex = mainImage == null ? 0 : images.indexWhere((image) => image.id == mainImage.id);
+
           setState(() {
+            _selectedImages = images;
+            _mainImageIndex = mainIndex >= 0 ? mainIndex : 0;
             _nameController.text = adoptionPet.name;
             _selectedSpeciesId = adoptionPet.speciesId;
             _selectedGenderId = adoptionPet.genderId;
@@ -226,12 +246,13 @@ class _PublishAdoptionPetScreenState extends State<PublishAdoptionPetScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     final List<Map<String, dynamic>> photosPayload = _selectedImages.asMap().entries.map((entry) {
-      final idx = entry.key;
-      final item = entry.value;
-      return {
-        'path_temp': item.key,
-        'is_main': idx == _mainImageIndex,
-      };
+      final int index = entry.key;
+      final TempFileModel image = entry.value;
+
+      return image.toFinalPayload(
+        isMain: index == _mainImageIndex,
+        sortOrder: index,
+      );
     }).toList();
 
     final Map<String, dynamic> payload = {
@@ -277,7 +298,7 @@ class _PublishAdoptionPetScreenState extends State<PublishAdoptionPetScreen> {
         description: response.message
       );
 
-      !_isUpdate ? context.go(MainRoutes.adoptions) : context.go(MainRoutes.account);
+      !_isUpdate ? context.go(MainRoutes.adoptions) : context.pop(true);
     } on ApiException catch (e) {
       ApiErrorHandler.handle(context, e);
     } finally {

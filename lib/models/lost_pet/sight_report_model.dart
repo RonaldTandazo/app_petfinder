@@ -1,3 +1,5 @@
+import 'package:app_petfinder/models/pictures/picture_model.dart';
+
 class SightReportModel {
   final int id;
   final int tutorId;
@@ -6,7 +8,7 @@ class SightReportModel {
   final double? latitude;
   final double? longitude;
   final String? comment;
-  final List<String> pictures;
+  final List<PictureModel> pictures;
 
   const SightReportModel({
     required this.id,
@@ -20,6 +22,12 @@ class SightReportModel {
   });
 
   factory SightReportModel.fromJson(Map<String, dynamic> json) {
+    final List picturesJson = json['pictures'];
+
+    final List<PictureModel> pictures = picturesJson
+      .map((e) => PictureModel.fromJson(e as Map<String, dynamic>))
+      .toList();
+      
     return SightReportModel(
       id: json['id'] as int,
       tutorId: json['tutor_id'] as int,
@@ -28,7 +36,7 @@ class SightReportModel {
       longitude: (json['longitude'] as num?)?.toDouble(),
       latitude: (json['latitude'] as num?)?.toDouble(),
       comment: (json['comment'] ?? '') as String,
-      pictures: List<String>.from(json['pictures'] ?? []),
+      pictures: pictures
     );
   }
 }

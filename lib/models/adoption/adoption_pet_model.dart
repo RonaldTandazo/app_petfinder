@@ -1,3 +1,5 @@
+import 'package:app_petfinder/models/pictures/picture_model.dart';
+
 class AdoptionPetModel {
   final int id;
   final String name;
@@ -23,7 +25,7 @@ class AdoptionPetModel {
   final String petStatus;
   final String age;
   final List<Map<String, dynamic>> healthConditions;
-  final List<String> pictures;
+  final List<PictureModel> pictures;
 
   AdoptionPetModel({
     required this.id,
@@ -54,6 +56,12 @@ class AdoptionPetModel {
   });
 
   factory AdoptionPetModel.fromJson(Map<String, dynamic> json) {
+    final List picturesJson = json['pictures'];
+
+    final List<PictureModel> pictures = picturesJson
+      .map((e) => PictureModel.fromJson(e as Map<String, dynamic>))
+      .toList();
+
     return AdoptionPetModel(
       id: json['id'] as int,
       name: json['name'] as String,
@@ -79,7 +87,7 @@ class AdoptionPetModel {
       petStatus: json['pet_status'] as String,
       age: json['age'] as String,
       healthConditions: List<Map<String, dynamic>>.from(json['health_conditions'] ?? []),
-      pictures: List<String>.from(json['pictures'] ?? []),
+      pictures: pictures
     );
   }
 }

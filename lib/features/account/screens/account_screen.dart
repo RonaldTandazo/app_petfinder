@@ -1,9 +1,3 @@
-import 'package:app_petfinder/core/network/api_response.dart';
-import 'package:app_petfinder/core/router/adoption/adoption_routes.dart';
-import 'package:app_petfinder/core/router/lost_pet/lost_pet_routes.dart';
-import 'package:app_petfinder/core/utils/api_success_handler.dart';
-import 'package:app_petfinder/widgets/dialog/app_confirm_dialog.dart';
-import 'package:app_petfinder/widgets/loaders/app_loading_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:app_petfinder/core/router/auth/auth_routes.dart';
@@ -27,11 +21,20 @@ import 'package:app_petfinder/repository/lost_pet/lost_pet_repository.dart';
 import 'package:app_petfinder/widgets/state/app_empty_state.dart';
 import 'package:app_petfinder/enums/account/pet_source.dart';
 import 'package:app_petfinder/enums/account/metric_action.dart';
+import 'package:app_petfinder/core/network/api_response.dart';
+import 'package:app_petfinder/core/router/adoption/adoption_routes.dart';
+import 'package:app_petfinder/core/router/lost_pet/lost_pet_routes.dart';
+import 'package:app_petfinder/core/utils/api_success_handler.dart';
+import 'package:app_petfinder/widgets/dialog/app_confirm_dialog.dart';
+import 'package:app_petfinder/widgets/loaders/app_loading_overlay.dart';
 
 class AccountScreen extends StatefulWidget {
   final int? tutorId;
 
-  const AccountScreen({super.key, this.tutorId});
+  const AccountScreen({
+    super.key,
+    this.tutorId
+  });
 
   @override
   State<AccountScreen> createState() => _AccountScreenState();
@@ -271,16 +274,22 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
   }
 
 
-  void _handlePetEdit(int id, PetSource source) {
+  Future<void> _handlePetEdit(int id, PetSource source) async {
+    bool? updated;
+
     switch (source) {
       case PetSource.adoption:
-        context.push(AdoptionRoutes.publish, extra: id);
+        updated = await context.push<bool>(AdoptionRoutes.publish, extra: id);
         break;
 
       case PetSource.lost:
-        context.push(LostPetRoutes.publish, extra: id);
+        updated = await context.push<bool>(LostPetRoutes.publish, extra: id,);
         break;
     }
+
+    if (!mounted) return;
+
+    if (updated == true) await _onRefresh();
   }
 
   Future<void> _handlePetDelete(int id, PetSource source) async {

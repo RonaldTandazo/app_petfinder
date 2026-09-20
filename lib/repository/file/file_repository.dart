@@ -7,19 +7,31 @@ class FileRepository extends BaseRepository {
   static const String _prefix = '/storage';
 
   Future<ApiResponse<Map<String, dynamic>>> store(List<TempFileModel> items) async {
+    final newItems = items.where((item) => !item.isExisting).toList();
+
+    if (newItems.isEmpty) {
+      return ApiResponse(ok: true, message: 'Imágenes Subidad', data: {'files': []}, code: 200);
+    }
+
     final formData = FormData();
 
-    for (var i = 0; i < items.length; i++) {
+    for (final TempFileModel item in newItems) {
       formData.files.add(
         MapEntry(
           'files[]',
           await MultipartFile.fromFile(
-            items[i].file.path,
-            filename: items[i].file.name,
+            item.file!.path,
+            filename: item.file!.name,
           ),
         ),
       );
-      formData.fields.add(MapEntry('uuids[]', items[i].uuid));
+
+      formData.fields.add(
+        MapEntry(
+          'uuids[]',
+          item.uuid,
+        ),
+      );
     }
 
     final response = await safeCall<Map<String, dynamic>>(

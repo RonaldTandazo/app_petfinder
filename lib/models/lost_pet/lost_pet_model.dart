@@ -1,3 +1,5 @@
+import 'package:app_petfinder/models/pictures/picture_model.dart';
+
 class LostPetModel {
   final int id;
   final String name;
@@ -27,7 +29,7 @@ class LostPetModel {
   final String reportStatusTag;
   final String reportStatus;
   final String? closingDate;
-  final List<String> pictures;
+  final List<PictureModel> pictures;
 
   const LostPetModel({
     required this.id,
@@ -62,6 +64,12 @@ class LostPetModel {
   });
 
   factory LostPetModel.fromJson(Map<String, dynamic> json) {
+    final List picturesJson = json['pictures'];
+
+    final List<PictureModel> pictures = picturesJson
+      .map((e) => PictureModel.fromJson(e as Map<String, dynamic>))
+      .toList();
+
     return LostPetModel(
       id: json['id'] as int,
       name: json['name'] as String,
@@ -91,7 +99,7 @@ class LostPetModel {
       reportStatusTag: json['report_status_tag'] as String,
       reportStatus: json['report_status'] as String,
       closingDate: (json['closing_date'] ?? '') as String,
-      pictures: List<String>.from(json['pictures'] ?? []),
+      pictures: pictures
     );
   }
 }

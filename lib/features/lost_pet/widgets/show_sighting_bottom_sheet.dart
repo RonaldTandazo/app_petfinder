@@ -1,10 +1,11 @@
-import 'package:app_petfinder/widgets/images/app_full_screen_gallery.dart';
 import 'package:flutter/material.dart';
 import 'package:app_petfinder/models/lost_pet/sight_report_model.dart';
 import 'package:app_petfinder/core/utils/common_helpers.dart';
+import 'package:app_petfinder/models/pictures/picture_model.dart';
+import 'package:app_petfinder/widgets/images/app_full_screen_gallery.dart';
 
 class ShowSightingBottomSheet {
-  static void _openFullScreenViewer(BuildContext context, List<String> pictures, int initialIndex) {
+  static void _openFullScreenViewer(BuildContext context, List<PictureModel> pictures, int initialIndex) {
     showDialog(
       context: context,
       useSafeArea: false,
@@ -63,7 +64,8 @@ class ShowSightingBottomSheet {
                   itemCount: sight.pictures.length,
                   separatorBuilder: (_, _) => const SizedBox(width: 8),
                   itemBuilder: (context, index) {
-                    final photoUrl = sight.pictures[index];
+                    final photoUrl = sight.pictures[index].url;
+
                     return GestureDetector(
                       onTap: () => _openFullScreenViewer(context, sight.pictures, index),
                       child: ClipRRect(

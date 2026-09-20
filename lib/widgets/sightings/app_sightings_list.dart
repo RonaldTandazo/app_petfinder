@@ -1,8 +1,9 @@
-import 'package:app_petfinder/widgets/dialog/app_confirm_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:app_petfinder/core/utils/common_helpers.dart';
 import 'package:app_petfinder/widgets/images/app_full_screen_gallery.dart';
 import 'package:app_petfinder/models/lost_pet/sight_report_model.dart';
+import 'package:app_petfinder/models/pictures/picture_model.dart';
+import 'package:app_petfinder/widgets/dialog/app_confirm_dialog.dart';
 
 class AppSightingsList extends StatelessWidget {
   final List<SightReportModel> sightings;
@@ -20,7 +21,7 @@ class AppSightingsList extends StatelessWidget {
     required this.onSightingDeleted
   });
 
-  void _openFullScreenViewer(BuildContext context, List<String> pictures) {
+  void _openFullScreenViewer(BuildContext context, List<PictureModel> pictures) {
     showDialog(
       context: context,
       useSafeArea: false,
@@ -114,13 +115,14 @@ class AppSightingsList extends StatelessWidget {
                     padding: const EdgeInsets.all(8),
                   ),
 
-                IconButton(
-                  icon: const Icon(Icons.my_location, size: 18, color: Colors.teal),
-                  tooltip: 'Ver en mapa',
-                  onPressed: () => onSightingSelected(sight),
-                  constraints: const BoxConstraints(),
-                  padding: const EdgeInsets.all(8),
-                ),
+                if(hasCoordinates)
+                  IconButton(
+                    icon: const Icon(Icons.my_location, size: 18, color: Colors.teal),
+                    tooltip: 'Ver en mapa',
+                    onPressed: () => onSightingSelected(sight),
+                    constraints: const BoxConstraints(),
+                    padding: const EdgeInsets.all(8),
+                  ),
 
                 if (isOwner)
                   IconButton(

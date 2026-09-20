@@ -48,7 +48,8 @@ class CommunityRoutes {
           final initialIndex = extra?.$2 ?? 0;
 
           return AppFullScreenGallery(
-            pictures: pictures,
+            // pictures: pictures,
+            pictures: [],
             initialIndex: pictures.isEmpty ? 0 : (initialIndex < pictures.length ? initialIndex : pictures.length - 1),
           );
         },

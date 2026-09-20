@@ -1,9 +1,10 @@
-import 'package:app_petfinder/widgets/images/app_full_screen_gallery.dart';
 import 'package:flutter/material.dart';
 import 'package:app_petfinder/widgets/images/app_image_placeholders.dart';
+import 'package:app_petfinder/models/pictures/picture_model.dart';
+import 'package:app_petfinder/widgets/images/app_full_screen_gallery.dart';
 
 class AppBarImageCarousel extends StatefulWidget {
-  final List<String> pictures;
+  final List<PictureModel> pictures;
   final bool isFollowing;
   final VoidCallback onToggleFollow;
   final String title;
@@ -64,7 +65,7 @@ class _AppBarImageCarouselState extends State<AppBarImageCarousel> {
                     },
                     itemBuilder: (context, index) {
                       return Image.network(
-                        widget.pictures[index],
+                        widget.pictures[index].url,
                         fit: BoxFit.cover,
                         width: double.infinity,
                         errorBuilder: (context, error, stackTrace) {

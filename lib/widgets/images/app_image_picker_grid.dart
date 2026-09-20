@@ -74,6 +74,7 @@ class _AppImagePickerGridState extends State<AppImagePickerGrid> {
         return TempFileModel(
           uuid: _uuidGenerator.v4(),
           file: file,
+          isExisting: false,
           isUploading: true,
         );
       }).toList();
@@ -184,6 +185,7 @@ class _AppImagePickerGridState extends State<AppImagePickerGrid> {
 
           return AppImageTile(
             image: image.file,
+            url: image.path,
             isMain: isMain,
             enableMainSelection: widget.enableMainSelection,
             onTap: widget.enableMainSelection ? () => widget.onSelectMain?.call(index) : null,

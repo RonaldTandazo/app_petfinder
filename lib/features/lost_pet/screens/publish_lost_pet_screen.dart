@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:app_petfinder/enums/snackbar/snackbar_type.dart';
+import 'package:app_petfinder/models/pictures/picture_model.dart';
 import 'package:app_petfinder/models/storage/temp_file_model.dart';
 import 'package:app_petfinder/models/catalog/size_model.dart';
 import 'package:app_petfinder/models/catalog/animal_gender_model.dart';
@@ -157,7 +158,26 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
 
           final LostPetModel lostPet = LostPetModel.fromJson(lostPetJson);
 
+          final images = lostPet.pictures.map((photo) {
+            return TempFileModel(
+              id: photo.id,
+              uuid: 'existing_${photo.id}',
+              file: null,
+              path: photo.url,
+              isExisting: true,
+              isUploading: false,
+            );
+          }).toList();
+
+          final PictureModel? mainImage = lostPet.pictures.where(
+            (image) => image.isMain,
+          ).firstOrNull;
+
+          final int mainIndex = mainImage == null ? 0 : images.indexWhere((image) => image.id == mainImage.id);
+
           setState(() {
+            _selectedImages = images;
+            _mainImageIndex = mainIndex >= 0 ? mainIndex : 0;
             _nameController.text = lostPet.name;
             _selectedSpeciesId = lostPet.speciesId;
             _selectedGenderId = lostPet.genderId;
@@ -209,12 +229,13 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     final List<Map<String, dynamic>> photosPayload = _selectedImages.asMap().entries.map((entry) {
-      final idx = entry.key;
-      final item = entry.value;
-      return {
-        'path_temp': item.key,
-        'is_main': idx == _mainImageIndex,
-      };
+      final int index = entry.key;
+      final TempFileModel image = entry.value;
+
+      return image.toFinalPayload(
+        isMain: index == _mainImageIndex,
+        sortOrder: index,
+      );
     }).toList();
 
     final Map<String, dynamic> payload = {
@@ -262,7 +283,7 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
         description: response.message
       );
 
-      !_isUpdate ? context.go(MainRoutes.lostPets) : context.go(MainRoutes.account);
+      !_isUpdate ? context.go(MainRoutes.lostPets) : context.pop(true);
     } on ApiException catch (e) {
       ApiErrorHandler.handle(context, e);
     } finally {

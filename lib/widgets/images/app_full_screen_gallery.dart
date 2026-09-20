@@ -1,8 +1,9 @@
-import 'package:app_petfinder/widgets/images/app_image_placeholders.dart';
 import 'package:flutter/material.dart';
+import 'package:app_petfinder/widgets/images/app_image_placeholders.dart';
+import 'package:app_petfinder/models/pictures/picture_model.dart';
 
 class AppFullScreenGallery extends StatefulWidget {
-  final List<String> pictures;
+  final List<PictureModel> pictures;
   final int initialIndex;
 
   const AppFullScreenGallery({
@@ -51,7 +52,7 @@ class _AppFullScreenGalleryState extends State<AppFullScreenGallery> {
                 maxScale: 4.0,
                 child: Center(
                   child: Image.network(
-                    widget.pictures[index],
+                    widget.pictures[index].url,
                     fit: BoxFit.contain,
                     loadingBuilder: (context, child, loadingProgress) {
                       if (loadingProgress == null) return child;

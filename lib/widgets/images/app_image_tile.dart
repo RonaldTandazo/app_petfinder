@@ -1,21 +1,115 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
 
 class AppImageTile extends StatelessWidget {
-  final XFile image;
+  final XFile? image;
+  final String? url;
   final bool isMain;
   final bool enableMainSelection;
   final VoidCallback? onTap;
   final VoidCallback onRemove;
 
   const AppImageTile({
+    super.key,
     required this.image,
+    required this.url,
     required this.isMain,
     required this.enableMainSelection,
     required this.onTap,
     required this.onRemove,
   });
+
+  Widget _buildImage() {
+    if (image != null) {
+      return Image.file(
+        File(image!.path),
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+        frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+          if (wasSynchronouslyLoaded || frame != null) {
+            return child;
+          }
+
+          return Container(
+            color: Colors.teal.shade50,
+            child: Center(
+              child: SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.5,
+                  color: Colors.teal.shade600,
+                ),
+              ),
+            ),
+          );
+        },
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            color: Colors.grey.shade200,
+            child: const Icon(
+              Icons.broken_image_rounded,
+              color: Colors.grey,
+              size: 28,
+            ),
+          );
+        },
+      );
+    }
+
+    if (url != null && url!.isNotEmpty) {
+      return Image.network(
+        url!,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) {
+            return child;
+          }
+
+          return Container(
+            color: Colors.teal.shade50,
+            child: Center(
+              child: SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.5,
+                  color: Colors.teal.shade600,
+                  value: loadingProgress.expectedTotalBytes != null
+                      ? loadingProgress.cumulativeBytesLoaded /
+                          loadingProgress.expectedTotalBytes!
+                      : null,
+                ),
+              ),
+            ),
+          );
+        },
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            color: Colors.grey.shade200,
+            child: const Icon(
+              Icons.broken_image_rounded,
+              color: Colors.grey,
+              size: 28,
+            ),
+          );
+        },
+      );
+    }
+
+    return Container(
+      color: Colors.grey.shade200,
+      child: const Icon(
+        Icons.broken_image_rounded,
+        color: Colors.grey,
+        size: 28,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,46 +125,16 @@ class AppImageTile extends StatelessWidget {
               child: Container(
                 decoration: BoxDecoration(
                   border: isMain
-                      ? Border.all(color: Colors.teal.shade600, width: 3)
+                      ? Border.all(
+                          color: Colors.teal.shade600,
+                          width: 3,
+                        )
                       : null,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(13),
-                  child: Image.file(
-                    File(image.path),
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: double.infinity,
-                    frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-                      if (wasSynchronouslyLoaded || frame != null) {
-                        return child;
-                      }
-                      return Container(
-                        color: Colors.teal.shade50,
-                        child: Center(
-                          child: SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2.5,
-                              color: Colors.teal.shade600,
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: Colors.grey.shade200,
-                        child: const Icon(
-                          Icons.broken_image_rounded,
-                          color: Colors.grey,
-                          size: 28,
-                        ),
-                      );
-                    },
-                  ),
+                  child: _buildImage(),
                 ),
               ),
             ),
@@ -83,11 +147,15 @@ class AppImageTile extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(5),
                 decoration: BoxDecoration(
-                  color: isMain ? Colors.teal.shade600 : Colors.black45,
+                  color: isMain
+                      ? Colors.teal.shade600
+                      : Colors.black45,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
-                  isMain ? Icons.star_rounded : Icons.star_border_rounded,
+                  isMain
+                      ? Icons.star_rounded
+                      : Icons.star_border_rounded,
                   color: Colors.white,
                   size: 16,
                 ),
@@ -105,7 +173,11 @@ class AppImageTile extends StatelessWidget {
                   color: Colors.black54,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.close, color: Colors.white, size: 16),
+                child: const Icon(
+                  Icons.close,
+                  color: Colors.white,
+                  size: 16,
+                ),
               ),
             ),
           ),
