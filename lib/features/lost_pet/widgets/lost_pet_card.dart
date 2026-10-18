@@ -17,25 +17,49 @@ class LostPetCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Size screenSize = MediaQuery.sizeOf(context);
+
+    final bool isSmallPhone = screenSize.width < 360;
+    final bool isTablet = screenSize.width >= 600;
+
+    final double imageSize = isSmallPhone
+        ? 80
+        : isTablet
+            ? 120
+            : 100;
+
+    final double cardPadding = isSmallPhone ? 8 : 12;
+    final double imageSpacing = isSmallPhone ? 8 : 12;
+    final double nameFontSize = isSmallPhone ? 14 : isTablet ? 18 : 16;
+    final double descriptionFontSize = isSmallPhone ? 11 : 13;
+    final double locationFontSize = isSmallPhone ? 10 : 12;
+
     final bool hasImage = lostPet.picture.trim().isNotEmpty;
     final bool isLost = lostPet.reportStatusTag == 'ACTIVE';
+
     final Color badgeColor = isLost ? Colors.redAccent : Colors.teal;
     final String badgeText = lostPet.reportStatus;
-    
+
     final bool isMale = lostPet.genderTag == 'MALE';
     final IconData genderIcon = getGenderIcon(isMale);
     final Color genderColor = getGenderColor(isMale);
 
-    final String description = (lostPet.race != null && lostPet.race!.trim().isNotEmpty)
-      ? '${lostPet.species} • ${lostPet.race}'
-      : lostPet.species;
+    final String description =
+        lostPet.race != null && lostPet.race!.trim().isNotEmpty
+            ? '${lostPet.species} • ${lostPet.race}'
+            : lostPet.species;
 
-    final String location = (lostPet.eventAddress != null && lostPet.eventAddress!.trim().isNotEmpty)
-      ? '${lostPet.eventAddress}, ${lostPet.city}'
-      : lostPet.city;
+    final String location =
+        lostPet.eventAddress != null &&
+                lostPet.eventAddress!.trim().isNotEmpty
+            ? '${lostPet.eventAddress}, ${lostPet.city}'
+            : lostPet.city;
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: EdgeInsets.symmetric(
+        horizontal: isSmallPhone ? 10 : 16,
+        vertical: 6,
+      ),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -54,22 +78,21 @@ class LostPetCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           onTap: () => onTap(lostPet),
           child: Padding(
-            padding: const EdgeInsets.all(12),
+            padding: EdgeInsets.all(cardPadding),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Imagen con Badge de Estado
+                // Imagen y estado
                 Stack(
                   children: [
                     SizedBox(
-                      width: 100,
-                      height: 100,
+                      width: imageSize,
+                      height: imageSize,
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(12),
                         child: hasImage
                             ? Image.network(
                                 lostPet.picture,
-                                width: 100,
-                                height: 100,
                                 fit: BoxFit.cover,
                                 errorBuilder: (context, error, stackTrace) {
                                   return AppImagePlaceholders.card(
@@ -85,19 +108,27 @@ class LostPetCard extends StatelessWidget {
                       ),
                     ),
                     Positioned(
-                      top: 6,
-                      left: 6,
+                      top: 5,
+                      left: 5,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        constraints: BoxConstraints(
+                          maxWidth: imageSize - 10,
+                        ),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: isSmallPhone ? 4 : 6,
+                          vertical: 3,
+                        ),
                         decoration: BoxDecoration(
                           color: badgeColor,
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
                           badgeText,
-                          style: const TextStyle(
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
                             color: Colors.white,
-                            fontSize: 9,
+                            fontSize: isSmallPhone ? 8 : 9,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -105,105 +136,129 @@ class LostPetCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(width: 12),
 
-                // Información Principal
+                SizedBox(width: imageSpacing),
+
+                // Información de la mascota
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Nombre + Icono de Género + Fecha
+                      // Nombre y género
                       Row(
                         children: [
                           Expanded(
-                            child: Row(
-                              children: [
-                                Flexible(
-                                  child: Text(
-                                    lostPet.name,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black87,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                const SizedBox(width: 4),
-                                Icon(
-                                  genderIcon,
-                                  size: 18,
-                                  color: genderColor,
-                                ),
-                              ],
+                            child: Text(
+                              lostPet.name,
+                              style: TextStyle(
+                                fontSize: nameFontSize,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          Text(
-                            formatDate(lostPet.eventDate),
-                            style: const TextStyle(fontSize: 11, color: Colors.grey),
+                          const SizedBox(width: 4),
+                          Icon(
+                            genderIcon,
+                            size: isSmallPhone ? 16 : 18,
+                            color: genderColor,
                           ),
                         ],
                       ),
-                      const SizedBox(height: 4),
 
-                      // Raza • Especie
+                      const SizedBox(height: 3),
+
+                      // Fecha
                       Text(
-                        description,
-                        style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
+                        formatDate(lostPet.eventDate),
+                        style: TextStyle(
+                          fontSize: isSmallPhone ? 10 : 11,
+                          color: Colors.grey.shade600,
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
+
+                      const SizedBox(height: 5),
+
+                      // Especie y raza
+                      Text(
+                        description,
+                        style: TextStyle(
+                          fontSize: descriptionFontSize,
+                          color: Colors.grey.shade700,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+
                       const SizedBox(height: 8),
 
-                      // Ubicación (Dirección + Ciudad)
-                      Row(
-                        children: [
-                          if (location.trim().isNotEmpty) ...[
-                            const Icon(Icons.location_on, size: 14, color: Colors.teal),
-                            const SizedBox(width: 2),
+                      // Ubicación
+                      if (location.trim().isNotEmpty)
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(
+                              Icons.location_on,
+                              size: isSmallPhone ? 13 : 14,
+                              color: Colors.teal,
+                            ),
+                            const SizedBox(width: 3),
                             Expanded(
                               child: Text(
                                 location,
-                                style: const TextStyle(fontSize: 12, color: Colors.black54),
-                                maxLines: 1,
+                                style: TextStyle(
+                                  fontSize: locationFontSize,
+                                  color: Colors.black54,
+                                ),
+                                maxLines: isSmallPhone ? 2 : 2,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ],
-                          
-                          // Badge de Distancia
-                          if (distance != null) ...[
-                            const SizedBox(width: 6),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: Colors.teal.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(4),
+                        ),
+
+                      // Distancia debajo de la ubicación
+                      if (distance != null &&
+                          distance!.trim().isNotEmpty) ...[
+                        const SizedBox(height: 6),
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: isSmallPhone ? 5 : 7,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.teal.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.near_me_outlined,
+                                size: isSmallPhone ? 11 : 13,
+                                color: Colors.teal.shade700,
                               ),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.location_on_outlined,
-                                    size: 12,
-                                    color: Colors.teal.shade600,
+                              const SizedBox(width: 3),
+                              Flexible(
+                                child: Text(
+                                  distance!,
+                                  style: TextStyle(
+                                    fontSize: isSmallPhone ? 10 : 11,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.teal.shade700,
                                   ),
-                                  const SizedBox(width: 2),
-                                  Text(
-                                    distance!,
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.teal.shade700,
-                                    ),
-                                  ),
-                                ],
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
-                            ),
-                          ],
-                        ],
-                      ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),

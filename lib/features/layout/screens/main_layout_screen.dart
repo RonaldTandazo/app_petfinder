@@ -47,13 +47,36 @@ class MainLayoutScreen extends StatelessWidget {
 
     return Scaffold(
       body: child,
-      floatingActionButton: FloatingActionButton(
-        heroTag: 'btn_quick_actions',
-        onPressed: () => _showQuickActionModal(context),
-        backgroundColor: Colors.teal,
-        elevation: 4,
-        shape: const CircleBorder(),
-        child: const Icon(Icons.add, size: 30, color: Colors.white),
+      floatingActionButton: Builder(
+        builder: (context) {
+          final double screenWidth = MediaQuery.sizeOf(context).width;
+          
+          final bool isSmallPhone = screenWidth < 360;
+          final bool isTablet = screenWidth >= 600;
+
+          final double buttonSize = isSmallPhone
+            ? 34.0
+            : isTablet
+                ? 64.0
+                : 40.0;
+
+          return SizedBox(
+            width: buttonSize,
+            height: buttonSize,
+            child: FloatingActionButton(
+              heroTag: 'btn_quick_actions',
+              onPressed: () => _showQuickActionModal(context),
+              backgroundColor: Colors.teal,
+              elevation: 4,
+              shape: const CircleBorder(),
+              child: Icon(
+                Icons.add,
+                size: isSmallPhone ? 24 : isTablet ? 32 : 28,
+                color: Colors.white,
+              ),
+            ),
+          );
+        },
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: FloatingBottomBar(

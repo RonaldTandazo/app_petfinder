@@ -13,6 +13,7 @@ class ApiClient {
   static final ApiClient _instance = ApiClient._internal();
   
   static final String baseUrl = 'http://192.168.100.61:8000/api';
+  // static const String baseUrl = 'http://localhost:8000/api';
   
   static String get baseHost => Uri.parse(baseUrl).host;
   

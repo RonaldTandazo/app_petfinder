@@ -111,7 +111,7 @@ class _EditShelterScreenState extends State<EditShelterScreen> {
             _latitude = (data['latitude'] as num?)?.toDouble();
           }
           if (data['longitude'] != null) {
-            _longitude = (data['_longitude'] as num?)?.toDouble();
+            _longitude = (data['longitude'] as num?)?.toDouble();
           }
         });
       }
@@ -220,159 +220,286 @@ class _EditShelterScreenState extends State<EditShelterScreen> {
     }
   }
 
+  Widget _responsiveFields({
+    required bool useTwoColumns,
+    required double spacing,
+    required Widget first,
+    required Widget second,
+  }) {
+    if (!useTwoColumns) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          first,
+          SizedBox(height: spacing),
+          second,
+        ],
+      );
+    }
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(child: first),
+        SizedBox(width: spacing),
+        Expanded(child: second),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final bool isSmallPhone = screenWidth < 360;
+    final bool useTwoColumns = screenWidth >= 480;
+
+    final horizontalPadding = isSmallPhone ? 12.0 : 20.0;
+    final fieldSpacing = isSmallPhone ? 12.0 : 16.0;
+    final sectionSpacing = isSmallPhone ? 20.0 : 24.0;
+    final verticalFieldGap = useTwoColumns ? 14.0 : 20.0;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAF9),
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Editar Perfil del Refugio',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: isSmallPhone ? 16 : 18,
+          ),
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
       body: _isLoadingData || _isLoadingCatalog
-        ? const Center(child: CircularProgressIndicator(color: Colors.teal))
-        : Form(
-            key: _formKey,
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              children: [
-                PetFormStyles.buildSectionHeader('Logo / Foto de Perfil', 'Sube la imagen representativa del refugio'),
-                const SizedBox(height: 12),
-                AppImagePickerGrid(
-                  images: _avatarImages,
-                  maxImages: 1,
-                  onImagesChanged: (updated) {
-                    setState(() => _avatarImages = updated);
-                  },
-                ),
-                const SizedBox(height: 24),
-
-                PetFormStyles.buildSectionHeader('Información del Refugio', 'Datos comerciales y de contacto'),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _nameController,
-                  decoration: PetFormStyles.inputDecoration('Nombre *', Icons.store_rounded),
-                  validator: (val) => val == null || val.trim().isEmpty ? 'Ingresa el nombre' : null,
-                ),
-                const SizedBox(height: 14),
-                TextFormField(
-                  controller: _businessNameController,
-                  decoration: PetFormStyles.inputDecoration('Razón Social', Icons.business_rounded),
-                ),
-                const SizedBox(height: 14),
-                TextFormField(
-                  controller: _taxIdentificationController,
-                  decoration: PetFormStyles.inputDecoration('RUC / Identificación fiscal', Icons.badge_outlined),
-                ),
-                const SizedBox(height: 14),
-
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        decoration: PetFormStyles.inputDecoration('Correo electrónico *', Icons.email),
-                        validator: (val) => val == null || val.trim().isEmpty ? 'Ingresa un correo' : null,
+          ? const Center(
+              child: CircularProgressIndicator(color: Colors.teal),
+            )
+          : Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 850),
+                child: Form(
+                  key: _formKey,
+                  child: ListView(
+                    keyboardDismissBehavior:
+                        ScrollViewKeyboardDismissBehavior.onDrag,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: horizontalPadding,
+                      vertical: isSmallPhone ? 8 : 12,
+                    ),
+                    children: [
+                      PetFormStyles.buildSectionHeader(
+                        'Logo / Foto de Perfil',
+                        'Sube la imagen representativa del refugio',
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: AppContactPhoneFields(
-                        mobileController: _phoneMobileController,
-                        isPhoneHomeRequired: false,
-                        showHeader: false,
-                        showPhoneHome: false,
-                      )
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 14),
+                      const SizedBox(height: 12),
 
-                Row(
-                  children: [
-                    Expanded(
-                      child: DropdownButtonFormField<int>(
-                        initialValue: _selectedCountryId,
-                        decoration: PetFormStyles.inputDecoration('País', Icons.public),
-                        items: _countriesList.map((item) => DropdownMenuItem<int>(
-                          value: item.id,
-                          child: Text(item.name),
-                        )).toList(),
-                        onChanged: (val) => setState(() => _selectedCountryId = val),
+                      AppImagePickerGrid(
+                        images: _avatarImages,
+                        maxImages: 1,
+                        onImagesChanged: (updated) {
+                          setState(() => _avatarImages = updated);
+                        },
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: TextFormField(
-                        controller: _cityController,
-                        decoration: PetFormStyles.inputDecoration('Ciudad', Icons.location_city_outlined),
+
+                      SizedBox(height: sectionSpacing),
+
+                      PetFormStyles.buildSectionHeader(
+                        'Información del Refugio',
+                        'Datos comerciales y de contacto',
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 14),
-                
-                TextFormField(
-                  controller: _addressController,
-                  decoration: PetFormStyles.inputDecoration('Dirección Física', Icons.home_work_outlined),
-                ),
-                const SizedBox(height: 14),
-                
-                PetFormStyles.buildSectionHeader('Ubicación', 'Selecciona las coordenadas en el mapa'),
-                const SizedBox(height: 12),
-                AppLocationPickerTile(
-                  latitude: _latitude,
-                  longitude: _longitude,
-                  isRequired: false,
-                  customHint: 'Ubicación física del refugio',
-                  onLocationSelected: (LatLng result) {
-                    setState(() {
-                      _latitude = result.latitude;
-                      _longitude = result.longitude;
-                    });
-                  },
-                ),
-                const SizedBox(height: 20),
-                
-                PetFormStyles.buildSectionHeader('Información Adicional', 'Página web y horarios de atención'),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _webPageController,
-                  keyboardType: TextInputType.url,
-                  decoration: PetFormStyles.inputDecoration('Sitio Web', Icons.language_rounded),
+                      const SizedBox(height: 16),
 
-                ),
-                const SizedBox(height: 14),
-                TextFormField(
-                  controller: _businessHoursController,
-                  decoration: PetFormStyles.inputDecoration('Horarios de Atención', Icons.access_time_rounded),
-                ),
-                const SizedBox(height: 28),
+                      // Nombre y razón social
+                      _responsiveFields(
+                        useTwoColumns: useTwoColumns,
+                        spacing: fieldSpacing,
+                        first: TextFormField(
+                          controller: _nameController,
+                          decoration: PetFormStyles.inputDecoration(
+                            'Nombre *',
+                            Icons.store_rounded,
+                          ),
+                          validator: (val) =>
+                              val == null || val.trim().isEmpty
+                                  ? 'Ingresa el nombre'
+                                  : null,
+                        ),
+                        second: TextFormField(
+                          controller: _businessNameController,
+                          decoration: PetFormStyles.inputDecoration(
+                            'Razón Social',
+                            Icons.business_rounded,
+                          ),
+                        ),
+                      ),
 
-                SizedBox(
-                  height: 54,
-                  child: ElevatedButton(
-                    onPressed: _submit,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.teal.shade600,
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    ),
-                    child: const Text(
-                      'Guardar Cambios',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-                    ),
+                      SizedBox(height: verticalFieldGap),
+
+                      // Identificación fiscal y correo
+                      _responsiveFields(
+                        useTwoColumns: useTwoColumns,
+                        spacing: fieldSpacing,
+                        first: TextFormField(
+                          controller: _taxIdentificationController,
+                          decoration: PetFormStyles.inputDecoration(
+                            'RUC / Identificación fiscal',
+                            Icons.badge_outlined,
+                          ),
+                        ),
+                        second: TextFormField(
+                          controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          decoration: PetFormStyles.inputDecoration(
+                            'Correo electrónico *',
+                            Icons.email,
+                          ),
+                          validator: (val) =>
+                              val == null || val.trim().isEmpty
+                                  ? 'Ingresa un correo'
+                                  : null,
+                        ),
+                      ),
+
+                      SizedBox(height: verticalFieldGap),
+
+                      // Teléfono y país
+                      _responsiveFields(
+                        useTwoColumns: useTwoColumns,
+                        spacing: fieldSpacing,
+                        first: AppContactPhoneFields(
+                          mobileController: _phoneMobileController,
+                          isPhoneHomeRequired: false,
+                          showHeader: false,
+                          showPhoneHome: false,
+                        ),
+                        second: DropdownButtonFormField<int>(
+                          initialValue: _selectedCountryId,
+                          isExpanded: true,
+                          decoration: PetFormStyles.inputDecoration(
+                            'País',
+                            Icons.public,
+                          ),
+                          items: _countriesList
+                              .map(
+                                (item) => DropdownMenuItem<int>(
+                                  value: item.id,
+                                  child: Text(
+                                    item.name,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (val) {
+                            setState(() => _selectedCountryId = val);
+                          },
+                        ),
+                      ),
+
+                      SizedBox(height: verticalFieldGap),
+
+                      // Ciudad y dirección
+                      _responsiveFields(
+                        useTwoColumns: useTwoColumns,
+                        spacing: fieldSpacing,
+                        first: TextFormField(
+                          controller: _cityController,
+                          decoration: PetFormStyles.inputDecoration(
+                            'Ciudad',
+                            Icons.location_city_outlined,
+                          ),
+                        ),
+                        second: TextFormField(
+                          controller: _addressController,
+                          decoration: PetFormStyles.inputDecoration(
+                            'Dirección Física',
+                            Icons.home_work_outlined,
+                          ),
+                        ),
+                      ),
+
+                      SizedBox(height: sectionSpacing),
+
+                      PetFormStyles.buildSectionHeader(
+                        'Ubicación',
+                        'Selecciona las coordenadas en el mapa',
+                      ),
+                      const SizedBox(height: 12),
+
+                      AppLocationPickerTile(
+                        latitude: _latitude,
+                        longitude: _longitude,
+                        isRequired: false,
+                        customHint: 'Ubicación física del refugio',
+                        onLocationSelected: (LatLng result) {
+                          setState(() {
+                            _latitude = result.latitude;
+                            _longitude = result.longitude;
+                          });
+                        },
+                      ),
+
+                      SizedBox(height: sectionSpacing),
+
+                      PetFormStyles.buildSectionHeader(
+                        'Información Adicional',
+                        'Página web y horarios de atención',
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Página web y horarios
+                      _responsiveFields(
+                        useTwoColumns: useTwoColumns,
+                        spacing: fieldSpacing,
+                        first: TextFormField(
+                          controller: _webPageController,
+                          keyboardType: TextInputType.url,
+                          decoration: PetFormStyles.inputDecoration(
+                            'Sitio Web',
+                            Icons.language_rounded,
+                          ),
+                        ),
+                        second: TextFormField(
+                          controller: _businessHoursController,
+                          decoration: PetFormStyles.inputDecoration(
+                            'Horarios de Atención',
+                            Icons.access_time_rounded,
+                          ),
+                        ),
+                      ),
+
+                      SizedBox(height: isSmallPhone ? 24 : 28),
+
+                      SizedBox(
+                        height: isSmallPhone ? 48 : 54,
+                        child: ElevatedButton(
+                          onPressed: _submit,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.teal.shade600,
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                          child: Text(
+                            'Actualizar Perfil',
+                            style: TextStyle(
+                              fontSize: isSmallPhone ? 14 : 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 24),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 50),
-              ],
+              ),
             ),
-          ),
     );
   }
 }

@@ -83,7 +83,7 @@ class _AppLocationPickerState extends State<AppLocationPicker> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mueve el mapa para fijar el punto', style: TextStyle(fontSize: 16)),
+        title: const Text('Fija la ubicación', style: TextStyle(fontSize: 16)),
         actions: [
           TextButton(
             onPressed: _isInitializing

@@ -20,40 +20,76 @@ class PetSwipeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (pets.isEmpty) {
-      return ListView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        children: [
-          const SizedBox(height: 100),
-          emptyStateWidget,
-        ],
-      );
-    }
-
-    final currentPet = pets.first;
-    final distance = getDistance(currentPet);
-
     return LayoutBuilder(
-      key: const ValueKey('swipe_view'),
       builder: (context, constraints) {
+        final double width = constraints.maxWidth;
+        final double height = constraints.maxHeight;
+
+        final bool isSmallPhone = width < 360;
+        final bool isMobile = width < 600;
+        final bool isShortScreen = height < 650;
+
+        final double horizontalPadding = isSmallPhone
+            ? 8
+            : isMobile
+                ? 12
+                : 20;
+
+        final double verticalPadding = isSmallPhone
+            ? 6
+            : isShortScreen
+                ? 8
+                : isMobile
+                    ? 12
+                    : 20;
+
+        if (pets.isEmpty) {
+          return ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            children: [
+              SizedBox(
+                height: isSmallPhone ? 40 : isMobile ? 60 : 100,
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: horizontalPadding,
+                ),
+                child: emptyStateWidget,
+              ),
+            ],
+          );
+        }
+
+        final currentPet = pets.first;
+        final distance = getDistance(currentPet);
+
         return SingleChildScrollView(
+          key: const ValueKey('swipe_view'),
           physics: const AlwaysScrollableScrollPhysics(),
-          child: SizedBox(
-            height: constraints.maxHeight,
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: PetSwipeCard(
-                  pet: currentPet,
-                  distance: distance,
-                  onDismissed: (direction) => onDismissed(0),
-                  onTap: () => onTap(currentPet),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: height,
+            ),
+            child: SizedBox(
+              height: height,
+              child: Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: horizontalPadding,
+                    vertical: verticalPadding,
+                  ),
+                  child: PetSwipeCard(
+                    pet: currentPet,
+                    distance: distance,
+                    onDismissed: (direction) => onDismissed(0),
+                    onTap: () => onTap(currentPet),
+                  ),
                 ),
               ),
             ),
-          ),
+          )
         );
-      },
+      }
     );
   }
 }

@@ -29,11 +29,29 @@ class AccountAdoptionsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.sizeOf(context).width;
+
+    final bool isSmallPhone = screenWidth < 360;
+    final bool isMobile = screenWidth < 600;
+
+    final double gridPadding = isSmallPhone ? 8 : isMobile ? 10 : 12;
+    final double gridSpacing = isSmallPhone ? 6 : 10;
+
+    final double childAspectRatio = isSmallPhone
+        ? 0.72
+        : isMobile
+            ? 0.75
+            : 0.78;
+
     if (pets.isEmpty) {
       return ListView(
         physics: const AlwaysScrollableScrollPhysics(),
+        padding: EdgeInsets.only(
+          top: isSmallPhone ? 60 : 100,
+          left: gridPadding,
+          right: gridPadding,
+        ),
         children: [
-          const SizedBox(height: 100),
           emptyStateWidget,
         ],
       );
@@ -43,13 +61,13 @@ class AccountAdoptionsGrid extends StatelessWidget {
       children: [
         Expanded(
           child: GridView.builder(
-            padding: const EdgeInsets.all(12),
+            padding: EdgeInsets.all(gridPadding),
             itemCount: pets.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 10,
-              childAspectRatio: 0.78,
+              crossAxisSpacing: gridSpacing,
+              mainAxisSpacing: gridSpacing,
+              childAspectRatio: childAspectRatio,
             ),
             itemBuilder: (context, index) {
               final AdoptionPetListModel pet = pets[index];

@@ -26,11 +26,17 @@ class AccountDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final screenWidth = MediaQuery.of(context).size.width;
 
-    final bool isSmallScreen = screenWidth < 600;
+    final double screenWidth = MediaQuery.sizeOf(context).width;
+          
+    final bool isSmallPhone = screenWidth < 360;
+    final bool isTablet = screenWidth >= 600;
 
-    final double drawerWidth = isSmallScreen ? screenWidth : 360.0;
+    final double drawerWidth = isSmallPhone 
+      ? screenWidth 
+      : isTablet 
+          ? 360.0 
+          : 340.0;
 
     return Drawer(
       width: drawerWidth,

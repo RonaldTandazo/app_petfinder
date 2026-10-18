@@ -14,13 +14,25 @@ class AppSnackBar {
     final overlayState = Overlay.of(context);
 
     final (Color bgColor, IconData iconData) = switch (type) {
-      SnackBarType.success => (Colors.teal.shade700, Icons.check_circle_rounded),
-      SnackBarType.error => (Colors.red.shade700, Icons.cancel_rounded),
-      SnackBarType.warning => (Colors.amber.shade900, Icons.warning_rounded),
-      SnackBarType.information => (Colors.blue.shade800, Icons.info_rounded),
+      SnackBarType.success => (
+          Colors.teal.shade700,
+          Icons.check_circle_rounded,
+        ),
+      SnackBarType.error => (
+          Colors.red.shade700,
+          Icons.cancel_rounded,
+        ),
+      SnackBarType.warning => (
+          Colors.amber.shade900,
+          Icons.warning_rounded,
+        ),
+      SnackBarType.information => (
+          Colors.blue.shade800,
+          Icons.info_rounded,
+        ),
     };
 
-    late OverlayEntry overlayEntry;
+    late final OverlayEntry overlayEntry;
 
     overlayEntry = OverlayEntry(
       builder: (context) {
@@ -28,61 +40,119 @@ class AppSnackBar {
           position: position,
           duration: duration,
           onDismiss: () => overlayEntry.remove(),
-          child: Material(
-            color: Colors.transparent,
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: bgColor,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 10,
-                    offset: Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  Icon(iconData, color: Colors.white, size: 28),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          title,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
-                        ),
-                        if (description != null && description.trim().isNotEmpty) ...[
-                          const SizedBox(height: 2),
-                          Text(
-                            description,
-                            style: const TextStyle(
-                              color: Colors.white70,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          child: _SnackBarContent(
+            title: title,
+            description: description,
+            bgColor: bgColor,
+            iconData: iconData,
           ),
         );
       },
     );
 
     overlayState.insert(overlayEntry);
+  }
+}
+
+class _SnackBarContent extends StatelessWidget {
+  final String title;
+  final String? description;
+  final Color bgColor;
+  final IconData iconData;
+
+  const _SnackBarContent({
+    required this.title,
+    required this.description,
+    required this.bgColor,
+    required this.iconData,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final Size screenSize = MediaQuery.sizeOf(context);
+
+    final bool isSmallPhone = screenSize.width < 360;
+    final bool isMobile = screenSize.width < 600;
+
+    final double horizontalMargin = isSmallPhone ? 12 : 16;
+    final double horizontalPadding = isSmallPhone ? 12 : 16;
+    final double verticalPadding = isSmallPhone ? 10 : 12;
+    final double iconSize = isSmallPhone ? 24 : 28;
+    final double titleFontSize = isSmallPhone ? 13 : 14;
+    final double descriptionFontSize = isSmallPhone ? 11 : 12;
+
+    return SafeArea(
+      child: Align(
+        alignment: Alignment.center,
+        child: Container(
+          width: double.infinity,
+          constraints: BoxConstraints(
+            maxWidth: isMobile ? 560 : 440,
+          ),
+          margin: EdgeInsets.symmetric(
+            horizontal: horizontalMargin,
+          ),
+          padding: EdgeInsets.symmetric(
+            horizontal: horizontalPadding,
+            vertical: verticalPadding,
+          ),
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 10,
+                offset: Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                iconData,
+                color: Colors.white,
+                size: iconSize,
+              ),
+              SizedBox(width: isSmallPhone ? 8 : 12),
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      softWrap: true,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: titleFontSize,
+                        decoration: TextDecoration.none,
+                      ),
+                    ),
+                    if (description != null &&
+                        description!.trim().isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        description!,
+                        softWrap: true,
+                        style: TextStyle(
+                          color: Colors.white70,
+                          fontSize: descriptionFontSize,
+                          height: 1.3,
+                          decoration: TextDecoration.none,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -127,24 +197,33 @@ class _SnackBarAnimatedWidgetState extends State<_SnackBarAnimatedWidget> {
 
   @override
   Widget build(BuildContext me) {
-    final isTop = widget.position == SnackBarPosition.top;
-    final mediaQuery = MediaQuery.of(context);
+    final bool isTop = widget.position == SnackBarPosition.top;
+    final Size screenSize = MediaQuery.sizeOf(context);
+    final double safeTop = MediaQuery.paddingOf(context).top;
+    final double safeBottom = MediaQuery.paddingOf(context).bottom;
+
+    final bool isSmallPhone = screenSize.width < 360;
+    final double verticalOffset = isSmallPhone ? 12 : 16;
 
     return Positioned(
-      top: isTop ? mediaQuery.padding.top + 16 : null,
-      bottom: !isTop ? mediaQuery.padding.bottom + 16 : null,
+      top: isTop ? safeTop + verticalOffset : null,
+      bottom: !isTop ? safeBottom + verticalOffset : null,
       left: 0,
       right: 0,
-      child: AnimatedOpacity(
-        duration: const Duration(milliseconds: 300),
-        opacity: _isVisible ? 1.0 : 0.0,
-        child: AnimatedSlide(
+      child: IgnorePointer(
+        child: AnimatedOpacity(
           duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOutBack,
-          offset: _isVisible
-              ? Offset.zero
-              : (isTop ? const Offset(0, -0.5) : const Offset(0, 0.5)),
-          child: widget.child,
+          opacity: _isVisible ? 1 : 0,
+          child: AnimatedSlide(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOutBack,
+            offset: _isVisible
+                ? Offset.zero
+                : (isTop
+                    ? const Offset(0, -0.5)
+                    : const Offset(0, 0.5)),
+            child: widget.child,
+          ),
         ),
       ),
     );

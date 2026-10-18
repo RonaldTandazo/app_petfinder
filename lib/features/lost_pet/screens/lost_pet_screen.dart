@@ -47,7 +47,7 @@ class _LostPetScreenState extends State<LostPetScreen> {
   bool _isLoadingLostPet = true;
 
   LostPetModel? _lostPet;
-  late List<SightReportModel> _sightings;
+  List<SightReportModel> _sightings = [];
 
   @override
   void initState() {
@@ -211,6 +211,22 @@ class _LostPetScreenState extends State<LostPetScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final Size screenSize = MediaQuery.sizeOf(context);
+
+    final bool isSmallPhone = screenSize.width < 360;
+    final bool isMobile = screenSize.width < 600;
+    final bool isTablet = screenSize.width >= 600;
+
+    final double contentPadding = isSmallPhone
+        ? 10
+        : isMobile
+            ? 14
+            : 20;
+
+    final double sectionSpacing = isSmallPhone ? 12 : 16;
+    final double sectionTitleSize = isSmallPhone ? 15 : 16;
+    final double bodyTextSize = isSmallPhone ? 13 : 14;
+
     if (_isLoadingLostPet || _lostPet == null) {
       return Scaffold(
         backgroundColor: Colors.grey.shade50,
@@ -218,28 +234,28 @@ class _LostPetScreenState extends State<LostPetScreen> {
       );
     }
 
+    final pet = _lostPet!;
+
     final List<QuickInfoItem> quickInfoItems = [
       QuickInfoItem(
         icon: Icons.calendar_today,
         label: 'Perdido el',
-        value: formatDate(_lostPet!.eventDate),
+        value: formatDate(pet.eventDate),
       ),
-
-      if (_lostPet!.color != null && _lostPet!.color!.isNotEmpty)
+      if (pet.color != null && pet.color!.isNotEmpty)
         QuickInfoItem(
           icon: Icons.color_lens_outlined,
           label: 'Color',
-          value: _lostPet!.color!,
+          value: pet.color!,
         ),
-
       QuickInfoItem(
         icon: Icons.location_city,
         label: 'Ciudad',
-        value: _lostPet!.city,
+        value: pet.city,
       ),
     ];
 
-    final bool hasDescription = _lostPet!.description != null && _lostPet!.description!.isNotEmpty;
+    final bool hasDescription = pet.description != null && pet.description!.isNotEmpty;
 
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
@@ -247,111 +263,146 @@ class _LostPetScreenState extends State<LostPetScreen> {
         slivers: [
           // 1. Carrusel App Bar
           AppBarImageCarousel(
-            pictures: _lostPet!.pictures,
+            pictures: pet.pictures,
             isFollowing: _isFollowing,
             onToggleFollow: _toggleFollowStatus,
-            title: _lostPet!.name,
+            title: pet.name,
           ),
 
           // 2. Detalle de la Mascota y mapa
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Encabezado principal (Nombre, Raza, Estado, Recompensa)
-                  AppPetHeaderInfo(
-                    name: _lostPet!.name,
-                    species: _lostPet!.species,
-                    race: _lostPet!.race,
-                    size: _lostPet!.size,
-                    genderTag: _lostPet!.genderTag,
-                    reportStatus: _lostPet!.reportStatus,
-                    reportStatusTag: _lostPet!.reportStatusTag,
-                    hasReward: _lostPet!.hasReward,
-                    rewardAmount: _lostPet!.rewardAmount,
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Grid de información rápida
-                  AppPetQuickInfoGrid(items: quickInfoItems),
-                  const SizedBox(height: 16),
-
-                  // Descripción opcional
-                  if (hasDescription) ...[
-                    const Text(
-                      'Descripción',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      _lostPet!.description!,
-                      style: const TextStyle(fontSize: 14, color: Colors.black87, height: 1.4),
-                    ),
-                    const SizedBox(height: 20),
-                  ],
-
-                  // Botones de Contacto (Llamar / WhatsApp)
-                  AppContactActionButtons(phoneNumber: _lostPet!.phoneMobile, phoneHome: _lostPet!.phoneHome),
-                  const SizedBox(height: 24),
-
-                  // Avistamientos
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+           SliverToBoxAdapter(
+            child: Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: isTablet ? 900 : double.infinity,
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(contentPadding),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Avistamientos',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      // Encabezado principal (Nombre, Raza, Estado, Recompensa)
+                      AppPetHeaderInfo(
+                        name: _lostPet!.name,
+                        species: _lostPet!.species,
+                        race: _lostPet!.race,
+                        size: _lostPet!.size,
+                        genderTag: _lostPet!.genderTag,
+                        reportStatus: _lostPet!.reportStatus,
+                        reportStatusTag: _lostPet!.reportStatusTag,
+                        hasReward: _lostPet!.hasReward,
+                        rewardAmount: _lostPet!.rewardAmount,
                       ),
-                      Text(
-                        '${_sightings.length} reportes',
-                        style: const TextStyle(color: Colors.grey, fontSize: 13),
+                      SizedBox(height: sectionSpacing),
+
+                      // Grid de información rápida
+                      AppPetQuickInfoGrid(items: quickInfoItems),
+
+                      // Descripción opcional
+                      if (hasDescription) ...[
+                        SizedBox(height: sectionSpacing),
+                        Text(
+                          'Descripción',
+                          style: TextStyle(
+                            fontSize: sectionTitleSize,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          pet.description!,
+                          style: TextStyle(
+                            fontSize: bodyTextSize,
+                            color: Colors.black87,
+                            height: 1.5,
+                          ),
+                        ),
+                      ],
+
+                      SizedBox(height: sectionSpacing),
+
+                      // Botones de Contacto (Llamar / WhatsApp)
+                      AppContactActionButtons(phoneNumber: _lostPet!.phoneMobile, phoneHome: _lostPet!.phoneHome),
+                      SizedBox(height: sectionSpacing + 4),
+
+                      // Avistamientos
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              'Avistamientos',
+                              style: TextStyle(
+                                fontSize: sectionTitleSize,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            '${_sightings.length} reportes',
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: isSmallPhone ? 11 : 13,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: isSmallPhone ? 8 : 12),
+                      
+                      if (_sightings.isNotEmpty) ...[
+                        Text(
+                          'Ruta en mapa',
+                          style: TextStyle(
+                            fontSize: isSmallPhone ? 13 : 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+
+                        const SizedBox(height: 8),
+                        
+                        AppTrackingMap(
+                          mainLatitude: _lostPet!.latitude,
+                          mainLongitude: _lostPet!.longitude,
+                          sightings: _sightings,
+                          selectedSightId: _selectedSightId,
+                          mapController: _mapController,
+                          onSightTap: (sight) {
+                            setState(() => _selectedSightId = sight.id);
+                            _showSighting(context, sight);
+                          },
+                        ),
+
+                        SizedBox(height: sectionSpacing),
+                        
+                        Text(
+                          'Historial de avistamientos',
+                          style: TextStyle(
+                            fontSize: isSmallPhone ? 13 : 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+
+                        const SizedBox(height: 8),
+
+                        AppSightingsList(
+                          currentTutorId: currentTutorId,
+                          sightings: _sightings,
+                          selectedSightId: _selectedSightId,
+                          onSightingSelected: _handleSightingSelected,
+                          onSightingDeleted: (sightId) => _deleteEvent(sightId) 
+                        ),
+                      ]else...[
+                        AppEmptyState(
+                          icon: Icons.location_off_outlined,
+                          description: 'No hay avistamientos registrados'
+                        ),
+                      ],
+                      SizedBox(
+                        height: screenSize.height < 650 ? 72 : 88,
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
-                  
-                  if (_sightings.isNotEmpty) ...[
-                    const Text(
-                      'Ruta en Mapa',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 8),
-                    AppTrackingMap(
-                      mainLatitude: _lostPet!.latitude,
-                      mainLongitude: _lostPet!.longitude,
-                      sightings: _sightings,
-                      selectedSightId: _selectedSightId,
-                      mapController: _mapController,
-                      onSightTap: (sight) {
-                        setState(() => _selectedSightId = sight.id);
-                        _showSighting(context, sight);
-                      },
-                    ),
-
-                    const SizedBox(height: 16),
-                    
-                    const Text(
-                      'Historial de Avistamientos',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 8),
-                    AppSightingsList(
-                      currentTutorId: currentTutorId,
-                      sightings: _sightings,
-                      selectedSightId: _selectedSightId,
-                      onSightingSelected: _handleSightingSelected,
-                      onSightingDeleted: (sightId) => _deleteEvent(sightId) 
-                    ),
-                  ]else...[
-                    AppEmptyState(
-                      icon: Icons.location_off_outlined,
-                      description: 'No hay avistamientos registrados'
-                    )
-                  ],
-                  const SizedBox(height: 80),
-                ],
+                ),
               ),
             ),
           ),
@@ -362,8 +413,19 @@ class _LostPetScreenState extends State<LostPetScreen> {
         heroTag: 'btn_report_sighting',
         onPressed: () => _openReportSighting(context),
         backgroundColor: Colors.teal,
-        icon: const Icon(Icons.add_location_alt, color: Colors.white),
-        label: const Text('¡Lo he visto!', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        icon: Icon(
+          Icons.add_location_alt,
+          color: Colors.white,
+          size: isSmallPhone ? 19 : 24,
+        ),
+         label: Text(
+          '¡Lo he visto!',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: isSmallPhone ? 12 : 14,
+          ),
+        ),
       ),
     );
   }

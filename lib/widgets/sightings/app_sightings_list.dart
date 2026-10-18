@@ -49,95 +49,195 @@ class AppSightingsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: sightings.length,
-      itemBuilder: (context, index) {
-        final SightReportModel sight = sightings[index];
-        
-        final bool hasCoordinates = sight.latitude != null && sight.longitude != null;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final bool isSmallPhone = constraints.maxWidth < 360;
+        final bool isMobile = constraints.maxWidth < 600;
 
-        final bool hasPictures = sight.pictures.isNotEmpty;
-        
-        final bool isSelected = selectedSightId == sight.id;
+        return ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          padding: EdgeInsets.zero,
+          itemCount: sightings.length,
+          itemBuilder: (context, index) {
+            final SightReportModel sight = sightings[index];
 
-        final bool isOwner = currentTutorId != null && sight.tutorId == currentTutorId;
-        
-        final String subtitle = sight.comment != null && sight.comment!.isNotEmpty
-            ? '${formatDate(sight.eventDate)} • ${sight.comment}'
-            : formatDate(sight.eventDate);
+            final bool hasCoordinates =
+                sight.latitude != null && sight.longitude != null;
 
-        return Card(
-          elevation: isSelected ? 3 : 1,
-          color: isSelected ? Colors.teal.shade50 : Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: BorderSide(
-              color: isSelected ? Colors.teal : Colors.grey.shade200,
-              width: isSelected ? 1.5 : 1,
-            ),
-          ),
-          child: ListTile(
-            leading: CircleAvatar(
-              backgroundColor: isSelected ? Colors.teal : Colors.grey.shade200,
-              child: Icon(
-                hasCoordinates ? Icons.remove_red_eye : Icons.location_off,
-                color: isSelected ? Colors.white : Colors.grey.shade700,
-                size: 20,
-              ),
-            ),
-            title: Text(sight.eventAddress, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-            subtitle: Text(
-              subtitle,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 12),
-            ),
-           trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (hasPictures)
-                  IconButton(
-                    icon: Badge(
-                      label: Text('${sight.pictures.length}'),
-                      isLabelVisible: sight.pictures.length > 1,
-                      backgroundColor: Colors.teal,
-                      child: const Icon(
-                        Icons.photo_library_outlined,
-                        size: 20,
-                        color: Colors.teal,
-                      ),
+            final bool hasPictures = sight.pictures.isNotEmpty;
+
+            final bool isSelected = selectedSightId == sight.id;
+
+            final bool isOwner = currentTutorId != null &&
+                sight.tutorId == currentTutorId;
+
+            final String subtitle =
+                sight.comment != null && sight.comment!.isNotEmpty
+                    ? '${formatDate(sight.eventDate)} • ${sight.comment}'
+                    : formatDate(sight.eventDate);
+
+            final double iconSize = isSmallPhone ? 18 : 20;
+            final double actionPadding = isSmallPhone ? 5 : 8;
+
+            final List<Widget> actions = [
+              if (hasPictures)
+                IconButton(
+                  icon: Badge(
+                    label: Text('${sight.pictures.length}'),
+                    isLabelVisible: sight.pictures.length > 1,
+                    backgroundColor: Colors.teal,
+                    child: Icon(
+                      Icons.photo_library_outlined,
+                      size: iconSize,
+                      color: Colors.teal,
                     ),
-                    tooltip: 'Ver fotos',
-                    onPressed: () => _openFullScreenViewer(context, sight.pictures),
-                    constraints: const BoxConstraints(),
-                    padding: const EdgeInsets.all(8),
                   ),
+                  tooltip: 'Ver fotos',
+                  onPressed: () => _openFullScreenViewer(
+                    context,
+                    sight.pictures,
+                  ),
+                  constraints: const BoxConstraints(
+                    minWidth: 36,
+                    minHeight: 36,
+                  ),
+                  padding: EdgeInsets.all(actionPadding),
+                  visualDensity: VisualDensity.compact,
+                ),
+              if (hasCoordinates)
+                IconButton(
+                  icon: Icon(
+                    Icons.my_location,
+                    size: iconSize,
+                    color: Colors.teal,
+                  ),
+                  tooltip: 'Ver en mapa',
+                  onPressed: () => onSightingSelected(sight),
+                  constraints: const BoxConstraints(
+                    minWidth: 36,
+                    minHeight: 36,
+                  ),
+                  padding: EdgeInsets.all(actionPadding),
+                  visualDensity: VisualDensity.compact,
+                ),
+              if (isOwner)
+                IconButton(
+                  icon: Icon(
+                    Icons.delete_outline,
+                    size: iconSize,
+                    color: Colors.redAccent,
+                  ),
+                  tooltip: 'Eliminar reporte',
+                  onPressed: () => _confirmDelete(context, sight),
+                  constraints: const BoxConstraints(
+                    minWidth: 36,
+                    minHeight: 36,
+                  ),
+                  padding: EdgeInsets.all(actionPadding),
+                  visualDensity: VisualDensity.compact,
+                ),
+            ];
 
-                if(hasCoordinates)
-                  IconButton(
-                    icon: const Icon(Icons.my_location, size: 18, color: Colors.teal),
-                    tooltip: 'Ver en mapa',
-                    onPressed: () => onSightingSelected(sight),
-                    constraints: const BoxConstraints(),
-                    padding: const EdgeInsets.all(8),
+            return Card(
+              margin: EdgeInsets.only(
+                bottom: isSmallPhone ? 8 : 10,
+              ),
+              elevation: isSelected ? 3 : 1,
+              color: isSelected ? Colors.teal.shade50 : Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(
+                  color: isSelected
+                      ? Colors.teal
+                      : Colors.grey.shade200,
+                  width: isSelected ? 1.5 : 1,
+                ),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: InkWell(
+                onTap: () => onSightingSelected(sight),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isSmallPhone ? 8 : 10,
+                    vertical: isSmallPhone ? 8 : 10,
                   ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      CircleAvatar(
+                        radius: isSmallPhone ? 17 : 20,
+                        backgroundColor: isSelected
+                            ? Colors.teal
+                            : Colors.grey.shade200,
+                        child: Icon(
+                          hasCoordinates
+                              ? Icons.remove_red_eye
+                              : Icons.location_off,
+                          color: isSelected
+                              ? Colors.white
+                              : Colors.grey.shade700,
+                          size: iconSize,
+                        ),
+                      ),
+                      SizedBox(width: isSmallPhone ? 8 : 10),
 
-                if (isOwner)
-                  IconButton(
-                    icon: const Icon(Icons.delete_outline, size: 18, color: Colors.redAccent),
-                    tooltip: 'Eliminar reporte',
-                    onPressed: () => _confirmDelete(context, sight),
-                    constraints: const BoxConstraints(),
-                    padding: const EdgeInsets.all(8),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              sight.eventAddress,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: isSmallPhone ? 12 : 13,
+                                height: 1.3,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              subtitle,
+                              maxLines: isMobile ? 2 : 3,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: isSmallPhone ? 10 : 12,
+                                color: Colors.grey.shade700,
+                                height: 1.3,
+                              ),
+                            ),
+
+                            if (isMobile && actions.isNotEmpty) ...[
+                              const SizedBox(height: 4),
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: Wrap(
+                                  spacing: 2,
+                                  runSpacing: 0,
+                                  children: actions,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+
+                      if (!isMobile && actions.isNotEmpty) ...[
+                        const SizedBox(width: 8),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: actions,
+                        ),
+                      ],
+                    ],
                   ),
-              ],
-            ),
-            onTap: () => onSightingSelected(sight),
-          ),
+                ),
+              ),
+            );
+          },
         );
-      },
+      }
     );
   }
 }

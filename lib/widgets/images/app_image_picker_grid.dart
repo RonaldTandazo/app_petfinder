@@ -163,11 +163,24 @@ class _AppImagePickerGridState extends State<AppImagePickerGrid> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.sizeOf(context).width;
+
+    final bool isSmallPhone = screenWidth < 360;
+    final bool isTablet = screenWidth >= 600;
+
+    final imageHeight = isSmallPhone
+        ? 125.0
+        : isTablet
+            ? 170.0
+            : 150.0;
+
     final showAddButton = widget.images.length < widget.maxImages;
-    final totalItems = showAddButton ? widget.images.length + 1 : widget.maxImages;
+    final totalItems = showAddButton
+        ? widget.images.length + 1
+        : widget.images.length;
 
     return SizedBox(
-      height: 150,
+      height: imageHeight,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: totalItems,
@@ -181,7 +194,7 @@ class _AppImagePickerGridState extends State<AppImagePickerGrid> {
           }
 
           final image = widget.images[index];
-          final isMain = widget.enableMainSelection && index == widget.selectedIndex;
+          final bool isMain = widget.enableMainSelection && index == widget.selectedIndex;
 
           return AppImageTile(
             image: image.file,

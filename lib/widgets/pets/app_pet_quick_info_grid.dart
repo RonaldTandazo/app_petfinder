@@ -22,52 +22,129 @@ class AppPetQuickInfoGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          return Row(
-            children: [
-              for (int i = 0; i < items.length; i++) ...[
-                Expanded(
-                  child: _buildTile(items[i]),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double width = constraints.maxWidth;
+        final bool isSmallPhone = width < 360;
+        final bool isMobile = width < 600;
+
+        final double containerPadding = isSmallPhone
+            ? 8
+            : isMobile
+                ? 10
+                : 12;
+
+        final double iconSize = isSmallPhone ? 17 : 20;
+        final double labelFontSize = isSmallPhone ? 9 : 11;
+        final double valueFontSize = isSmallPhone ? 10 : 12;
+        final double tileSpacing = isSmallPhone ? 4 : 6;
+
+        final bool useGrid = isSmallPhone && items.length > 2;
+        final int columns = useGrid ? 2 : items.length;
+        
+        return Container(
+          padding: EdgeInsets.all(containerPadding),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey.shade200),
+          ),
+          child: items.isEmpty
+            ? const SizedBox.shrink()
+            : useGrid
+              ? _buildGrid(
+                  columns: columns,
+                  iconSize: iconSize,
+                  labelFontSize: labelFontSize,
+                  valueFontSize: valueFontSize,
+                  tileSpacing: tileSpacing,
+                )
+              : Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    for (int i = 0; i < items.length; i++) ...[
+                      Expanded(
+                        child: _buildTile(
+                          items[i],
+                          iconSize: iconSize,
+                          labelFontSize: labelFontSize,
+                          valueFontSize: valueFontSize,
+                          tileSpacing: tileSpacing,
+                        ),
+                      ),
+                      if (i < items.length - 1)
+                        Container(
+                          height: 45,
+                          width: 1,
+                          margin: EdgeInsets.symmetric(
+                            horizontal: isSmallPhone ? 2 : 4,
+                          ),
+                          color: Colors.grey.shade200,
+                        ),
+                    ],
+                  ],
                 ),
-                if (i < items.length - 1)
-                  Container(
-                    height: 45,
-                    width: 1,
-                    color: Colors.grey.shade200,
-                  ),
-              ],
-            ],
-          );
-        },
-      ),
+        );  
+      }
     );
   }
 
-  Widget _buildTile(QuickInfoItem item) {
+  Widget _buildGrid({
+    required int columns,
+    required double iconSize,
+    required double labelFontSize,
+    required double valueFontSize,
+    required double tileSpacing,
+  }) {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: items.length,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: columns,
+        crossAxisSpacing: 8,
+        mainAxisSpacing: 12,
+        mainAxisExtent: 76,
+      ),
+      itemBuilder: (context, index) {
+        return _buildTile(
+          items[index],
+          iconSize: iconSize,
+          labelFontSize: labelFontSize,
+          valueFontSize: valueFontSize,
+          tileSpacing: tileSpacing,
+        );
+      },
+    );
+  }
+
+  Widget _buildTile(
+    QuickInfoItem item, {
+    required double iconSize,
+    required double labelFontSize,
+    required double valueFontSize,
+    required double tileSpacing,
+  }) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Icon(
           item.icon,
-          size: 20,
-          color: Colors.teal
+          size: iconSize,
+          color: Colors.teal,
         ),
-        const SizedBox(height: 4),
+        
+        SizedBox(height: tileSpacing),
+
         Text(
           item.label,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontSize: 11,
-            color: Colors.grey,
+          style: TextStyle(
+            fontSize: labelFontSize,
+            color: Colors.grey.shade600,
           ),
         ),
         const SizedBox(height: 2),
@@ -76,9 +153,10 @@ class AppPetQuickInfoGrid extends StatelessWidget {
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
           textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontSize: 12,
+          style: TextStyle(
+            fontSize: valueFontSize,
             fontWeight: FontWeight.w600,
+            height: 1.2,
           ),
         ),
       ],

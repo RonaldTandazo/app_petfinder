@@ -14,30 +14,60 @@ class AppAddImageTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 130,
-        margin: const EdgeInsets.only(right: 12),
-        decoration: BoxDecoration(
-          color: Colors.teal.shade50.withValues(alpha: 0.5),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.teal.shade200, width: 1.5),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.add_a_photo_rounded, color: Colors.teal.shade700, size: 32),
-            const SizedBox(height: 6),
-            Text(
-              '$currentCount/$maxImages',
-              style: TextStyle(
-                fontSize: 13,
-                color: Colors.teal.shade800,
-                fontWeight: FontWeight.bold,
-              ),
+    final screenWidth = MediaQuery.sizeOf(context).width;
+
+    final bool isSmallPhone = screenWidth < 360;
+    final bool isTablet = screenWidth >= 600;
+
+    final tileWidth = isSmallPhone
+        ? 105.0
+        : isTablet
+            ? 150.0
+            : 130.0;
+
+    final iconSize = isSmallPhone
+        ? 26.0
+        : isTablet
+            ? 36.0
+            : 32.0;
+
+    final counterFontSize = isSmallPhone ? 12.0 : 13.0;
+
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(16),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          width: tileWidth,
+          decoration: BoxDecoration(
+            color: Colors.teal.shade50.withValues(alpha: 0.5),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: Colors.teal.shade200,
+              width: 1.5,
             ),
-          ],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.add_a_photo_rounded,
+                color: Colors.teal.shade700,
+                size: iconSize,
+              ),
+              const SizedBox(height: 6),
+              Text(
+                '$currentCount/$maxImages',
+                style: TextStyle(
+                  fontSize: counterFontSize,
+                  color: Colors.teal.shade800,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

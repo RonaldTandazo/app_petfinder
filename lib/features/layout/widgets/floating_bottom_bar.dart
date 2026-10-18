@@ -14,14 +14,37 @@ class FloatingBottomBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
-    final screenWidth = mediaQuery.size.width;
+    final double screenWidth = mediaQuery.size.width;
 
-    final scale = (screenWidth / 390.0).clamp(0.78, 1.25);
+    final bool isSmallPhone = screenWidth < 360;
+    final bool isTablet = screenWidth >= 600;
 
-    final barHeight = (64.0 * scale).clamp(56.0, 64.0);
-    final horizontalPadding = screenWidth < 360 ? 12.0 : (20.0 * scale);
-    final bottomPadding = mediaQuery.padding.bottom + (16.0 * scale);
-    final gapWidth = (44.0 * scale).clamp(32.0, 44.0);
+    final double scale = isSmallPhone
+      ? 0.78
+      : isTablet
+          ? 1.0
+          : ((screenWidth / 390.0).clamp(0.82, 1.0));
+
+    final double barHeight = isSmallPhone
+      ? 40.0
+      : isTablet
+          ? 64.0
+          : 50.0;
+
+    final double horizontalPadding = isSmallPhone
+      ? 10.0
+      : isTablet
+          ? 32.0
+          : 16.0;
+
+    final double bottomPadding = mediaQuery.padding.bottom +
+      (isSmallPhone ? 10.0 : isTablet ? 20.0 : 12.0);
+
+    final double gapWidth = isSmallPhone 
+      ? 32.0 
+      : isTablet 
+          ? 48.0 
+          : 38.0;
 
     return Padding(
       padding: EdgeInsets.only(
@@ -78,12 +101,16 @@ class FloatingBottomBar extends StatelessWidget {
                     label: 'Adopciones',
                     index: 0,
                     scale: scale,
+                    isSmallPhone: isSmallPhone,
+                    isTablet: isTablet
                   ),
                   _buildNavItem(
                     icon: Icons.search_off_rounded,
                     label: 'Perdidos',
                     index: 1,
                     scale: scale,
+                    isSmallPhone: isSmallPhone,
+                    isTablet: isTablet
                   ),
 
                   SizedBox(width: gapWidth),
@@ -93,12 +120,16 @@ class FloatingBottomBar extends StatelessWidget {
                     label: 'Comunidad',
                     index: 2,
                     scale: scale,
+                    isSmallPhone: isSmallPhone,
+                    isTablet: isTablet
                   ),
                   _buildNavItem(
                     icon: Icons.person_rounded,
                     label: 'Perfil',
                     index: 3,
                     scale: scale,
+                    isSmallPhone: isSmallPhone,
+                    isTablet: isTablet
                   ),
                 ],
               ),
@@ -114,13 +145,42 @@ class FloatingBottomBar extends StatelessWidget {
     required String label,
     required int index,
     required double scale,
+    required bool isSmallPhone,
+    required bool isTablet,
   }) {
     final isSelected = currentIndex == index;
     final activeColor = Colors.teal.shade700;
     final inactiveColor = Colors.grey.shade700;
 
-    final iconSize = (20.0 * scale).clamp(18.0, 20.0);
-    final fontSize = (10.0 * scale).clamp(8.5, 10.0);
+    final double iconSize = isSmallPhone
+      ? 15.0
+      : isTablet
+          ? 25.0
+          : 20.0;
+
+    final double fontSize = isSmallPhone
+      ? 6.0
+      : isTablet
+          ? 13.0
+          : 9.0;
+
+    final double verticalMargin = isSmallPhone
+      ? 2.0
+      : isTablet
+          ? 4.0
+          : 3.0;
+
+    final double verticalPadding = isSmallPhone
+      ? 1.0
+      : isTablet
+          ? 4.0
+          : 2.0;
+
+    final double iconLabelSpacing = isSmallPhone
+      ? 1.0
+      : isTablet
+          ? 3.0
+          : 2.0;
 
     return Expanded(
       child: InkWell(
@@ -132,11 +192,11 @@ class FloatingBottomBar extends StatelessWidget {
           duration: const Duration(milliseconds: 250),
           curve: Curves.easeOutCubic,
           margin: EdgeInsets.symmetric(
-            horizontal: 3.0 * scale,
-            vertical: 4.0 * scale,
+            horizontal: isSmallPhone ? 2.0 : 3.0 * scale,
+            vertical: verticalMargin,
           ),
           padding: EdgeInsets.symmetric(
-            vertical: 4.0 * scale,
+            vertical: verticalPadding,
           ),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(100),
@@ -158,7 +218,9 @@ class FloatingBottomBar extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               AnimatedScale(
-                scale: isSelected ? 1.12 : 1.0,
+                scale: isSelected
+                  ? (isSmallPhone ? 1.06 : 1.12)
+                  : 1.0,
                 duration: const Duration(milliseconds: 200),
                 child: Icon(
                   icon,
@@ -166,7 +228,7 @@ class FloatingBottomBar extends StatelessWidget {
                   size: iconSize,
                 ),
               ),
-              SizedBox(height: 2 * scale),
+              SizedBox(height: iconLabelSpacing),
               FittedBox(
                 fit: BoxFit.scaleDown,
                 child: AnimatedDefaultTextStyle(

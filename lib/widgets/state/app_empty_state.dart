@@ -14,41 +14,67 @@ class AppEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              size: 64,
-              color: Colors.grey.shade400,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double width = constraints.maxWidth;
+        final double height = constraints.maxHeight;
+
+        final bool isSmallPhone = width < 360;
+        final bool isCompact = width < 400 || height < 300;
+
+        final double iconSize = isSmallPhone
+            ? 44
+            : isCompact
+                ? 52
+                : 64;
+
+        final double titleFontSize = isCompact ? 16 : 18;
+        final double descriptionFontSize = isCompact ? 12 : 14;
+        final double horizontalPadding = isSmallPhone ? 12 : 24;
+        final double verticalPadding = isCompact ? 16 : 24;
+
+        return Center(
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: horizontalPadding,
+              vertical: verticalPadding,
             ),
-            const SizedBox(height: 12),
-            if (title != null && title!.trim().isNotEmpty) ...[
-              Text(
-                title!,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey.shade800,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  icon,
+                  size: iconSize,
+                  color: Colors.grey.shade400,
                 ),
-              ),
-              const SizedBox(height: 6),
-            ],
-            Text(
-              description,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey.shade600,
-              ),
+                SizedBox(height: isCompact ? 8 : 12),
+                if (title != null && title!.trim().isNotEmpty) ...[
+                  Text(
+                    title!,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: titleFontSize,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey.shade800,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                ],
+                Text(
+                  description,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: descriptionFontSize,
+                    color: Colors.grey.shade600,
+                    height: 1.3,
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      }
     );
   }
 }

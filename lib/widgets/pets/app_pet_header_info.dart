@@ -43,51 +43,43 @@ class AppPetHeaderInfo extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final bool isSmallScreen = constraints.maxWidth < 500;
+        final double width = constraints.maxWidth;
+        final bool isSmallPhone = width < 360;
+        final bool isMobile = width < 600;
+
+        final double nameFontSize = isSmallPhone
+          ? 21
+          : isMobile
+            ? 23
+            : 26;
+
+        final double genderIconSize = isSmallPhone ? 22 : 26;
+        final double infoFontSize = isSmallPhone ? 12 : 14;
+        final double chipSpacing = isSmallPhone ? 5 : 8;
+        final double sectionSpacing = isSmallPhone ? 6 : 8;
+
         final bool showTopSection = _hasStatus || isUrgent || showReward;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Estado + recompensa
-            if (showTopSection)
-              if (isSmallScreen)
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [
-                        if (_hasStatus) _buildStatusChip(),
-                        if (isUrgent) _buildUrgentChip(),
-                      ],
-                    ),
-                    if ((_hasStatus || isUrgent) && showReward)
-                      const SizedBox(height: 8),
-                    if (showReward) _buildReward(),
-                  ],
-                )
-              else
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [
-                        if (_hasStatus) _buildStatusChip(),
-                        if (isUrgent) _buildUrgentChip(),
-                      ],
-                    ),
-                    if (showReward) _buildReward(),
-                  ],
-                ),
-
-            if (showTopSection) const SizedBox(height: 8),
+            // Estado + urgencia + recompensa
+            if (showTopSection) ...[
+              Wrap(
+                spacing: chipSpacing,
+                runSpacing: chipSpacing,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  if (_hasStatus)
+                    _buildStatusChip(isSmallPhone: isSmallPhone),
+                  if (isUrgent)
+                    _buildUrgentChip(isSmallPhone: isSmallPhone),
+                  if (showReward)
+                    _buildReward(isSmallPhone: isSmallPhone),
+                ],
+              ),
+              SizedBox(height: sectionSpacing + 2),
+            ],
 
             // Nombre + género
             Row(
@@ -98,22 +90,23 @@ class AppPetHeaderInfo extends StatelessWidget {
                     name,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 24,
+                    style: TextStyle(
+                      fontSize: nameFontSize,
                       fontWeight: FontWeight.bold,
+                      height: 1.15,
                     ),
                   ),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: isSmallPhone ? 5 : 8),
                 Icon(
                   genderIcon,
-                  size: 26,
+                  size: genderIconSize,
                   color: genderColor,
                 ),
               ],
             ),
 
-            const SizedBox(height: 4),
+            SizedBox(height: isSmallPhone ? 3 : 4),
 
             // Información secundaria
             Text(
@@ -121,8 +114,9 @@ class AppPetHeaderInfo extends StatelessWidget {
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                fontSize: 14,
+                fontSize: infoFontSize,
                 color: Colors.grey.shade700,
+                height: 1.35,
               ),
             ),
           ],
@@ -131,47 +125,60 @@ class AppPetHeaderInfo extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusChip() {
+  Widget _buildStatusChip({bool isSmallPhone = false}) {
     return Chip(
       label: Text(
         reportStatus!.toUpperCase(),
-        style: const TextStyle(
+        style: TextStyle(
           color: Colors.white,
           fontWeight: FontWeight.bold,
-          fontSize: 11,
+          fontSize: isSmallPhone ? 9 : 11,
         ),
       ),
-      backgroundColor: reportStatusTag == 'ACTIVE' ? Colors.redAccent : Colors.teal,
+      backgroundColor: reportStatusTag == 'ACTIVE'
+        ? Colors.redAccent
+        : Colors.teal,
       visualDensity: VisualDensity.compact,
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      padding: EdgeInsets.symmetric(
+        horizontal: isSmallPhone ? 2 : 4,
+      ),
+      labelPadding: EdgeInsets.symmetric(
+        horizontal: isSmallPhone ? 4 : 6,
+      ),
     );
   }
 
-  Widget _buildUrgentChip() {
+  Widget _buildUrgentChip({bool isSmallPhone = false}) {
     return Chip(
-      avatar: const Icon(
+      avatar: Icon(
         Icons.warning_amber_rounded,
         color: Colors.white,
-        size: 16,
+        size: isSmallPhone ? 13 : 16,
       ),
-      label: const Text(
+      label: Text(
         'URGENTE',
         style: TextStyle(
           color: Colors.white,
           fontWeight: FontWeight.bold,
-          fontSize: 11,
+          fontSize: isSmallPhone ? 9 : 11,
         ),
       ),
       backgroundColor: Colors.deepOrangeAccent,
       visualDensity: VisualDensity.compact,
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       padding: EdgeInsets.zero,
+      labelPadding: EdgeInsets.only(
+        right: isSmallPhone ? 4 : 6,
+      ),
     );
   }
 
-  Widget _buildReward() {
+  Widget _buildReward({bool isSmallPhone = false}) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 12,
-        vertical: 6,
+      padding: EdgeInsets.symmetric(
+        horizontal: isSmallPhone ? 8 : 12,
+        vertical: isSmallPhone ? 4 : 6,
       ),
       decoration: BoxDecoration(
         color: Colors.amber.shade100,
@@ -186,15 +193,17 @@ class AppPetHeaderInfo extends StatelessWidget {
           Icon(
             Icons.stars,
             color: Colors.amber.shade800,
-            size: 18,
+            size: isSmallPhone ? 15 : 18,
           ),
-          const SizedBox(width: 4),
+
+          SizedBox(width: isSmallPhone ? 3 : 4),
+
           Text(
             'Recompensa: \$${rewardAmount!.toStringAsFixed(2)}',
             style: TextStyle(
               color: Colors.amber.shade900,
               fontWeight: FontWeight.bold,
-              fontSize: 12,
+              fontSize: isSmallPhone ? 10 : 12,
             ),
           ),
         ],

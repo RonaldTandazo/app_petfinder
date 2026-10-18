@@ -77,13 +77,13 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
   void _onScroll() {
     if (!_scrollController.hasClients) return;
 
-    final maxScroll = _scrollController.position.maxScrollExtent;
-    final currentScroll = _scrollController.position.pixels;
+    final position = _scrollController.position;
+    if (position.maxScrollExtent <= 0) return;
 
-    if (currentScroll >= (maxScroll * 0.8)) {
-      if (!_isLoadingMore && _hasMore && !_isLoadingPets) {
-        _loadAdoptionPets();
-      }
+    final threshold = position.maxScrollExtent * 0.8;
+
+    if (position.pixels >= threshold && !_isLoadingMore && _hasMore && !_isLoadingPets) {
+      _loadAdoptionPets();
     }
   }
   
@@ -111,7 +111,9 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
 
       setState(() {
         _isLoadingPets = true;
+        _isLoadingMore = false;
         _page = 1;
+        _hasMore = false;
         _pets.clear();
       });
     } else {
@@ -247,13 +249,16 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
   }
 
   void _openFilterBottomSheet() {
+    final double screenHeight = MediaQuery.sizeOf(context).height;
+    final double heightFactor = screenHeight < 650 ? 0.9 : 0.75;
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
         return FractionallySizedBox(
-          heightFactor: 0.75,
+          heightFactor: heightFactor,
           child: AppPetFiltersBottomSheet(
             filtersData: _filtersData,
             currentFilters: _activeFilters,
@@ -269,16 +274,27 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final Size screenSize = MediaQuery.sizeOf(context);
+    final bool isSmallPhone = screenSize.width < 360;
+    final bool isMobile = screenSize.width < 600;
+
+    final double searchSpacing = isSmallPhone ? 6 : 12;
+    
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAF9),
       appBar: _buildAppBar(),
       body: Column(
         children: [
-          AdoptionSearchBar(
-            onChanged: _onSearchChanged,
-            onFilterTap: _openFilterBottomSheet,
+          Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: isSmallPhone ? 8 : isMobile ? 12 : 16,
+            ),
+            child: AdoptionSearchBar(
+              onChanged: _onSearchChanged,
+              onFilterTap: _openFilterBottomSheet,
+            ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: searchSpacing),
           Expanded(
             child: _isLoadingPets
                 ? AppSkeletonLoader(mode: _skeletonMode)
@@ -337,23 +353,53 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
   }
 
   PreferredSizeWidget _buildAppBar() {
+    final double screenWidth = MediaQuery.sizeOf(context).width;
+
+    final bool isSmallPhone = screenWidth < 360;
+    final bool isMobile = screenWidth < 600;
+
+    final double locationFontSize = isSmallPhone ? 10 : 12;
+    final double cityFontSize = isSmallPhone ? 13 : isMobile ? 14 : 16;
+    final double horizontalPadding = isSmallPhone ? 4 : 8;
+
     return AppBar(
       backgroundColor: Colors.transparent,
       elevation: 0,
+      titleSpacing: isSmallPhone ? 8 : 16,
       title: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
+        children: [
           Text(
             'Ubicación actual',
-            style: TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.normal),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: locationFontSize,
+              color: Colors.grey,
+              fontWeight: FontWeight.normal,
+            ),
           ),
+          const SizedBox(height: 2),
           Row(
             children: [
-              Icon(Icons.location_on, size: 16, color: Colors.teal),
-              SizedBox(width: 4),
-              Text(
-                'Guayaquil, Ecuador',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
+              Icon(
+                Icons.location_on,
+                size: isSmallPhone ? 14 : 16,
+                color: Colors.teal,
+              ),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Text(
+                  'Guayaquil, Ecuador',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: cityFontSize,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
               ),
             ],
           ),
@@ -361,11 +407,20 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
       ),
       actions: [
         IconButton(
-          icon: Icon(_getToggleIcon(), color: Colors.teal),
-          tooltip: 'Cambiar Vista',
+          constraints: BoxConstraints(
+            minWidth: isSmallPhone ? 40 : 48,
+            minHeight: 48,
+          ),
+          padding: EdgeInsets.all(horizontalPadding),
+          icon: Icon(
+            _getToggleIcon(),
+            color: Colors.teal,
+            size: isSmallPhone ? 21 : 24,
+          ),
+          tooltip: 'Cambiar vista',
           onPressed: _toggleViewMode,
         ),
-        const SizedBox(width: 8),
+        SizedBox(width: isSmallPhone ? 2 : 8),
       ],
     );
   }

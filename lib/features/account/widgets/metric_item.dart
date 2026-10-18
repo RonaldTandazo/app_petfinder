@@ -14,30 +14,70 @@ class MetricItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
-        child: Column(
-          children: [
-            Text(
-              count,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              label,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[600],
-                  ),
-            ),
-          ],
+    final double screenWidth = MediaQuery.sizeOf(context).width;
+
+    final bool isSmallPhone = screenWidth < 360;
+    final bool isMobile = screenWidth < 600;
+
+    final double horizontalPadding = isSmallPhone
+        ? 2
+        : isMobile
+            ? 4
+            : 12;
+
+    final double countFontSize = isSmallPhone
+        ? 19
+        : isMobile
+            ? 21
+            : 23;
+
+    final double labelFontSize = isSmallPhone
+        ? 10
+        : isMobile
+            ? 11
+            : 12;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: horizontalPadding,
+            vertical: isSmallPhone ? 3 : 4,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                count,
+                maxLines: 1,
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontSize: countFontSize,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+              ),
+              SizedBox(height: isSmallPhone ? 1 : 2),
+              Text(
+                label,
+                maxLines: 2,
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      fontSize: labelFontSize,
+                      color: Colors.grey[600],
+                      height: 1.2,
+                    ),
+              ),
+            ],
+          ),
         ),
-      ),
+      )
     );
   }
 }

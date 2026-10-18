@@ -205,151 +205,256 @@ class _EditUserScreenState extends State<EditUserScreen> {
       if (mounted) AppLoadingOverlay.hide();
     }
   }
+  
+  Widget _responsiveFields({
+    required bool useTwoColumns,
+    required double spacing,
+    required Widget first,
+    required Widget second,
+  }) {
+    if (!useTwoColumns) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          first,
+          SizedBox(height: spacing),
+          second,
+        ],
+      );
+    }
 
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(child: first),
+        SizedBox(width: spacing),
+        Expanded(child: second),
+      ],
+    );
+  }
+  
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final bool isSmallPhone = screenWidth < 360;
+    final bool useTwoColumns = screenWidth >= 480;
+
+    final horizontalPadding = isSmallPhone ? 12.0 : 20.0;
+    final fieldSpacing = isSmallPhone ? 12.0 : 16.0;
+    final sectionSpacing = isSmallPhone ? 20.0 : 24.0;
+    final verticalFieldGap = useTwoColumns ? 14.0 : 20.0;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAF9),
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Editar Perfil',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: isSmallPhone ? 16 : 18,
+          ),
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
       body: _isLoadingData || _isLoadingCatalog
-          ? const Center(child: CircularProgressIndicator(color: Colors.teal))
-          : Form(
-              key: _formKey,
-              child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                children: [
-                  PetFormStyles.buildSectionHeader('Avatar', 'Sube o actualiza tu foto de perfil'),
-                  const SizedBox(height: 12),
-                  AppImagePickerGrid(
-                    images: _avatarImages,
-                    maxImages: 1,
-                    onImagesChanged: (updated) {
-                      setState(() => _avatarImages = updated);
-                    },
-                  ),
-                  const SizedBox(height: 24),
-
-                  PetFormStyles.buildSectionHeader('Datos Personales', 'Información de la cuenta de usuario'),
-                  const SizedBox(height: 16),
-                  Row(
+          ? const Center(
+              child: CircularProgressIndicator(color: Colors.teal),
+            )
+          : Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 850),
+                child: Form(
+                  key: _formKey,
+                  child: ListView(
+                    keyboardDismissBehavior:
+                        ScrollViewKeyboardDismissBehavior.onDrag,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: horizontalPadding,
+                      vertical: isSmallPhone ? 8 : 12,
+                    ),
                     children: [
-                      Expanded(
-                        child: TextFormField(
+                      PetFormStyles.buildSectionHeader(
+                        'Avatar',
+                        'Sube o actualiza tu foto de perfil',
+                      ),
+                      const SizedBox(height: 12),
+
+                      AppImagePickerGrid(
+                        images: _avatarImages,
+                        maxImages: 1,
+                        onImagesChanged: (updated) {
+                          setState(() => _avatarImages = updated);
+                        },
+                      ),
+
+                      SizedBox(height: sectionSpacing),
+
+                      PetFormStyles.buildSectionHeader(
+                        'Datos Personales',
+                        'Información de la cuenta de usuario',
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Nombres y apellidos
+                      _responsiveFields(
+                        useTwoColumns: useTwoColumns,
+                        spacing: fieldSpacing,
+                        first: TextFormField(
                           controller: _firstNamesController,
-                          decoration: PetFormStyles.inputDecoration('Nombres *', Icons.person),
-                          validator: (val) => val == null || val.trim().isEmpty ? 'Ingresa tus nombres' : null,
+                          decoration: PetFormStyles.inputDecoration(
+                            'Nombres *',
+                            Icons.person,
+                          ),
+                          validator: (val) =>
+                              val == null || val.trim().isEmpty
+                                  ? 'Ingresa tus nombres'
+                                  : null,
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: TextFormField(
+                        second: TextFormField(
                           controller: _lastNamesController,
-                          decoration: PetFormStyles.inputDecoration('Apellidos *', Icons.person),
-                          validator: (val) => val == null || val.trim().isEmpty ? 'Ingresa tus apellidos' : null,
+                          decoration: PetFormStyles.inputDecoration(
+                            'Apellidos *',
+                            Icons.person,
+                          ),
+                          validator: (val) =>
+                              val == null || val.trim().isEmpty
+                                  ? 'Ingresa tus apellidos'
+                                  : null,
                         ),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
 
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextFormField(
+                      SizedBox(height: verticalFieldGap),
+
+                      // Correo y teléfono
+                      _responsiveFields(
+                        useTwoColumns: useTwoColumns,
+                        spacing: fieldSpacing,
+                        first: TextFormField(
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
-                          decoration: PetFormStyles.inputDecoration('Correo Electronico *', Icons.email),
-                          validator: (val) => val == null || val.trim().isEmpty ? 'Ingresa un email' : null,
+                          decoration: PetFormStyles.inputDecoration(
+                            'Correo electrónico *',
+                            Icons.email,
+                          ),
+                          validator: (val) =>
+                              val == null || val.trim().isEmpty
+                                  ? 'Ingresa un email'
+                                  : null,
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child:  AppContactPhoneFields(
+                        second: AppContactPhoneFields(
                           mobileController: _phoneMobileController,
                           isPhoneHomeRequired: false,
                           showHeader: false,
                           showPhoneHome: false,
-                        )
+                        ),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
 
-                  Row(
-                    children: [
-                      Expanded(
-                        child: DropdownButtonFormField<int>(
+                      SizedBox(height: verticalFieldGap),
+
+                      // Género y país
+                      _responsiveFields(
+                        useTwoColumns: useTwoColumns,
+                        spacing: fieldSpacing,
+                        first: DropdownButtonFormField<int>(
                           initialValue: _selectedGenderId,
-                          decoration: PetFormStyles.inputDecoration('Género', Icons.wc_rounded),
-                          items: _gendersList.map((item) => DropdownMenuItem<int>(
-                            value: item.id,
-                            child: Text(item.name),
-                          )).toList(),
-                          onChanged: (val) => setState(() => _selectedGenderId = val),
+                          isExpanded: true,
+                          decoration: PetFormStyles.inputDecoration(
+                            'Género',
+                            Icons.wc_rounded,
+                          ),
+                          items: _gendersList
+                              .map(
+                                (item) => DropdownMenuItem<int>(
+                                  value: item.id,
+                                  child: Text(
+                                    item.name,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (val) {
+                            setState(() => _selectedGenderId = val);
+                          },
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child:  DropdownButtonFormField<int>(
+                        second: DropdownButtonFormField<int>(
                           initialValue: _selectedCountryId,
-                          decoration: PetFormStyles.inputDecoration('País', Icons.public),
-                          items: _countriesList.map((item) => DropdownMenuItem<int>(
-                            value: item.id,
-                            child: Text(item.name),
-                          )).toList(),
-                          onChanged: (val) => setState(() => _selectedCountryId = val),
+                          isExpanded: true,
+                          decoration: PetFormStyles.inputDecoration(
+                            'País',
+                            Icons.public,
+                          ),
+                          items: _countriesList
+                              .map(
+                                (item) => DropdownMenuItem<int>(
+                                  value: item.id,
+                                  child: Text(
+                                    item.name,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (val) {
+                            setState(() => _selectedCountryId = val);
+                          },
                         ),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
 
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextFormField(
+                      SizedBox(height: verticalFieldGap),
+
+                      // Ciudad y dirección
+                      _responsiveFields(
+                        useTwoColumns: useTwoColumns,
+                        spacing: fieldSpacing,
+                        first: TextFormField(
                           controller: _cityController,
-                          decoration: PetFormStyles.inputDecoration('Ciudad', Icons.location_city_outlined)
-                        )
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child:  TextFormField(
+                          decoration: PetFormStyles.inputDecoration(
+                            'Ciudad',
+                            Icons.location_city_outlined,
+                          ),
+                        ),
+                        second: TextFormField(
                           controller: _addressController,
-                          decoration: PetFormStyles.inputDecoration('Dirección', Icons.home_outlined)
-                        )
+                          decoration: PetFormStyles.inputDecoration(
+                            'Dirección',
+                            Icons.home_outlined,
+                          ),
+                        ),
                       ),
+
+                      SizedBox(height: isSmallPhone ? 24 : 28),
+
+                      SizedBox(
+                        height: isSmallPhone ? 48 : 54,
+                        child: ElevatedButton(
+                          onPressed: _submit,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.teal.shade600,
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                          child: Text(
+                            'Actualizar Perfil',
+                            style: TextStyle(
+                              fontSize: isSmallPhone ? 14 : 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 24),
                     ],
                   ),
-                  const SizedBox(height: 28),
-
-                  SizedBox(
-                    height: 54,
-                    child: ElevatedButton(
-                      onPressed: _submit,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.teal.shade600,
-                        elevation: 2,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                      ),
-                      child: const Text(
-                        'Guardar Cambios',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                ],
+                ),
               ),
             ),
-      );
+    );
   }
 }

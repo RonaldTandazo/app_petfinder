@@ -34,90 +34,126 @@ class AppContactPhoneFields extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    final fields = <Widget>[
-      if (showPhoneMobile)
-        Expanded(
-          child: TextFormField(
-            controller: mobileController,
-            keyboardType: TextInputType.phone,
-            maxLength: 15,
-            validator: mobileValidator ??
-                (val) {
-                  if (isPhoneMobileRequired &&
-                      (val == null || val.trim().isEmpty)) {
-                    return 'Ingresa el celular';
-                  }
-                  return null;
-                },
-            inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp(r'[\d+\s]')),
-              TextInputFormatter.withFunction((oldValue, newValue) {
-                final text = newValue.text;
-                if (text.contains('+') && !text.startsWith('+')) {
-                  return oldValue;
-                }
-                if (text.indexOf('+') != text.lastIndexOf('+')) {
-                  return oldValue;
-                }
-                final spaceCount = text.split(' ').length - 1;
-                if (spaceCount > 1) {
-                  return oldValue;
-                }
-                return newValue;
-              }),
-              LengthLimitingTextInputFormatter(15),
-            ],
-            decoration: PetFormStyles.inputDecoration(
-              'Teléfono Celular${isPhoneMobileRequired ? ' *' : ''}',
-              Icons.smartphone_rounded,
-            ).copyWith(
-              hintText: '+593 987654321',
-              counterText: '',
-            ),
-          ),
-        ),
-      if (showPhoneMobile && showPhoneHome) const SizedBox(width: 12),
-      if (showPhoneHome)
-        Expanded(
-          child: TextFormField(
-            controller: homeController,
-            keyboardType: TextInputType.phone,
-            maxLength: 10,
-            validator: homeValidator ??
-                (val) {
-                  if (isPhoneHomeRequired &&
-                      (val == null || val.trim().isEmpty)) {
-                    return 'Ingresa el convencional';
-                  }
-                  return null;
-                },
-            inputFormatters: [
-              FilteringTextInputFormatter.digitsOnly,
-              LengthLimitingTextInputFormatter(10),
-            ],
-            decoration: PetFormStyles.inputDecoration(
-              'Teléfono Convencional${isPhoneHomeRequired ? ' *' : ''}',
-              Icons.phone_rounded,
-            ).copyWith(counterText: ''),
-          ),
-        ),
-    ];
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final bool useTwoColumns = constraints.maxWidth >= 520;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (showHeader) ...[
-          PetFormStyles.buildSectionHeader(
-            'Información de Contacto',
-            'Teléfonos de referencia para recibir información',
-          ),
-          const SizedBox(height: 12),
-        ],
-        Row(
+        final fields = <Widget>[
+          if (showPhoneMobile)
+            _buildMobileField(),
+
+          if (showPhoneMobile && showPhoneHome)
+            SizedBox(
+              width: useTwoColumns ? 12 : 0,
+              height: useTwoColumns ? 0 : 14,
+            ),
+
+          if (showPhoneHome)
+            _buildHomeField(),
+        ];
+
+        return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: fields,
-        ),
+          children: [
+            if (showHeader) ...[
+              PetFormStyles.buildSectionHeader(
+                'Información de Contacto',
+                'Teléfonos de referencia para recibir información',
+              ),
+              const SizedBox(height: 12),
+            ],
+            if (useTwoColumns && showPhoneMobile && showPhoneHome)
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: fields[0]),
+                  const SizedBox(width: 12),
+                  Expanded(child: fields[2]),
+                ],
+              )
+            else
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (showPhoneMobile) _buildMobileField(),
+                  if (showPhoneMobile && showPhoneHome)
+                    const SizedBox(height: 14),
+                  if (showPhoneHome) _buildHomeField(),
+                ],
+              ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildMobileField() {
+    return TextFormField(
+      controller: mobileController,
+      keyboardType: TextInputType.phone,
+      maxLength: 15,
+      validator: mobileValidator ??
+          (val) {
+            if (isPhoneMobileRequired &&
+                (val == null || val.trim().isEmpty)) {
+              return 'Ingresa el celular';
+            }
+            return null;
+          },
+      inputFormatters: [
+        FilteringTextInputFormatter.allow(RegExp(r'[\d+\s]')),
+        TextInputFormatter.withFunction((oldValue, newValue) {
+          final text = newValue.text;
+
+          if (text.contains('+') && !text.startsWith('+')) {
+            return oldValue;
+          }
+
+          if (text.indexOf('+') != text.lastIndexOf('+')) {
+            return oldValue;
+          }
+
+          final spaceCount = text.split(' ').length - 1;
+
+          if (spaceCount > 1) {
+            return oldValue;
+          }
+
+          return newValue;
+        }),
+        LengthLimitingTextInputFormatter(15),
       ],
+      decoration: PetFormStyles.inputDecoration(
+        'Teléfono Celular${isPhoneMobileRequired ? ' *' : ''}',
+        Icons.smartphone_rounded,
+      ).copyWith(
+        hintText: '+593 987654321',
+        counterText: '',
+      ),
+    );
+  }
+
+  Widget _buildHomeField() {
+    return TextFormField(
+      controller: homeController,
+      keyboardType: TextInputType.phone,
+      maxLength: 10,
+      validator: homeValidator ??
+          (val) {
+            if (isPhoneHomeRequired &&
+                (val == null || val.trim().isEmpty)) {
+              return 'Ingresa el convencional';
+            }
+            return null;
+          },
+      inputFormatters: [
+        FilteringTextInputFormatter.digitsOnly,
+        LengthLimitingTextInputFormatter(10),
+      ],
+      decoration: PetFormStyles.inputDecoration(
+        'Teléfono Convencional${isPhoneHomeRequired ? ' *' : ''}',
+        Icons.phone_rounded,
+      ).copyWith(counterText: ''),
     );
   }
 }

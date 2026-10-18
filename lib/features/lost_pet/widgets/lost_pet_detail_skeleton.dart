@@ -237,7 +237,7 @@ class _LostPetDetailSkeletonState extends State<LostPetDetailSkeleton> with Sing
   Widget _buildContactSkeleton() {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final isSmall = constraints.maxWidth < 600;
+        final bool isSmall = constraints.maxWidth < 600;
 
         if (isSmall) {
           return Column(

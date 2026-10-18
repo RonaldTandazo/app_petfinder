@@ -9,34 +9,57 @@ class AppImagePlaceholders {
     required IconData icon,
     required String message,
   }) {
-    return Container(
-      width: double.infinity,
-      height: double.infinity,
-      color: Colors.grey.shade100,
-      padding: const EdgeInsets.all(8),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            icon,
-            size: 26,
-            color: Colors.grey.shade400,
-          ),
-          const SizedBox(height: 4),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              message,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 10,
-                color: Colors.grey.shade500,
-                fontWeight: FontWeight.w500,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double width = constraints.maxWidth;
+        final double height = constraints.maxHeight;
+
+        final bool isSmall = width < 140 || height < 110;
+        final bool isCompact = width < 180 || height < 140;
+
+        final double iconSize = isSmall
+            ? 20
+            : isCompact
+                ? 24
+                : 26;
+
+        final double fontSize = isSmall ? 8 : 10;
+        final double padding = isSmall ? 4 : 8;
+        final double spacing = isSmall ? 2 : 4;
+
+        return Container(
+          width: double.infinity,
+          height: double.infinity,
+          color: Colors.grey.shade100,
+          padding: EdgeInsets.all(padding),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: iconSize,
+                color: Colors.grey.shade400,
               ),
-            ),
+              SizedBox(height: spacing),
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    message,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: fontSize,
+                      color: Colors.grey.shade500,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      }
     );
   }
 
@@ -45,31 +68,49 @@ class AppImagePlaceholders {
     required IconData icon,
     required String message,
   }) {
-    return Container(
-      width: double.infinity,
-      height: double.infinity,
-      color: Colors.grey.shade900,
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            icon,
-            size: 48,
-            color: Colors.white54,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double width = constraints.maxWidth;
+        final double height = constraints.maxHeight;
+
+        final bool isCompact = width < 280 || height < 240;
+
+        final double iconSize = isCompact ? 36 : 48;
+        final double fontSize = isCompact ? 12 : 14;
+        final double padding = isCompact ? 10 : 20;
+        final double spacing = isCompact ? 6 : 10;
+
+        return Container(
+          width: double.infinity,
+          height: double.infinity,
+          color: Colors.grey.shade900,
+          padding: EdgeInsets.all(padding),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: iconSize,
+                color: Colors.white54,
+              ),
+              SizedBox(height: spacing),
+              Flexible(
+                child: Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: fontSize,
+                    color: Colors.white70,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 10),
-          Text(
-            message,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 14,
-              color: Colors.white70,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
+        );
+      }
     );
   }
 }

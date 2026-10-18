@@ -38,15 +38,32 @@ class PetCardWithActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.sizeOf(context).width;
+
+    final bool isSmallPhone = screenWidth < 360;
+    final bool isMobile = screenWidth < 600;
+
     final bool isMale = genderTag == 'MALE';
     final bool hasPicture = picture != null && picture!.trim().isNotEmpty;
+
     final IconData genderIcon = getGenderIcon(isMale);
     final Color genderColor = getGenderColor(isMale);
+
+    final double cardRadius = isMobile ? 10 : 12;
+    final double contentPadding = isSmallPhone ? 6 : isMobile ? 7 : 8;
+    final double badgeFontSize = isSmallPhone ? 9 : 10;
+    final double titleFontSize = isSmallPhone ? 12 : isMobile ? 13 : 14;
+    final double genderIconSize = isSmallPhone ? 14 : 16;
+    final double menuRadius = isSmallPhone ? 14 : 16;
+    final double menuIconSize = isSmallPhone ? 16 : 18;
 
     return Card(
       clipBehavior: Clip.antiAlias,
       elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(cardRadius),
+      ),
       child: InkWell(
         onTap: onTap,
         child: Column(
@@ -54,117 +71,141 @@ class PetCardWithActions extends StatelessWidget {
           children: [
             Expanded(
               child: Stack(
+                fit: StackFit.expand,
                 children: [
-                  Positioned.fill(
-                    child: hasPicture
-                        ? Image.network(
-                            picture!,
-                            width: double.infinity,
-                            height: double.infinity,
-                            fit: BoxFit.cover,
-                            loadingBuilder: (context, child, loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              return Container(
-                                color: Colors.grey.shade100,
-                                child: const Center(
-                                  child: CircularProgressIndicator(strokeWidth: 2),
-                                ),
-                              );
-                            },
-                            errorBuilder: (context, error, stackTrace) {
-                              return Container(
-                                color: Colors.grey[200],
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(Icons.broken_image_outlined, size: 36, color: Colors.grey[400]),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      'No se pudo obtener\nla imagen',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(fontSize: 10, color: Colors.grey[600]),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          )
-                        : AppImagePlaceholders.card(
-                            icon: iconData,
-                            message: 'Sin imagen disponible',
+                  if (hasPicture)
+                    Image.network(
+                      picture!,
+                      fit: BoxFit.cover,
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+
+                        return Container(
+                          color: Colors.grey.shade100,
+                          child: const Center(
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                            ),
                           ),
-                  ),
-
-                  // Badge flotante de Urgente (esquina superior izquierda)
-                  if (isUrgent)
-                    const AppBadge(
-                      text: 'URGENTE',
-                      icon: Icons.warning_amber_rounded,
-                      position: BadgePosition.topLeft,
-                      fontSize: 9,
-                      iconSize: 12,
-                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    ),
-
-                  // Menú de acciones (esquina superior derecha)
-                  if (showActions)
-                    Positioned(
-                      top: 4,
-                      right: 4,
-                      child: GestureDetector(
-                        onTap: () {},
-                        child: CircleAvatar(
-                          radius: 16,
-                          backgroundColor: Colors.black.withAlpha(100),
-                          child: PopupMenuButton<String>(
-                            padding: EdgeInsets.zero,
-                            icon: const Icon(Icons.more_vert_rounded, size: 18, color: Colors.white),
-                            onSelected: (value) {
-                              switch (value) {
-                                case 'status':
-                                  onStatusChange();
-                                  break;
-                                case 'edit':
-                                  onEdit();
-                                  break;
-                                case 'delete':
-                                  onDelete();
-                                  break;
-                              }
-                            },
-                            itemBuilder: (context) => [
-                              PopupMenuItem(
-                                value: 'status',
-                                child: Row(
-                                  children: [
-                                    const Icon(Icons.check_circle_outline, size: 20),
-                                    const SizedBox(width: 8),
-                                    Text(statusActionLabel),
-                                  ],
-                                ),
+                        );
+                      },
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          color: Colors.grey.shade200,
+                          padding: const EdgeInsets.all(4),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.broken_image_outlined,
+                                size: isSmallPhone ? 28 : 36,
+                                color: Colors.grey[400],
                               ),
-                              const PopupMenuItem(
-                                value: 'edit',
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.edit_outlined, size: 20),
-                                    SizedBox(width: 8),
-                                    Text('Editar'),
-                                  ],
-                                ),
-                              ),
-                              const PopupMenuItem(
-                                value: 'delete',
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.delete_outline, size: 20, color: Colors.red),
-                                    SizedBox(width: 8),
-                                    Text('Eliminar', style: TextStyle(color: Colors.red)),
-                                  ],
+                              const SizedBox(height: 4),
+                              Text(
+                                'No se pudo obtener\nla imagen',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: isSmallPhone ? 9 : 10,
+                                  color: Colors.grey[600],
                                 ),
                               ),
                             ],
                           ),
+                        );
+                      },
+                    )
+                  else
+                    AppImagePlaceholders.card(
+                      icon: iconData,
+                      message: 'Sin imagen disponible',
+                    ),
+
+                  if (isUrgent)
+                    AppBadge(
+                      text: 'URGENTE',
+                      icon: Icons.warning_amber_rounded,
+                      position: BadgePosition.topLeft,
+                      fontSize: isSmallPhone ? 8 : 9,
+                      iconSize: isSmallPhone ? 10 : 12,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isSmallPhone ? 5 : 8,
+                        vertical: isSmallPhone ? 3 : 4,
+                      ),
+                    ),
+
+                  if (showActions)
+                    Positioned(
+                      top: isSmallPhone ? 3 : 4,
+                      right: isSmallPhone ? 3 : 4,
+                      child: CircleAvatar(
+                        radius: menuRadius,
+                        backgroundColor: Colors.black.withAlpha(100),
+                        child: PopupMenuButton<String>(
+                          tooltip: 'Acciones',
+                          padding: EdgeInsets.zero,
+                          iconSize: menuIconSize,
+                          icon: const Icon(
+                            Icons.more_vert_rounded,
+                            color: Colors.white,
+                          ),
+                          onSelected: (value) {
+                            switch (value) {
+                              case 'status':
+                                onStatusChange();
+                                break;
+                              case 'edit':
+                                onEdit();
+                                break;
+                              case 'delete':
+                                onDelete();
+                                break;
+                            }
+                          },
+                          itemBuilder: (context) => [
+                            PopupMenuItem(
+                              value: 'status',
+                              child: Row(
+                                children: [
+                                  const Icon(
+                                    Icons.check_circle_outline,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Flexible(
+                                    child: Text(statusActionLabel),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const PopupMenuItem(
+                              value: 'edit',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.edit_outlined, size: 20),
+                                  SizedBox(width: 8),
+                                  Text('Editar'),
+                                ],
+                              ),
+                            ),
+                            const PopupMenuItem(
+                              value: 'delete',
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.delete_outline,
+                                    size: 20,
+                                    color: Colors.red,
+                                  ),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'Eliminar',
+                                    style: TextStyle(color: Colors.red),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -174,40 +215,52 @@ class PetCardWithActions extends StatelessWidget {
 
             // Información de la tarjeta
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: EdgeInsets.all(contentPadding),
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    constraints: BoxConstraints(
+                      maxWidth: double.infinity,
+                    ),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: isSmallPhone ? 4 : 6,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: badgeColor.withAlpha(30),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
                       badgeLabel,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: badgeColor,
-                        fontSize: 10,
+                        fontSize: badgeFontSize,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: isSmallPhone ? 3 : 4),
                   Row(
                     children: [
                       Expanded(
                         child: Text(
                           title,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: titleFontSize,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                      const SizedBox(width: 4),
+                      SizedBox(width: isSmallPhone ? 2 : 4),
                       Icon(
                         genderIcon,
-                        size: 16,
+                        size: genderIconSize,
                         color: genderColor,
                       ),
                     ],

@@ -384,6 +384,24 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
   Widget build(BuildContext context) {
     final bool hasAvatar = _avatar != null && _avatar!.url.isNotEmpty && !_avatarLoadError;
 
+    final double screenWidth = MediaQuery.sizeOf(context).width;
+
+    final bool isSmallPhone = screenWidth < 360;
+    final bool isMobile = screenWidth < 600;
+
+    final double avatarRadius = isSmallPhone ? 36 : isMobile ? 42 : 46;
+    final double avatarIconSize = isSmallPhone ? 40 : isMobile ? 46 : 50;
+
+    final double nameFontSize = isSmallPhone ? 18 : isMobile ? 20 : 23;
+    final double emailFontSize = isSmallPhone ? 12 : 14;
+
+    final double horizontalPadding = isSmallPhone ? 12 : isMobile ? 16 : 24;
+    final double topSpacing = isSmallPhone ? 10 : 16;
+    final double sectionSpacing = isSmallPhone ? 14 : 20;
+
+    final double tabIconSize = isSmallPhone ? 20 : isMobile ? 22 : 24;
+    final double tabFontSize = isSmallPhone ? 11 : isMobile ? 12 : 14;
+
     return Scaffold(
       appBar: AppBar(),
       drawer: isMyProfile
@@ -407,9 +425,9 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
                   SliverToBoxAdapter(
                     child: Column(
                       children: [
-                        const SizedBox(height: 16),
+                        SizedBox(height: topSpacing),
                         CircleAvatar(
-                          radius: 46,
+                          radius: avatarRadius,
                           backgroundColor: Theme.of(context).colorScheme.primaryContainer,
                           backgroundImage: hasAvatar ? NetworkImage(_avatar!.url) : null,
                           onBackgroundImageError: hasAvatar
@@ -424,28 +442,42 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
                           child: !hasAvatar
                             ? Icon(
                                 Icons.person_rounded,
-                                size: 50,
+                                size: avatarIconSize,
                                 color: Theme.of(context).colorScheme.onPrimaryContainer,
                               )
                             : null,
                         ),
-                        const SizedBox(height: 10),
-                        Text(
-                          _name,
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
+                        SizedBox(height: isSmallPhone ? 8 : 10),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                          child: Text(
+                            _name,
+                            textAlign: TextAlign.center,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                  fontSize: nameFontSize,
+                                  fontWeight: FontWeight.bold,
+                                ),
                           ),
                         ),
                         const SizedBox(height: 2),
-                        Text(
-                          _email,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Colors.grey[600],
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                          child: Text(
+                            _email,
+                            textAlign: TextAlign.center,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  fontSize: emailFontSize,
+                                  color: Colors.grey[600],
+                                ),
                           ),
                         ),
-                        const SizedBox(height: 20),
+                        SizedBox(height: sectionSpacing),
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
@@ -460,7 +492,7 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
                             ],
                           ),
                         ),
-                        const SizedBox(height: 20),
+                        SizedBox(height: sectionSpacing),
                       ],
                     ),
                   ),
@@ -472,13 +504,26 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
                         labelColor: Theme.of(context).colorScheme.primary,
                         unselectedLabelColor: Colors.grey,
                         indicatorColor: Theme.of(context).colorScheme.primary,
-                        tabs: const [
+                        labelStyle: TextStyle(
+                          fontSize: tabFontSize,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        unselectedLabelStyle: TextStyle(
+                          fontSize: tabFontSize,
+                        ),
+                        tabs: [
                           Tab(
-                            icon: Icon(Icons.pets_rounded),
+                            icon: Icon(
+                              Icons.pets_rounded,
+                              size: tabIconSize,
+                            ),
                             text: 'En Adopción',
                           ),
                           Tab(
-                            icon: Icon(Icons.search_off_rounded),
+                            icon: Icon(
+                              Icons.search_off_rounded,
+                              size: tabIconSize,
+                            ),
                             text: 'Perdidas',
                           ),
                         ],

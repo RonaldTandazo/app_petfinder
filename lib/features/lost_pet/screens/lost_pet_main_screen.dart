@@ -65,13 +65,13 @@ class _LostPetHomeScreenState extends State<LostPetHomeScreen> {
   void _onScroll() {
     if (!_scrollController.hasClients) return;
 
-    final maxScroll = _scrollController.position.maxScrollExtent;
-    final currentScroll = _scrollController.position.pixels;
+    final position = _scrollController.position;
+    if (position.maxScrollExtent <= 0) return;
 
-    if (currentScroll >= (maxScroll * 0.8)) {
-      if (!_isLoadingMore && _hasMore && !_isLoadingLostPets) {
-        _loadLostPets();
-      }
+    final threshold = position.maxScrollExtent * 0.8;
+
+    if (position.pixels >= threshold && !_isLoadingMore && _hasMore && !_isLoadingLostPets) {
+      _loadLostPets();
     }
   }
 
@@ -116,9 +116,15 @@ class _LostPetHomeScreenState extends State<LostPetHomeScreen> {
       _cancelToken?.cancel('Nueva búsqueda iniciada');
       _cancelToken = CancelToken();
 
+      if (_scrollController.hasClients) {
+        _scrollController.jumpTo(0);
+      }
+
       setState(() {
         _isLoadingLostPets = true;
+        _isLoadingMore = false;
         _page = 1;
+        _hasMore = false;
         _lostPets.clear();
       });
     } else {
@@ -243,27 +249,75 @@ class _LostPetHomeScreenState extends State<LostPetHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.sizeOf(context).width;
+
+    final bool isSmallPhone = screenWidth < 360;
+    final bool isTablet = screenWidth >= 600;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAF9),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Mascotas Perdidas',
-          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 20),
+          style: TextStyle(
+            color: Colors.black87,
+            fontWeight: FontWeight.bold,
+            fontSize: isSmallPhone ? 18 : 20,
+          ),
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        heroTag: 'btn_report_lost_pet',
-        onPressed: () {
-          context.push(LostPetRoutes.publish);
+      floatingActionButton: Builder(
+        builder: (context) {
+          final double buttonHeight = isSmallPhone
+            ? 34.0
+            : isTablet
+                ? 64.0
+                : 40.0;
+
+          final double iconSize = isSmallPhone
+            ? 20.0
+            : isTablet
+                ? 28.0
+                : 24.0;
+
+          final double fontSize = isSmallPhone
+            ? 11.0
+            : isTablet
+                ? 16.0
+                : 13.0;
+
+          final double horizontalPadding = 7;
+
+          return SizedBox(
+            height: buttonHeight,
+            child: FloatingActionButton.extended(
+              heroTag: 'btn_report_lost_pet',
+              onPressed: () {
+                context.push(LostPetRoutes.publish);
+              },
+              backgroundColor: Colors.redAccent,
+              elevation: 4,
+              icon: Icon(
+                Icons.add_location_alt_rounded,
+                color: Colors.white,
+                size: iconSize,
+              ),
+              label: Text(
+                'Reportar Mascota',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: fontSize,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              extendedPadding: EdgeInsets.symmetric(
+                horizontal: horizontalPadding,
+              ),
+            ),
+          );
         },
-        backgroundColor: Colors.redAccent,
-        icon: const Icon(Icons.add_location_alt_rounded, color: Colors.white),
-        label: const Text(
-          'Reportar Mascota',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
       ),
       body: Column(
         children: [
