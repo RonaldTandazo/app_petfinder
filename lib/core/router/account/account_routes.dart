@@ -1,3 +1,4 @@
+import 'package:app_petfinder/features/followed/screens/followed_pets_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:app_petfinder/features/account/screens/edit_user_screen.dart';
 import 'package:app_petfinder/features/account/screens/edit_shelter_screen.dart';
@@ -9,6 +10,7 @@ class AccountRoutes {
   static const String editUser = '$prefix/edit-user';
   static const String editShelter = '$prefix/edit-shelter';
   static const String changePassword = '$prefix/change-password';
+  static const String followedPets = '$prefix/followed-pets';
 
   static List<RouteBase> getRoutes() {
     return [
@@ -23,6 +25,10 @@ class AccountRoutes {
       GoRoute(
         path: changePassword,
         builder: (context, state) => const ChangePasswordScreen(),
+      ),
+      GoRoute(
+        path: followedPets,
+        builder: (context, state) => const FollowedPetsScreen(),
       ),
     ];
   }

@@ -361,6 +361,7 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
       case MetricAction.openRescued:
         break;
       case MetricAction.openFollowed:
+        context.push(AccountRoutes.followedPets);
         break;
       case MetricAction.unknown:
         break;

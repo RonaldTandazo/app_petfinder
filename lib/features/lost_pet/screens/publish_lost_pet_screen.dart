@@ -85,7 +85,7 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
     _loadFormCatalogs();
 
     if (_isUpdate) {
-      titleScreen = 'Editar Reporte de Mascota Perdida';
+      titleScreen = 'Reporte de Mascota Perdida';
       submitButton = 'Actualizar Reporte de Pérdida';
 
       _loadLostPet();

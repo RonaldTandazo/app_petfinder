@@ -87,7 +87,7 @@ class _PublishAdoptionPetScreenState extends State<PublishAdoptionPetScreen> {
     _loadFormCatalogs();
   
     if (_isUpdate) {
-      titleScreen = 'Editar Adopción de Mascota';
+      titleScreen = 'Mascota en Adopción';
       submitButton = 'Actualizar Adopción';
 
       _loadPet();

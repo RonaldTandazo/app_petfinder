@@ -12,7 +12,7 @@ class CheckAuthScreen extends StatefulWidget {
 }
 
 class _CheckAuthScreenState extends State<CheckAuthScreen> {
-  final _authRepository = AuthRepository();
+  final AuthRepository _authRepository = AuthRepository();
 
   @override
   void initState() {
@@ -40,17 +40,33 @@ class _CheckAuthScreenState extends State<CheckAuthScreen> {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(color: Colors.teal),
-            SizedBox(height: 16),
-            Text(
-              'Cargando PetFinder...',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  width: 32,
+                  height: 32,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 3,
+                    color: Colors.teal,
+                  ),
+                ),
+                SizedBox(height: 20),
+                Text(
+                  'Cargando PetFinder...',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey,
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

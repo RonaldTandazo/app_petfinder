@@ -1,0 +1,4 @@
+enum FollowedPetType {
+  adoption,
+  lost,
+}
