@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 import 'package:app_petfinder/enums/followed/followed_pet_filter.dart';
 import 'package:app_petfinder/enums/followed/followed_pet_type.dart';
 import 'package:app_petfinder/features/followed/widgets/followed_pet_card.dart';
