@@ -1,3 +1,8 @@
+import 'package:app_petfinder/enums/datepicker/date_filter_type.dart';
+import 'package:app_petfinder/enums/datepicker/date_selection_type.dart';
+import 'package:app_petfinder/enums/snackbar/snackbar_type.dart';
+import 'package:app_petfinder/widgets/datepickers/app_datepicker.dart';
+import 'package:app_petfinder/widgets/snackbars/app_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:app_petfinder/core/network/api_exception.dart';
@@ -33,6 +38,11 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
   bool _hasLetter = false;
   bool _hasDigit = false;
 
+  DateTime? _selectedBirthDate;
+
+  bool _acceptedTerms = false;
+  bool _acceptedPrivacy = false;
+
   @override
   void initState() {
     super.initState();
@@ -64,12 +74,23 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
   void _submitRegister() async {
     if (!_formKey.currentState!.validate()) return;
 
+    if (!_acceptedTerms || !_acceptedPrivacy) {
+      AppSnackBar.show(
+        context,
+        title: 'Debes aceptar los términos y leer la política de privacidad',
+        type: SnackBarType.warning,
+      );
+
+      return;
+    }
+
     FocusScope.of(context).unfocus();
     setState(() => _isLoading = true);
 
     final Map<String, dynamic> payload = {
       'first_names': _firstNamesController.text.trim(),
       'last_names': _lastNamesController.text.trim(),
+      'birth_date': _selectedBirthDate?.toIso8601String(),
       'email': _emailController.text.trim(),
       'password': _passwordController.text,
       if (_phoneMobileController.text.trim().isNotEmpty) 'phone_mobile': _phoneMobileController.text.trim(),
@@ -183,6 +204,67 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
     );
   }
 
+  Widget _buildLegalAcceptance({
+    required bool value,
+    required ValueChanged<bool?> onChanged,
+    required String prefix,
+    required String linkText,
+    required VoidCallback onLinkTap,
+  }) {
+    final theme = Theme.of(context);
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Checkbox(
+          value: value,
+          onChanged: _isLoading ? null : onChanged,
+        ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: Wrap(
+              children: [
+                Text(prefix),
+                InkWell(
+                  onTap: onLinkTap,
+                  child: Text(
+                    linkText,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.primary,
+                      decoration: TextDecoration.underline,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  bool _isAdult() {
+    final DateTime? birthDate = _selectedBirthDate;
+
+    if (birthDate == null || birthDate.isAfter(DateTime.now())) {
+      return false;
+    }
+
+    final today = DateTime.now();
+
+    var age = today.year - birthDate.year;
+
+    if (today.month < birthDate.month ||
+        (today.month == birthDate.month &&
+            today.day < birthDate.day)) {
+      age--;
+    }
+
+    return age >= 18;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -258,6 +340,32 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
                           _buildSectionHeader(context, 'Datos Personales'),
                           const SizedBox(height: 12),
                           buildNameFields(useTwoColumns: useTwoColumns, fieldSpacing: fieldSpacing),
+
+                          SizedBox(height: sectionSpacing),
+
+                          AppDatePicker(
+                            label: 'Fecha de nacimiento *',
+                            icon: Icons.cake_outlined,
+                            selectionType: DateSelectionType.single,
+                            filterType: DateFilterType.disableFuture,
+                            selectedDate: _selectedBirthDate,
+                            onDateSelected: (date) {
+                              setState(() {
+                                _selectedBirthDate = date;
+                              });
+                            },
+                            validator: (value) {
+                              if (_selectedBirthDate == null) {
+                                return 'Selecciona tu fecha de nacimiento';
+                              }
+
+                              if (!_isAdult()) {
+                                return 'Debes tener al menos 18 años para registrarte';
+                              }
+
+                              return null;
+                            },
+                          ),
 
                           SizedBox(height: sectionSpacing),
 
@@ -368,6 +476,34 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
                           buildLocationFields(useTwoColumns: useTwoColumns, fieldSpacing: fieldSpacing),
 
                           SizedBox(height: sectionSpacing),
+
+                          _buildLegalAcceptance(
+                            value: _acceptedTerms,
+                            onChanged: (value) {
+                              setState(() {
+                                _acceptedTerms = value ?? false;
+                              });
+                            },
+                            prefix: 'He leído y acepto los ',
+                            linkText: 'Términos y Condiciones',
+                            onLinkTap: () {
+                              context.push('/legal/terms');
+                            },
+                          ),
+
+                          _buildLegalAcceptance(
+                            value: _acceptedPrivacy,
+                            onChanged: (value) {
+                              setState(() {
+                                _acceptedPrivacy = value ?? false;
+                              });
+                            },
+                            prefix: 'He leído la ',
+                            linkText: 'Política de Privacidad',
+                            onLinkTap: () {
+                              context.push('/legal/privacy');
+                            },
+                          ),
 
                           FilledButton(
                             onPressed:

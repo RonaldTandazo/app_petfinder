@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:app_petfinder/core/router/app_router.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:app_petfinder/core/utils/session_storage_service.dart';
+import 'package:app_petfinder/features/connectivity/screens/connection_gate.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,6 +34,11 @@ class MyApp extends StatelessWidget {
       ],
       locale: const Locale('es', 'ES'),
       routerConfig: appRouter,
+      builder: (context, child) {
+        return ConnectionGate(
+          child: child ?? const SizedBox.shrink(),
+        );
+      },
     );
   }
 }

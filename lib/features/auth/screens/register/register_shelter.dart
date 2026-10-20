@@ -1,3 +1,5 @@
+import 'package:app_petfinder/enums/snackbar/snackbar_type.dart';
+import 'package:app_petfinder/widgets/snackbars/app_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:app_petfinder/widgets/requirements/requirement_item.dart';
@@ -36,6 +38,9 @@ class _RegisterShelterScreenState extends State<RegisterShelterScreen> {
   bool _hasLetter = false;
   bool _hasDigit = false;
 
+  bool _acceptedTerms = false;
+  bool _acceptedPrivacy = false;
+
   @override
   void initState() {
     super.initState();
@@ -69,6 +74,16 @@ class _RegisterShelterScreenState extends State<RegisterShelterScreen> {
 
   void _submitRegister() async {
     if (!_formKey.currentState!.validate()) return;
+
+    if (!_acceptedTerms || !_acceptedPrivacy) {
+      AppSnackBar.show(
+        context,
+        title: 'Debes aceptar los términos y leer la política de privacidad',
+        type: SnackBarType.warning,
+      );
+
+      return;
+    }
 
     FocusScope.of(context).unfocus();
     setState(() => _isLoading = true);
@@ -182,6 +197,47 @@ class _RegisterShelterScreenState extends State<RegisterShelterScreen> {
         Expanded(child: phoneField),
         const SizedBox(width: 12),
         Expanded(child: cityField),
+      ],
+    );
+  }
+
+  Widget _buildLegalAcceptance({
+    required bool value,
+    required ValueChanged<bool?> onChanged,
+    required String prefix,
+    required String linkText,
+    required VoidCallback onLinkTap,
+  }) {
+    final theme = Theme.of(context);
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Checkbox(
+          value: value,
+          onChanged: _isLoading ? null : onChanged,
+        ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: Wrap(
+              children: [
+                Text(prefix),
+                InkWell(
+                  onTap: onLinkTap,
+                  child: Text(
+                    linkText,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.primary,
+                      decoration: TextDecoration.underline,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -426,6 +482,34 @@ class _RegisterShelterScreenState extends State<RegisterShelterScreen> {
                           ),
 
                           SizedBox(height: sectionSpacing),
+
+                          _buildLegalAcceptance(
+                            value: _acceptedTerms,
+                            onChanged: (value) {
+                              setState(() {
+                                _acceptedTerms = value ?? false;
+                              });
+                            },
+                            prefix: 'He leído y acepto los ',
+                            linkText: 'Términos y Condiciones',
+                            onLinkTap: () {
+                              context.push('/legal/terms');
+                            },
+                          ),
+
+                          _buildLegalAcceptance(
+                            value: _acceptedPrivacy,
+                            onChanged: (value) {
+                              setState(() {
+                                _acceptedPrivacy = value ?? false;
+                              });
+                            },
+                            prefix: 'He leído la ',
+                            linkText: 'Política de Privacidad',
+                            onLinkTap: () {
+                              context.push('/legal/privacy');
+                            },
+                          ),
 
                           FilledButton(
                             onPressed:

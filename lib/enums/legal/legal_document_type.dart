@@ -1,0 +1,4 @@
+enum LegalDocumentType {
+  terms,
+  privacy,
+}
