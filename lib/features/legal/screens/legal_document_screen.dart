@@ -15,6 +15,8 @@ class LegalDocumentScreen extends StatelessWidget {
         return 'Términos y Condiciones';
       case LegalDocumentType.privacy:
         return 'Política de Privacidad';
+      case LegalDocumentType.unknown:
+        return 'Documento Desconocido';
     }
   }
 
@@ -36,6 +38,7 @@ class LegalDocumentScreen extends StatelessWidget {
               child: switch (type) {
                 LegalDocumentType.terms => _buildTerms(theme),
                 LegalDocumentType.privacy => _buildPrivacy(theme),
+                LegalDocumentType.unknown => const SizedBox.shrink(),
               },
             ),
           ),

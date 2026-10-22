@@ -54,7 +54,8 @@ class AuthRepository extends BaseRepository {
     );
 
     if (response.data != null) {
-      await SessionStorageService.saveSession(response.data!);
+      final res = response.data!;
+      await SessionStorageService.saveSession(res['session_info'] as Map<String, dynamic>);
     } else {
       await TokenStorageService.deleteToken();
       await SessionStorageService.clearSession();

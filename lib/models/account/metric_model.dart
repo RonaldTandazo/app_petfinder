@@ -1,5 +1,3 @@
-
-
 import 'package:app_petfinder/enums/account/metric_action.dart';
 
 class MetricModel {

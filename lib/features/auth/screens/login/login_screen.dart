@@ -1,3 +1,5 @@
+import 'package:app_petfinder/core/router/legal/legal_routes.dart';
+import 'package:app_petfinder/models/legal/legal_document_model.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:app_petfinder/core/utils/api_error_handler.dart';
@@ -48,12 +50,34 @@ class _LoginScreenState extends State<LoginScreen> {
       final response = await _authRepository.login(payload);
       if (!mounted) return;
 
-      if (response.data?['requires_account_selection'] == true) {
+      final data = response.data;
+
+      if (data == null) {
+        context.go(MainRoutes.adoptions);
+        return;
+      }
+
+      if (data['requires_account_selection'] == true) {
         _showAccountSelectionModal();
         return;
       }
 
+      final legalDocumentsJson = data['legal_documents'];
+
+      final List<LegalDocumentModel> legalDocuments =
+          legalDocumentsJson is List
+              ? legalDocumentsJson
+                  .map((e) => LegalDocumentModel.fromJson(e as Map<String, dynamic>))
+                  .toList()
+              : <LegalDocumentModel>[];
+
+      if (data['requires_legal_acceptances'] == true && legalDocuments.isNotEmpty) {
+        context.go(LegalRoutes.acceptance, extra: legalDocuments);
+        return;
+      }
+
       ApiSuccessHandler.handle(context, title: response.message);
+
       context.go(MainRoutes.adoptions);
     } on ApiException catch (e) {
       ApiErrorHandler.handle(context, e);
