@@ -152,8 +152,11 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       backgroundColor: const Color(0xFFF8FAF9),
       appBar: AppBar(
         title: const Text(
-          'Cambiar contraseña',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          'Seguridad',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 18
+          ),
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
@@ -165,7 +168,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           children: [
             PetFormStyles.buildSectionHeader(
-              'Seguridad',
+              'Contraseña',
               'Usa una contraseña que no uses en otros sitios',
             ),
             const SizedBox(height: 16),

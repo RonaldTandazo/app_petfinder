@@ -1,4 +1,3 @@
-import 'package:app_petfinder/core/router/legal/legal_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:app_petfinder/core/router/auth/auth_routes.dart';
@@ -7,6 +6,8 @@ import 'package:app_petfinder/core/router/adoption/adoption_routes.dart';
 import 'package:app_petfinder/core/router/lost_pet/lost_pet_routes.dart';
 import 'package:app_petfinder/core/router/account/account_routes.dart';
 import 'package:app_petfinder/core/router/community/community_routes.dart';
+import 'package:app_petfinder/core/router/legal/legal_routes.dart';
+import 'package:app_petfinder/core/router/help/help_routes.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -21,5 +22,6 @@ final appRouter = GoRouter(
     ...CommunityRoutes.getRoutes(),
     ...AccountRoutes.getRoutes(),
     ...LegalRoutes.getRoutes(),
+    ...HelpRoutes.getRoutes(),
   ],
 );

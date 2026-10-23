@@ -57,9 +57,6 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
   final _rewardAmountController = TextEditingController();
   final _phoneHomeController = TextEditingController();
   final _phoneMobileController = TextEditingController();
-  
-  String titleScreen = 'Reportar Mascota Perdida';
-  String submitButton =  'Publicar Alerta de Pérdida';
 
   bool _isLoadingCatalog = true;
   bool _isLoadingLostPet = false;
@@ -77,6 +74,8 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
 
   bool get _isLoadingForm => _isLoadingCatalog || _isLoadingLostPet;
   bool get _isUpdate => widget.petId != null;
+  String get _titleScreen => _isUpdate ? 'Mascota Perdida' : 'Reportar Mascota Perdida';
+  String get _submitButton => _isUpdate ? 'Actualizar Alerta' : 'Publicar Alerta';
 
   @override
   void initState() {
@@ -85,9 +84,6 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
     _loadFormCatalogs();
 
     if (_isUpdate) {
-      titleScreen = 'Reporte de Mascota Perdida';
-      submitButton = 'Actualizar Reporte de Pérdida';
-
       _loadLostPet();
     }
   }
@@ -327,14 +323,14 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
     final bool isSmallPhone = screenWidth < 360;
     final bool isTablet = screenWidth >= 600;
 
-    final horizontalPadding = isSmallPhone
+    final double horizontalPadding = isSmallPhone
         ? 16.0
         : isTablet
             ? 32.0
             : 20.0;
 
-    final fieldSpacing = isSmallPhone ? 12.0 : 14.0;
-    final sectionSpacing = isSmallPhone ? 20.0 : 24.0;
+    final double fieldSpacing = isSmallPhone ? 12.0 : 14.0;
+    final double sectionSpacing = isSmallPhone ? 20.0 : 24.0;
 
     return _isLoadingForm
         ? const PublishPetSkeleton()
@@ -342,7 +338,7 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
             backgroundColor: const Color(0xFFF8FAF9),
             appBar: AppBar(
               title: Text(
-                titleScreen,
+                _titleScreen,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
@@ -736,7 +732,7 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
                                     ),
                                   ),
                                   child: Text(
-                                    submitButton,
+                                    _submitButton,
                                     textAlign: TextAlign.center,
                                     style: const TextStyle(
                                       fontSize: 16,

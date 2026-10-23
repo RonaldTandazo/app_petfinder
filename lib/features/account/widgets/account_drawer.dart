@@ -124,7 +124,7 @@ class AccountDrawer extends StatelessWidget {
               children: [
                 ListTile(
                   leading: const Icon(Icons.person_outline_rounded),
-                  title: const Text('Editar Perfil'),
+                  title: const Text('Perfil'),
                   onTap: () {
                     Navigator.pop(context);
                     onEditProfile?.call();
@@ -132,7 +132,7 @@ class AccountDrawer extends StatelessWidget {
                 ),
                 ListTile(
                   leading: const Icon(Icons.lock_outline_rounded),
-                  title: const Text('Seguridad y contraseña'),
+                  title: const Text('Seguridad'),
                   onTap: () {
                     Navigator.pop(context);
                     onSecurity?.call();
@@ -140,7 +140,7 @@ class AccountDrawer extends StatelessWidget {
                 ),
                 ListTile(
                   leading: const Icon(Icons.help_outline_rounded),
-                  title: const Text('Ayuda y soporte'),
+                  title: const Text('Ayuda y Soporte'),
                   onTap: () {
                     Navigator.pop(context);
                     onHelp?.call();

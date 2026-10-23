@@ -1,0 +1,4 @@
+enum HelpFormType {
+  support,
+  feedback,
+}

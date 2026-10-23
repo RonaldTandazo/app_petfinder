@@ -248,7 +248,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
       backgroundColor: const Color(0xFFF8FAF9),
       appBar: AppBar(
         title: Text(
-          'Datos de Perfil',
+          'Perfil',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: isSmallPhone ? 16 : 18,

@@ -58,9 +58,6 @@ class _PublishAdoptionPetScreenState extends State<PublishAdoptionPetScreen> {
   final _phoneMobileController = TextEditingController();
   final _descriptionController = TextEditingController();
 
-  String titleScreen = 'Dar en Adopción';
-  String submitButton =  'Publicar en Adopción';
-
   bool _isLoadingCatalog = true;
   bool _isLoadingPet = false;
   int _mainImageIndex = 0;
@@ -79,6 +76,8 @@ class _PublishAdoptionPetScreenState extends State<PublishAdoptionPetScreen> {
 
   bool get _isLoadingForm => _isLoadingCatalog || _isLoadingPet;
   bool get _isUpdate => widget.petId != null;
+  String get _titleScreen => _isUpdate ? 'Mascota en Adopción' : 'Dar en Adopción';
+  String get _submitButton => _isUpdate ? 'Actualizar Publicación' :  'Publicar en Adopción';
 
   @override
   void initState() {
@@ -87,9 +86,6 @@ class _PublishAdoptionPetScreenState extends State<PublishAdoptionPetScreen> {
     _loadFormCatalogs();
   
     if (_isUpdate) {
-      titleScreen = 'Mascota en Adopción';
-      submitButton = 'Actualizar Adopción';
-
       _loadPet();
     }
   }
@@ -342,14 +338,14 @@ class _PublishAdoptionPetScreenState extends State<PublishAdoptionPetScreen> {
     final bool isSmallPhone = screenWidth < 360;
     final bool isTablet = screenWidth >= 600;
 
-    final horizontalPadding = isSmallPhone
+    final double horizontalPadding = isSmallPhone
         ? 16.0
         : isTablet
             ? 32.0
             : 20.0;
 
-    final sectionSpacing = isSmallPhone ? 20.0 : 24.0;
-    final fieldSpacing = isSmallPhone ? 12.0 : 14.0;
+    final double sectionSpacing = isSmallPhone ? 20.0 : 24.0;
+    final double fieldSpacing = isSmallPhone ? 12.0 : 14.0;
 
     return _isLoadingForm
         ? const PublishPetSkeleton()
@@ -357,7 +353,7 @@ class _PublishAdoptionPetScreenState extends State<PublishAdoptionPetScreen> {
             backgroundColor: const Color(0xFFF8FAF9),
             appBar: AppBar(
               title: Text(
-                titleScreen,
+                _titleScreen,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
@@ -689,7 +685,7 @@ class _PublishAdoptionPetScreenState extends State<PublishAdoptionPetScreen> {
                                 ),
                               ),
                               child: Text(
-                                submitButton,
+                                _submitButton,
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,

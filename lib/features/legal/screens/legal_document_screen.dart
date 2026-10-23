@@ -26,8 +26,16 @@ class LegalDocumentScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_title),
+        title: Text(
+          _title,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
+        ),
         centerTitle: true,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
       body: SafeArea(
         child: Center(

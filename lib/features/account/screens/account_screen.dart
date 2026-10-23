@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:app_petfinder/core/router/auth/auth_routes.dart';
+import 'package:app_petfinder/core/router/help/help_routes.dart';
 import 'package:app_petfinder/core/router/account/account_routes.dart';
 import 'package:app_petfinder/models/pictures/picture_model.dart';
 import 'package:app_petfinder/repository/auth/auth_repository.dart';
@@ -376,6 +377,10 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
     context.push(AccountRoutes.changePassword);
   }
 
+  void _onHelp(){
+    context.push(HelpRoutes.index);
+  }
+
   void _onLogout(){
     _authRepository.logout();
     context.go(AuthRoutes.login);
@@ -412,6 +417,7 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
             avatar: _avatar?.url,
             onEditProfile: _onEditProfile,
             onSecurity: _onSecurity,
+            onHelp: _onHelp,
             onLogout: _onLogout,
           )
         : null,

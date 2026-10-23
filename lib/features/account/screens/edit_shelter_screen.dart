@@ -262,7 +262,7 @@ class _EditShelterScreenState extends State<EditShelterScreen> {
       backgroundColor: const Color(0xFFF8FAF9),
       appBar: AppBar(
         title: Text(
-          'Datos del Refugio',
+          'Refugio',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: isSmallPhone ? 16 : 18,
