@@ -20,17 +20,17 @@ class FollowedPetCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.sizeOf(context).width;
+    final double screenWidth = MediaQuery.sizeOf(context).width;
     final bool isSmallPhone = screenWidth < 360;
     final bool isMobile = screenWidth < 600;
 
     final bool isMale = pet.gender.toUpperCase() == 'MALE' || pet.gender.toUpperCase() == 'MACHO';
 
-    final cardRadius = isMobile ? 12.0 : 20.0;
-    final contentPadding = isSmallPhone ? 6.0 : isMobile ? 8.0 : 12.0;
-    final nameFontSize = isSmallPhone ? 10.0 : isMobile ? 12.0 : 16.0;
-    final detailFontSize = isSmallPhone ? 9.0 : isMobile ? 10.0 : 11.0;
-    final genderIconSize = isSmallPhone ? 16.0 : isMobile ? 18.0 : 20.0;
+    final double cardRadius = isMobile ? 12.0 : 20.0;
+    final double contentPadding = isSmallPhone ? 6.0 : isMobile ? 8.0 : 12.0;
+    final double nameFontSize = isSmallPhone ? 10.0 : isMobile ? 12.0 : 16.0;
+    final double detailFontSize = isSmallPhone ? 9.0 : isMobile ? 10.0 : 11.0;
+    final double genderIconSize = isSmallPhone ? 16.0 : isMobile ? 18.0 : 20.0;
 
     return Material(
       color: Theme.of(context).colorScheme.surface,

@@ -42,8 +42,8 @@ class _AppFullScreenGalleryState extends State<AppFullScreenGallery> {
 
   @override
   Widget build(BuildContext context) {
-    final mediaQuery = MediaQuery.of(context);
-    final screenWidth = mediaQuery.size.width;
+    final MediaQueryData mediaQuery = MediaQuery.of(context);
+    final double screenWidth = mediaQuery.size.width;
     final bool isSmallPhone = screenWidth < 360;
 
     if (widget.pictures.isEmpty) {

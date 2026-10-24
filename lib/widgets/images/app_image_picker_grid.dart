@@ -43,7 +43,7 @@ class _AppImagePickerGridState extends State<AppImagePickerGrid> {
       AppSnackBar.show(
         context,
         title: 'Límite alcanzado',
-        description: 'Ya has seleccionado el máximo de ${widget.maxImages} fotos.',
+        description: 'Ya has seleccionado el máximo de ${widget.maxImages} fotos',
         type: SnackBarType.warning,
       );
       return;
@@ -57,15 +57,28 @@ class _AppImagePickerGridState extends State<AppImagePickerGrid> {
 
   Future<void> _pickImageFromSource(ImageSource source) async {
     try {
+      final int maxAllowed = widget.maxImages - widget.images.length;
+
+      if (maxAllowed <= 0) {
+        if (!mounted) return;
+
+        AppSnackBar.show(
+          context,
+          title: 'Límite alcanzado',
+          description: 'Ya has seleccionado el máximo de ${widget.maxImages} fotos.',
+          type: SnackBarType.warning,
+        );
+        return;
+      }
+
       List<XFile> pickedFiles = [];
 
       if (source == ImageSource.camera) {
         final XFile? photo = await _picker.pickImage(source: ImageSource.camera, imageQuality: 80);
         if (photo != null) pickedFiles.add(photo);
       } else {
-        final int maxAllowed = widget.maxImages - widget.images.length;
         final List<XFile> images = await _picker.pickMultiImage(limit: maxAllowed, imageQuality: 80);
-        if (images.isNotEmpty) pickedFiles.addAll(images);
+        pickedFiles = images.take(maxAllowed).toList();
       }
 
       if (pickedFiles.isEmpty) return;
@@ -82,7 +95,7 @@ class _AppImagePickerGridState extends State<AppImagePickerGrid> {
       final updatedList = List<TempFileModel>.from(widget.images)..addAll(newItems);
       widget.onImagesChanged(updatedList);
 
-      _uploadImagesInChunks(newItems, chunkSize: 5);
+      await _uploadImagesInChunks(newItems, chunkSize: 5);
     } catch (_) {
       if (!mounted) return;
 
@@ -163,27 +176,28 @@ class _AppImagePickerGridState extends State<AppImagePickerGrid> {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.sizeOf(context).width;
+    final double screenWidth = MediaQuery.sizeOf(context).width;
 
     final bool isSmallPhone = screenWidth < 360;
     final bool isTablet = screenWidth >= 600;
 
-    final imageHeight = isSmallPhone
+    final double imageHeight = isSmallPhone
         ? 125.0
         : isTablet
             ? 170.0
             : 150.0;
 
-    final showAddButton = widget.images.length < widget.maxImages;
-    final totalItems = showAddButton
+    final bool showAddButton = widget.images.length < widget.maxImages;
+    final int totalItems = showAddButton
         ? widget.images.length + 1
         : widget.images.length;
 
     return SizedBox(
       height: imageHeight,
-      child: ListView.builder(
+      child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: totalItems,
+        separatorBuilder: (context, index) => const SizedBox(width: 12),
         itemBuilder: (context, index) {
           if (index == widget.images.length && showAddButton) {
             return AppAddImageTile(
@@ -193,7 +207,7 @@ class _AppImagePickerGridState extends State<AppImagePickerGrid> {
             );
           }
 
-          final image = widget.images[index];
+          final TempFileModel image = widget.images[index];
           final bool isMain = widget.enableMainSelection && index == widget.selectedIndex;
 
           return AppImageTile(

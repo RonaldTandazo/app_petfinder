@@ -107,7 +107,7 @@ class AppImageTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.sizeOf(context).width;
+    final double screenWidth = MediaQuery.sizeOf(context).width;
 
     final bool isSmallPhone = screenWidth < 360;
     final bool isTablet = screenWidth >= 600;
@@ -118,11 +118,11 @@ class AppImageTile extends StatelessWidget {
             ? 150.0
             : 130.0;
 
-    final iconSize = isSmallPhone ? 14.0 : 16.0;
-    final iconPadding = isSmallPhone ? 4.0 : 5.0;
-    final badgeFontSize = isSmallPhone ? 9.0 : 10.0;
-    final borderRadius = isSmallPhone ? 12.0 : 16.0;
-    final badgeBottom = isSmallPhone ? 6.0 : 8.0;
+    final double iconSize = isSmallPhone ? 14.0 : 16.0;
+    final double iconPadding = isSmallPhone ? 4.0 : 5.0;
+    final double badgeFontSize = isSmallPhone ? 9.0 : 10.0;
+    final double borderRadius = isSmallPhone ? 12.0 : 16.0;
+    final double badgeBottom = isSmallPhone ? 6.0 : 8.0;
 
     return SizedBox(
       width: tileWidth,

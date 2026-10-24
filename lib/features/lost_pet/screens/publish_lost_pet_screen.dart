@@ -318,7 +318,7 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.sizeOf(context).width;
+    final double screenWidth = MediaQuery.sizeOf(context).width;
 
     final bool isSmallPhone = screenWidth < 360;
     final bool isTablet = screenWidth >= 600;

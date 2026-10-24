@@ -1,7 +1,16 @@
+import 'package:app_petfinder/repository/help/help_repository.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:app_petfinder/widgets/images/app_image_picker_grid.dart';
 import 'package:app_petfinder/enums/help/help_form_type.dart';
 import 'package:app_petfinder/models/storage/temp_file_model.dart';
+import 'package:app_petfinder/core/network/api_exception.dart';
+import 'package:app_petfinder/core/network/api_response.dart';
+import 'package:app_petfinder/core/utils/api_error_handler.dart';
+import 'package:app_petfinder/core/utils/api_success_handler.dart';
+import 'package:app_petfinder/enums/snackbar/snackbar_type.dart';
+import 'package:app_petfinder/widgets/loaders/app_loading_overlay.dart';
+import 'package:app_petfinder/widgets/snackbars/app_snackbar.dart';
 
 
 class HelpFormScreen extends StatefulWidget {
@@ -17,17 +26,20 @@ class HelpFormScreen extends StatefulWidget {
 }
 
 class _HelpFormScreenState extends State<HelpFormScreen> {
+  final HelpRepository _helpRepository = HelpRepository();
+  
   final _formKey = GlobalKey<FormState>();
   final _subjectController = TextEditingController();
   final _commentController = TextEditingController();
 
+
   List<TempFileModel> _selectedImages = [];
-  int _mainImageIndex = 0;
 
   String? _selectedCategory;
 
   bool get _isSupport => widget.type == HelpFormType.support;
   String get _titleScreen => _isSupport ? 'Centro de Ayuda' : 'Comentarios y Sugerencias';
+  String get _typeHint => _isSupport ? 'Soporte':'Feedback';
 
   @override
   void dispose() {
@@ -36,19 +48,76 @@ class _HelpFormScreenState extends State<HelpFormScreen> {
     super.dispose();
   }
 
-  Future<void> _submit() async {
-    if (!_formKey.currentState!.validate()) return;
+  Future<void> _submitForm() async {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
 
-    // Todavía no se envían datos al backend.
-    // Aquí conectaremos el repositorio y la subida de imágenes.
+    final bool hasUploading = _selectedImages.any((img) => img.isUploading);
+    if (hasUploading) {
+      AppSnackBar.show(
+        context,
+        title: 'Imágenes subiendo',
+        description: 'Por favor espera a que terminen de subirse las fotografías.',
+        type: SnackBarType.warning,
+      );
+      return;
+    }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'El envío todavía no está disponible.',
-        ),
-      ),
+    final List<Map<String, dynamic>> photosPayload = _selectedImages.asMap().entries.map((entry) {
+      final int index = entry.key;
+      final TempFileModel image = entry.value;
+
+      return image.toFinalPayload(
+        isMain: false,
+        sortOrder: index,
+      );
+    }).toList();
+
+    String? subject;
+    if(_isSupport){
+      subject = _subjectController.text.trim().isEmpty
+        ? null
+        : _subjectController.text.trim();
+    } else{
+      subject = _selectedCategory?.trim();
+    }
+
+    final Map<String, dynamic> payload = {
+      'subject': subject,
+      'comment': _commentController.text.trim().isEmpty
+          ? null
+          : _commentController.text.trim(),
+      'photos': photosPayload,
+    };
+
+    AppLoadingOverlay.show(
+      context,
+      title: 'Registrando $_typeHint...',
+      description: 'Estamos registrando el $_typeHint'
     );
+
+    ApiResponse? response;
+
+    try {
+      if(_isSupport){
+        response = await _helpRepository.support(payload);
+      }else{
+        response = await _helpRepository.feedback(payload);
+      }
+      
+      if (!mounted) return;
+
+      ApiSuccessHandler.handle(
+        context,
+        title: '$_typeHint Registrado!',
+        description: response.message
+      );
+
+      context.pop(true);
+    } on ApiException catch (e) {
+      ApiErrorHandler.handle(context, e);
+    } finally {
+      if(mounted) AppLoadingOverlay.hide();
+    }
   }
 
   @override
@@ -252,23 +321,16 @@ class _HelpFormScreenState extends State<HelpFormScreen> {
 
                         AppImagePickerGrid(
                           images: _selectedImages,
-                          enableMainSelection: true,
-                          selectedIndex: _mainImageIndex,
                           onImagesChanged: (updatedList) {
                             setState(() {
                               _selectedImages = updatedList;
-                            });
-                          },
-                          onSelectMain: (newIndex) {
-                            setState(() {
-                              _mainImageIndex = newIndex;
                             });
                           },
                         ),
 
                         const SizedBox(height: 28),
                         FilledButton.icon(
-                          onPressed: _submit,
+                          onPressed: _submitForm,
                           icon: const Icon(
                             Icons.send_rounded,
                           ),

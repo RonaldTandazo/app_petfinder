@@ -100,23 +100,23 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final screenWidth = MediaQuery.sizeOf(context).width;
+    final double screenWidth = MediaQuery.sizeOf(context).width;
 
     final bool isSmallPhone = screenWidth < 360;
     final bool isTablet = screenWidth >= 600;
 
-    final horizontalPadding = isSmallPhone
+    final double horizontalPadding = isSmallPhone
         ? 16.0
         : isTablet
             ? 32.0
             : 24.0;
 
-    final contentMaxWidth = isTablet ? 420.0 : 480.0;
+    final double contentMaxWidth = isTablet ? 420.0 : 480.0;
 
-    final iconSize = isSmallPhone ? 52.0 : 64.0;
-    final titleSize = isSmallPhone ? 26.0 : 30.0;
-    final sectionSpacing = isSmallPhone ? 24.0 : 32.0;
-    final fieldSpacing = isSmallPhone ? 12.0 : 16.0;
+    final double iconSize = isSmallPhone ? 52.0 : 64.0;
+    final double titleSize = isSmallPhone ? 26.0 : 30.0;
+    final double sectionSpacing = isSmallPhone ? 24.0 : 32.0;
+    final double fieldSpacing = isSmallPhone ? 12.0 : 16.0;
 
     return Scaffold(
       body: SafeArea(

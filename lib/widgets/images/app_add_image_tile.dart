@@ -14,24 +14,24 @@ class AppAddImageTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.sizeOf(context).width;
+    final double screenWidth = MediaQuery.sizeOf(context).width;
 
     final bool isSmallPhone = screenWidth < 360;
     final bool isTablet = screenWidth >= 600;
 
-    final tileWidth = isSmallPhone
+    final double tileWidth = isSmallPhone
         ? 105.0
         : isTablet
             ? 150.0
             : 130.0;
 
-    final iconSize = isSmallPhone
+    final double iconSize = isSmallPhone
         ? 26.0
         : isTablet
             ? 36.0
             : 32.0;
 
-    final counterFontSize = isSmallPhone ? 12.0 : 13.0;
+    final double counterFontSize = isSmallPhone ? 12.0 : 13.0;
 
     return Material(
       color: Colors.transparent,

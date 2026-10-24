@@ -10,7 +10,7 @@ class FileRepository extends BaseRepository {
     final newItems = items.where((item) => !item.isExisting).toList();
 
     if (newItems.isEmpty) {
-      return ApiResponse(ok: true, message: 'Imágenes Subidad', data: {'files': []}, code: 200);
+      return ApiResponse(ok: true, message: 'Imágenes Subidas', data: {'files': []}, code: 200);
     }
 
     final formData = FormData();

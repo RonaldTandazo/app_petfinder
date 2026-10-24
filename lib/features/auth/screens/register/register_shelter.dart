@@ -245,22 +245,22 @@ class _RegisterShelterScreenState extends State<RegisterShelterScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final screenWidth = MediaQuery.sizeOf(context).width;
+    final double screenWidth = MediaQuery.sizeOf(context).width;
 
     final bool isSmallPhone = screenWidth < 360;
     final bool isTablet = screenWidth >= 600;
     final bool useTwoColumns = screenWidth >= 480;
 
-    final horizontalPadding = isSmallPhone
+    final double horizontalPadding = isSmallPhone
         ? 16.0
         : isTablet
             ? 32.0
             : 24.0;
 
-    final contentMaxWidth = isTablet ? 600.0 : 480.0;
-    final iconSize = isSmallPhone ? 48.0 : 56.0;
-    final sectionSpacing = isSmallPhone ? 24.0 : 32.0;
-    final fieldSpacing = isSmallPhone ? 12.0 : 16.0;
+    final double contentMaxWidth = isTablet ? 600.0 : 480.0;
+    final double iconSize = isSmallPhone ? 48.0 : 56.0;
+    final double sectionSpacing = isSmallPhone ? 24.0 : 32.0;
+    final double fieldSpacing = isSmallPhone ? 12.0 : 16.0;
 
     return Scaffold(
       body: SafeArea(

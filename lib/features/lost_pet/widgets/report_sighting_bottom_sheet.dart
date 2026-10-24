@@ -65,11 +65,14 @@ class _ReportSightingBottomSheetState extends State<ReportSightingBottomSheet> {
       return;
     }
 
-    final photosPayload = _selectedImages.asMap().entries.map((entry) {
-      return {
-        'path_temp': entry.key,
-        'is_main': false,
-      };
+    final List<Map<String, dynamic>> photosPayload = _selectedImages.asMap().entries.map((entry) {
+      final int index = entry.key;
+      final TempFileModel image = entry.value;
+
+      return image.toFinalPayload(
+        isMain: false,
+        sortOrder: index,
+      );
     }).toList();
 
     final Map<String, dynamic> payload = {
@@ -85,14 +88,14 @@ class _ReportSightingBottomSheetState extends State<ReportSightingBottomSheet> {
 
     Navigator.pop(context, payload);
   }
-
   
   @override
   Widget build(BuildContext context) {
-    final mediaQuery = MediaQuery.of(context);
-    final screenWidth = mediaQuery.size.width;
-    final screenHeight = mediaQuery.size.height;
-    final bottomInset = mediaQuery.viewInsets.bottom;
+    final MediaQueryData mediaQuery = MediaQuery.of(context);
+    
+    final double screenWidth = mediaQuery.size.width;
+    final double screenHeight = mediaQuery.size.height;
+    final double bottomInset = mediaQuery.viewInsets.bottom;
 
     final bool isSmallPhone = screenWidth < 360;
     final bool isTablet = screenWidth >= 600;
@@ -183,7 +186,6 @@ class _ReportSightingBottomSheetState extends State<ReportSightingBottomSheet> {
                       children: [
                         AppImagePickerGrid(
                           images: _selectedImages,
-                          enableMainSelection: false,
                           onImagesChanged: (updatedList) {
                             setState(() {
                               _selectedImages = updatedList;

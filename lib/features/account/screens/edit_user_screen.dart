@@ -235,14 +235,14 @@ class _EditUserScreenState extends State<EditUserScreen> {
   
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.sizeOf(context).width;
+    final double screenWidth = MediaQuery.sizeOf(context).width;
     final bool isSmallPhone = screenWidth < 360;
     final bool useTwoColumns = screenWidth >= 480;
 
-    final horizontalPadding = isSmallPhone ? 12.0 : 20.0;
-    final fieldSpacing = isSmallPhone ? 12.0 : 16.0;
-    final sectionSpacing = isSmallPhone ? 20.0 : 24.0;
-    final verticalFieldGap = useTwoColumns ? 14.0 : 20.0;
+    final double horizontalPadding = isSmallPhone ? 12.0 : 20.0;
+    final double fieldSpacing = isSmallPhone ? 12.0 : 16.0;
+    final double sectionSpacing = isSmallPhone ? 20.0 : 24.0;
+    final double verticalFieldGap = useTwoColumns ? 14.0 : 20.0;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAF9),
