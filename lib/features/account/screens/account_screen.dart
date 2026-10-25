@@ -246,11 +246,8 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
   Future<bool> _confirmDelete() async {
     final bool? confirm = await AppConfirmDialog.show(
       context: context,
-      title: 'Eliminar publicación',
-      message: 'Esta acción eliminará esta publicación. \n¿Desea continuar?',
-      cancelText: 'No, cancelar',
-      confirmText: 'Sí, eliminar',
-      confirmColor: Colors.redAccent,
+      title: 'Eliminar Publicación',
+      message: 'Esta acción eliminará esta publicación. \n¿Desea continuar?'
     );
 
     return confirm ?? false;
@@ -298,12 +295,12 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
   }
 
   Future<void> _handlePetDelete(int id, PetSource source) async {
-    final confirmed = await _confirmDelete();
-    if (!confirmed) return;
+    final bool confirmed = await _confirmDelete();
+    if (!confirmed || !mounted) return;
 
     AppLoadingOverlay.show(
       context,
-      title: 'Eliminando publicación...',
+      title: 'Eliminando Publicación...',
       description: 'Estamos quitando tu publicación, por favor espera un momento',
     );
 
@@ -369,12 +366,12 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
     }
   }
 
-  void _onEditProfile(){
+  void _onProfile(){
     isShelter ? context.push(AccountRoutes.editShelter) : context.push(AccountRoutes.editUser);
   }
 
-  void _onSecurity(){
-    context.push(AccountRoutes.changePassword);
+  void _onManagement(){
+    context.push(AccountRoutes.management);
   }
 
   void _onHelp(){
@@ -409,14 +406,23 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
     final double tabFontSize = isSmallPhone ? 11 : isMobile ? 12 : 14;
 
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.edit),
+            tooltip: 'Perfil',
+            onPressed: () {
+              _onProfile();
+            }
+          ),
+        ],
+      ),
       drawer: isMyProfile
         ? AccountDrawer(
             name: _name,
             email: _email,
             avatar: _avatar?.url,
-            onEditProfile: _onEditProfile,
-            onSecurity: _onSecurity,
+            onManagement: _onManagement,
             onHelp: _onHelp,
             onLogout: _onLogout,
           )

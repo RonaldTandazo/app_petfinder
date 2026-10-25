@@ -11,8 +11,8 @@ class AppConfirmDialog extends StatelessWidget {
     super.key,
     required this.title,
     required this.message,
-    this.confirmText = 'Eliminar',
-    this.cancelText = 'Cancelar',
+    this.confirmText = 'Sí, Eliminar',
+    this.cancelText = 'No, Cancelar',
     this.confirmColor = Colors.red,
   });
 

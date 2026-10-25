@@ -49,4 +49,13 @@ class AccountRepository extends BaseRepository {
 
     return response;
   }
+
+  Future<ApiResponse<Map<String, dynamic>>> delete() async {
+    final response = await safeCall<Map<String, dynamic>>(
+      () => api.delete('$_prefix/delete'),
+      fromJson: (json) => json as Map<String, dynamic>,
+    );
+
+    return response;
+  }
 }

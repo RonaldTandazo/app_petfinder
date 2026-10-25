@@ -273,7 +273,7 @@ class _PublishAdoptionPetScreenState extends State<PublishAdoptionPetScreen> {
 
     AppLoadingOverlay.show(
       context,
-      title: !_isUpdate ? 'Registrando adopción...' : 'Actualizando adopción...',
+      title: !_isUpdate ? 'Registrando Adopción...' : 'Actualizando Adopción...',
       description: !_isUpdate ? 'Estamos enviando la adopción a la comunidad' : 'Estamos actualizando la adopción en la comunidad',
     );
 

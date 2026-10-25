@@ -5,8 +5,7 @@ class AccountDrawer extends StatelessWidget {
   final String email;
   final String? avatar;
   final VoidCallback? onProfileTap;
-  final VoidCallback? onEditProfile;
-  final VoidCallback? onSecurity;
+  final VoidCallback? onManagement;
   final VoidCallback? onHelp;
   final VoidCallback? onLogout;
 
@@ -16,8 +15,7 @@ class AccountDrawer extends StatelessWidget {
     required this.email,
     this.avatar,
     this.onProfileTap,
-    this.onEditProfile,
-    this.onSecurity,
+    this.onManagement,
     this.onHelp,
     this.onLogout,
   });
@@ -123,19 +121,11 @@ class AccountDrawer extends StatelessWidget {
               padding: EdgeInsets.zero,
               children: [
                 ListTile(
-                  leading: const Icon(Icons.person_outline_rounded),
-                  title: const Text('Perfil'),
+                  leading: const Icon(Icons.account_circle_outlined),
+                  title: const Text('Cuenta'),
                   onTap: () {
                     Navigator.pop(context);
-                    onEditProfile?.call();
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.lock_outline_rounded),
-                  title: const Text('Seguridad'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    onSecurity?.call();
+                    onManagement?.call();
                   },
                 ),
                 ListTile(

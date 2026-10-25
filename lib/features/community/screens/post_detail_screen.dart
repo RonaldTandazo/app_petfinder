@@ -506,7 +506,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Eliminar comentario'),
+        title: const Text('Eliminar Comentario'),
         content: const Text('¿Seguro que deseas eliminar este comentario?'),
         actions: [
           TextButton(
@@ -587,7 +587,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Eliminar publicación'),
+        title: const Text('Eliminar Publicación'),
         content: const Text('¿Seguro que deseas eliminar esta publicación? Esta acción no se puede deshacer.'),
         actions: [
           TextButton(

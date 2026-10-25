@@ -258,7 +258,7 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
 
     AppLoadingOverlay.show(
       context,
-      title: !_isUpdate ? 'Registrando reporte...' : 'Actualizando reporte...',
+      title: !_isUpdate ? 'Registrando Reporte...' : 'Actualizando Reporte...',
       description: !_isUpdate ? 'Estamos enviando la alerta a la comunidad' : 'Estamos actualizando la alerta en la comunidad',
     );
 

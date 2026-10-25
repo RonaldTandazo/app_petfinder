@@ -37,11 +37,8 @@ class AppSightingsList extends StatelessWidget {
   Future<void> _confirmDelete(BuildContext context, SightReportModel sight) async {
     final bool? confirm = await AppConfirmDialog.show(
       context: context,
-      title: 'Eliminar avistamiento',
-      message: 'Esta acción quitará el reporte de avistamiento. \n¿Desea continuar?',
-      cancelText: 'No, cancelar',
-      confirmText: 'Sí, eliminar',
-      confirmColor: Colors.redAccent,
+      title: 'Eliminar Avistamiento',
+      message: 'Esta acción eliminará el reporte de avistamiento. \n¿Desea continuar?'
     );
 
     if (confirm == true) onSightingDeleted(sight.id);
@@ -128,7 +125,7 @@ class AppSightingsList extends StatelessWidget {
                     size: iconSize,
                     color: Colors.redAccent,
                   ),
-                  tooltip: 'Eliminar reporte',
+                  tooltip: 'Eliminar Reporte',
                   onPressed: () => _confirmDelete(context, sight),
                   constraints: const BoxConstraints(
                     minWidth: 36,

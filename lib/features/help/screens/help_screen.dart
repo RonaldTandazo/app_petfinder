@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:app_petfinder/core/router/legal/legal_routes.dart';
 import 'package:app_petfinder/core/router/help/help_routes.dart';
-import 'package:app_petfinder/features/help/widgets/help_option.dart';
-import 'package:app_petfinder/models/help/help_option_model.dart';
+import 'package:app_petfinder/widgets/cards/card_option.dart';
+import 'package:app_petfinder/models/widgets/card_option_model.dart';
 
 class HelpScreen extends StatelessWidget {
   const HelpScreen({super.key});
@@ -29,7 +29,7 @@ class HelpScreen extends StatelessWidget {
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final width = constraints.maxWidth;
+            final double width = constraints.maxWidth;
 
             final bool isSmallPhone = width < 360;
             final bool isTablet = width >= 600;
@@ -45,26 +45,26 @@ class HelpScreen extends StatelessWidget {
 
             final double spacing = isSmallPhone ? 12 : 16;
 
-            final List<HelpOptionData> options = [
-              HelpOptionData(
+            final List<CardOptionModel> options = [
+              CardOptionModel(
                 icon: Icons.description_outlined,
                 title: 'Términos y Condiciones',
                 subtitle: 'Consulta las condiciones de uso de PetFinder',
                 onTap: () => context.push(LegalRoutes.terms),
               ),
-              HelpOptionData(
+              CardOptionModel(
                 icon: Icons.privacy_tip_outlined,
                 title: 'Política de Privacidad',
                 subtitle: 'Conoce cómo se gestionan tus datos personales',
                 onTap: () => context.push(LegalRoutes.privacy),
               ),
-              HelpOptionData(
+              CardOptionModel(
                 icon: Icons.bug_report_outlined,
                 title: 'Centro de Ayuda',
                 subtitle: 'Reporta errores o problemas con la aplicación',
                 onTap: () => context.push(HelpRoutes.support),
               ),
-              HelpOptionData(
+              CardOptionModel(
                 icon: Icons.lightbulb_outline_rounded,
                 title: 'Comentarios y Sugerencias',
                 subtitle: 'Comparte ideas para mejorar PetFinder',
@@ -131,9 +131,9 @@ class HelpScreen extends StatelessWidget {
                             mainAxisExtent: 120,
                           ),
                           itemBuilder: (context, index) {
-                            final HelpOptionData option = options[index];
+                            final CardOptionModel option = options[index];
 
-                            return HelpOption(
+                            return CardOption(
                               icon: option.icon,
                               title: option.title,
                               subtitle: option.subtitle,
@@ -144,7 +144,7 @@ class HelpScreen extends StatelessWidget {
                         )
                       else
                         ...options.map(
-                          (option) => HelpOption(
+                          (option) => CardOption(
                             icon: option.icon,
                             title: option.title,
                             subtitle: option.subtitle,

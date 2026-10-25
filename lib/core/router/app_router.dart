@@ -4,8 +4,9 @@ import 'package:app_petfinder/core/router/auth/auth_routes.dart';
 import 'package:app_petfinder/core/router/main/main_routes.dart';
 import 'package:app_petfinder/core/router/adoption/adoption_routes.dart';
 import 'package:app_petfinder/core/router/lost_pet/lost_pet_routes.dart';
-import 'package:app_petfinder/core/router/account/account_routes.dart';
 import 'package:app_petfinder/core/router/community/community_routes.dart';
+import 'package:app_petfinder/core/router/account/account_routes.dart';
+import 'package:app_petfinder/core/router/management/management_routes.dart';
 import 'package:app_petfinder/core/router/legal/legal_routes.dart';
 import 'package:app_petfinder/core/router/help/help_routes.dart';
 
@@ -21,6 +22,7 @@ final appRouter = GoRouter(
     ...LostPetRoutes.getRoutes(),
     ...CommunityRoutes.getRoutes(),
     ...AccountRoutes.getRoutes(),
+    ...ManagementRoutes.getRoutes(),
     ...LegalRoutes.getRoutes(),
     ...HelpRoutes.getRoutes(),
   ],

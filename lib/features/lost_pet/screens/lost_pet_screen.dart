@@ -153,7 +153,7 @@ class _LostPetScreenState extends State<LostPetScreen> {
   Future<void> _submitSighting(Map<String, dynamic> payload) async {
     AppLoadingOverlay.show(
       context,
-      title: 'Registrando avistamiento...',
+      title: 'Registrando Avistamiento...',
       description: 'Estamos registrado tu reporte, por favor espera un momento',
     );
 
@@ -184,7 +184,7 @@ class _LostPetScreenState extends State<LostPetScreen> {
   Future<void> _deleteEvent(int eventId) async {
     AppLoadingOverlay.show(
       context,
-      title: 'Eliminando avistamiento...',
+      title: 'Eliminando Avistamiento...',
       description: 'Estamos quitando tu reporte, por favor espera un momento',
     );
 
