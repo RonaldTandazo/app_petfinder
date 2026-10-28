@@ -108,7 +108,7 @@ class _HelpFormScreenState extends State<HelpFormScreen> {
 
       ApiSuccessHandler.handle(
         context,
-        title: '$_typeHint Registrado!',
+        title: '$_typeHint Registrado',
         description: response.message
       );
 

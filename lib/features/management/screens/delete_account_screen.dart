@@ -1,10 +1,9 @@
 
 import 'package:app_petfinder/core/network/api_exception.dart';
-import 'package:app_petfinder/core/network/api_response.dart';
 import 'package:app_petfinder/core/utils/api_error_handler.dart';
 import 'package:app_petfinder/core/utils/api_success_handler.dart';
 import 'package:app_petfinder/features/management/widgets/information_item.dart';
-import 'package:app_petfinder/repository/account/account_repository.dart';
+import 'package:app_petfinder/repository/management/management_repository.dart';
 import 'package:app_petfinder/widgets/dialog/app_confirm_dialog.dart';
 import 'package:app_petfinder/widgets/loaders/app_loading_overlay.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +21,7 @@ class DeleteAccountScreen extends StatefulWidget {
 }
 
 class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
-  final AccountRepository _accountRepository = AccountRepository();
+  final ManagementRepository _managementRepository = ManagementRepository();
 
   @override
   Widget build(BuildContext context) {
@@ -103,7 +102,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
             shape: BoxShape.circle,
           ),
           child: Icon(
-            Icons.person_remove_outlined,
+            Icons.person_off_outlined,
             size: isSmallPhone ? 38 : 46,
             color: colors.onErrorContainer,
           ),
@@ -372,10 +371,10 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
     );
 
     try {
-      final response = await _accountRepository.delete();
+      final response = await _managementRepository.deleteAccount();
       if (!mounted) return;
 
-      ApiSuccessHandler.handle(context, title: 'Solicitud Ingresada!', description: response.message);
+      ApiSuccessHandler.handle(context, title: 'Solicitud Ingresada', description: response.message);
     } on ApiException catch (e) {
       ApiErrorHandler.handle(context, e);
     } finally {

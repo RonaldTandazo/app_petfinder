@@ -329,7 +329,7 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
           break;
       }
 
-      ApiSuccessHandler.handle(context, title: 'Publicación Eliminada!', description: response.message);
+      ApiSuccessHandler.handle(context, title: 'Publicación Eliminada', description: response.message);
     } on ApiException catch (e) {
       ApiErrorHandler.handle(context, e);
     } finally {

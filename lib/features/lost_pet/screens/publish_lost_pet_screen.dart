@@ -275,7 +275,7 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
 
       ApiSuccessHandler.handle(
         context,
-        title: !_isUpdate ? '¡Reporte publicado!' : '¡Reporte actualizado!',
+        title: !_isUpdate ? 'Reporte Publicado' : 'Reporte Actualizado',
         description: response.message
       );
 

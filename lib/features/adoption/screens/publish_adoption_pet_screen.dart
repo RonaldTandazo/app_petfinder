@@ -290,7 +290,7 @@ class _PublishAdoptionPetScreenState extends State<PublishAdoptionPetScreen> {
 
       ApiSuccessHandler.handle(
         context,
-        title: !_isUpdate ? '¡Adopción publicada!' : 'Adopción actualizada!',
+        title: !_isUpdate ? 'Adopción Publicada' : 'Adopción Actualizada',
         description: response.message
       );
 

@@ -284,13 +284,13 @@ class _PostFormScreenState extends State<PostFormScreen> {
         await _communityRepository.updatePost(widget.post!.id, payload);
         if (!mounted) return;
 
-        ApiSuccessHandler.handle(context, title: '¡Publicación actualizada!');
+        ApiSuccessHandler.handle(context, title: 'Publicación Actualizada');
         context.pop(true);
       } else {
         final response = await _communityRepository.createPost(payload);
         if (!mounted) return;
 
-        ApiSuccessHandler.handle(context, title: '¡Publicación creada!', description: response.message);
+        ApiSuccessHandler.handle(context, title: 'Publicación Creada', description: response.message);
         context.pop(true);
       }
     } on ApiException catch (e) {

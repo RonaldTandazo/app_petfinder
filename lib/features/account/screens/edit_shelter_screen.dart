@@ -207,7 +207,7 @@ class _EditShelterScreenState extends State<EditShelterScreen> {
 
       ApiSuccessHandler.handle(
         context,
-        title: 'Refugio actualizado',
+        title: 'Perfil Actualizado',
         description: 'Tus datos se actualizaron correctamente',
       );
 

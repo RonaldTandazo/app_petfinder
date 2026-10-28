@@ -136,8 +136,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
       ApiSuccessHandler.handle(
         context,
-        title: 'Contraseña actualizada',
-        description: 'Tu contraseña se cambió correctamente.',
+        title: 'Contraseña Actualizada',
+        description: 'Tu contraseña se cambió correctamente',
       );
     } on ApiException catch (e) {
       ApiErrorHandler.handle(context, e);

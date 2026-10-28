@@ -193,7 +193,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
 
       ApiSuccessHandler.handle(
         context,
-        title: 'Perfil actualizado',
+        title: 'Perfil Actualizado',
         description: 'Tus datos se actualizaron correctamente.',
       );
 

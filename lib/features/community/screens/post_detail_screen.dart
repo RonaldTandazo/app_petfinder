@@ -495,7 +495,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         }
       });
 
-      ApiSuccessHandler.handle(context, title: 'Comentario actualizado', description: response.message);
+      ApiSuccessHandler.handle(context, title: 'Comentario Actualizado', description: response.message);
     } on ApiException catch (e) {
       if (!mounted) return;
       ApiErrorHandler.handle(context, e);
@@ -562,7 +562,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         widget.onPostChanged?.call(updatedPost);
       }
 
-      ApiSuccessHandler.handle(context, title: 'Comentario eliminado');
+      ApiSuccessHandler.handle(context, title: 'Comentario Eliminado');
     } on ApiException catch (e) {
       if (!mounted) return;
       ApiErrorHandler.handle(context, e);
@@ -609,7 +609,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       await _communityRepository.deletePost(post.id);
       if (!mounted) return;
 
-      ApiSuccessHandler.handle(context, title: 'Publicación eliminada');
+      ApiSuccessHandler.handle(context, title: 'Publicación Eliminada');
       context.pop(true);
     } on ApiException catch (e) {
       if (!mounted) return;

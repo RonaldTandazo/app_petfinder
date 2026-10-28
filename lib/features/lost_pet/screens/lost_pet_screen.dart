@@ -201,7 +201,7 @@ class _LostPetScreenState extends State<LostPetScreen> {
         }
       });
 
-      ApiSuccessHandler.handle(context, title: '¡Reporte Eliminado!', description: response.message);
+      ApiSuccessHandler.handle(context, title: 'Reporte Eliminado', description: response.message);
     } on ApiException catch (e) {
       ApiErrorHandler.handle(context, e);
     } finally {
