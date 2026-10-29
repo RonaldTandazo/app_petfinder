@@ -1,5 +1,6 @@
 import 'package:app_petfinder/core/router/legal/legal_routes.dart';
 import 'package:app_petfinder/models/legal/legal_document_model.dart';
+import 'package:app_petfinder/widgets/dialog/app_confirm_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:app_petfinder/core/utils/api_error_handler.dart';
@@ -26,6 +27,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool _isLoading = false;
   bool _obscurePassword = true;
+  String? _accountType;
+  bool _isAccountDeletionActive = false;
+  bool _cancelAccountDeletion = false;
 
   @override
   void dispose() {
@@ -34,7 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _submitLogin([String? accountType]) async {
+  void _submitLogin() async {
     if (!_formKey.currentState!.validate()) return;
 
     FocusScope.of(context).unfocus();
@@ -43,7 +47,9 @@ class _LoginScreenState extends State<LoginScreen> {
     final Map<String, dynamic> payload = {
       'email': _emailController.text.trim(),
       'password': _passwordController.text,
-      if (accountType != null) 'account_type': accountType,
+      if (_accountType != null) 'account_type': _accountType,
+      'is_account_deletion_active': _isAccountDeletionActive,
+      'cancel_account_deletion': _cancelAccountDeletion
     };
 
     try {
@@ -59,6 +65,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (data['requires_account_selection'] == true) {
         _showAccountSelectionModal();
+        return;
+      }
+
+      if (data['exists_account_deletion'] == true) {
+        setState(() => _isAccountDeletionActive = true);
+
+        _showAccountDeletionModal(response.message);
         return;
       }
 
@@ -87,10 +100,29 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _showAccountSelectionModal() async {
-    final type = await AccountSelectionBottomSheet.show(context);
+    final String? type = await AccountSelectionBottomSheet.show(context);
     if (type == null) return;
 
-    _submitLogin(type);
+    setState(() => _accountType = type);
+
+    _submitLogin();
+  }
+
+  void _showAccountDeletionModal(String message) async {
+    final bool? confirm = await AppConfirmDialog.show(
+      context: context,
+      titleIcon: Icons.info_outline,
+      titleIconColor: Colors.orange,
+      title: 'Solicitud Activa',
+      message: message,
+      cancelText: 'No, Mantenerla',
+      confirmText: 'Sí, Cancelarla',
+      confirmColor: Colors.teal
+    );
+
+    setState(() => _cancelAccountDeletion = true);
+
+    if(confirm == true) _submitLogin();
   }
 
   void _showRegisterTypeModal(BuildContext context) async {

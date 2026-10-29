@@ -247,7 +247,7 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
     final bool? confirm = await AppConfirmDialog.show(
       context: context,
       title: 'Eliminar Publicación',
-      message: 'Esta acción eliminará esta publicación. \n¿Desea continuar?'
+      message: 'Esta acción eliminará esta publicación. \n\n¿Deseas continuar?'
     );
 
     return confirm ?? false;

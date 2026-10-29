@@ -30,3 +30,7 @@ IconData getGenderIcon(bool isMale) {
 Color getGenderColor(bool isMale) {
   return isMale ? Colors.blue : Colors.pink;
 }
+
+Color softenColor(Color color) {
+  return color.withValues(alpha: 0.2);
+}

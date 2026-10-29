@@ -1,12 +1,14 @@
 
 import 'package:app_petfinder/core/network/api_exception.dart';
+import 'package:app_petfinder/core/router/auth/auth_routes.dart';
 import 'package:app_petfinder/core/utils/api_error_handler.dart';
-import 'package:app_petfinder/core/utils/api_success_handler.dart';
+import 'package:app_petfinder/core/utils/storage_service.dart';
 import 'package:app_petfinder/features/management/widgets/information_item.dart';
 import 'package:app_petfinder/repository/management/management_repository.dart';
 import 'package:app_petfinder/widgets/dialog/app_confirm_dialog.dart';
 import 'package:app_petfinder/widgets/loaders/app_loading_overlay.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class DeleteAccountScreen extends StatefulWidget {
   final Future<void> Function()? onDeleteAccount;
@@ -361,7 +363,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
   }
 
   Future<void> _handleDelete() async {
-    final bool confirmed = await _confirmDelete();
+    final bool confirmed = await _confirmDeletion();
     if (!confirmed || !mounted) return;
 
     AppLoadingOverlay.show(
@@ -370,25 +372,53 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
       description: 'Estamos ingresando tu solicitud, por favor espera un momento',
     );
 
+    String? deletionMessage;
+
     try {
       final response = await _managementRepository.deleteAccount();
       if (!mounted) return;
 
-      ApiSuccessHandler.handle(context, title: 'Solicitud Ingresada', description: response.message);
+      if(!response.ok) return;
+
+      StorageService.cleanSessionStorage();
+
+      deletionMessage = response.message;
     } on ApiException catch (e) {
       ApiErrorHandler.handle(context, e);
     } finally {
       if(mounted) AppLoadingOverlay.hide();
     }
+
+    if(mounted && deletionMessage != null) {
+      final bool close = await _deletionMessage(deletionMessage);
+      if(close && mounted){
+        context.go(AuthRoutes.login);
+      }
+    }
   }
 
-  Future<bool> _confirmDelete() async {
+  Future<bool> _confirmDeletion() async {
     final bool? confirm = await AppConfirmDialog.show(
       context: context,
       title: 'Eliminar Cuenta',
-      message: '¿Estás seguro de que deseas solicitar la eliminación de tu cuenta? \nRevisa las consecuencias antes de continuar.'
+      message: '¿Estás seguro de que deseas solicitar la eliminación de tu cuenta? \n\nRevisa las consecuencias antes de continuar.'
     );
 
     return confirm ?? false;
+  }
+
+  Future<bool> _deletionMessage(String message) async {
+    final bool? confirm = await AppConfirmDialog.show(
+      context: context,
+      titleIcon: Icons.check_circle,
+      titleIconColor: Colors.teal,
+      title: 'Solicitud Ingresada',
+      message: message,
+      showCancel: false,
+      confirmText: 'Aceptar',
+      confirmColor: Colors.teal
+    );
+
+    return confirm ?? true;
   }
 }

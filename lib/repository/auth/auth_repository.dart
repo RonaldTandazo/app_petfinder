@@ -1,7 +1,6 @@
 import 'package:app_petfinder/core/network/api_response.dart';
 import 'package:app_petfinder/core/repository/base_repository.dart';
-import 'package:app_petfinder/core/utils/account_storage_service.dart';
-import 'package:app_petfinder/core/utils/catalog_storage_service.dart';
+import 'package:app_petfinder/core/utils/storage_service.dart';
 import 'package:app_petfinder/core/utils/token_storage_service.dart';
 import 'package:app_petfinder/core/utils/session_storage_service.dart';
 
@@ -57,10 +56,7 @@ class AuthRepository extends BaseRepository {
       final res = response.data!;
       await SessionStorageService.saveSession(res['session_info'] as Map<String, dynamic>);
     } else {
-      await TokenStorageService.deleteToken();
-      await SessionStorageService.clearSession();
-      await CatalogStorageService.clearCatalogs();
-      await AccountStorageService.clearAccount();
+      StorageService.cleanSessionStorage();
     }
 
     return response;
@@ -72,10 +68,7 @@ class AuthRepository extends BaseRepository {
       fromJson: (json) => json as Map<String, dynamic>,
     );
 
-    await TokenStorageService.deleteToken();
-    await SessionStorageService.clearSession();
-    await CatalogStorageService.clearCatalogs();
-    await AccountStorageService.clearAccount();
+    StorageService.cleanSessionStorage();
 
     return response;
   }

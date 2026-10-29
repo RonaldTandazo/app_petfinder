@@ -38,7 +38,7 @@ class AppSightingsList extends StatelessWidget {
     final bool? confirm = await AppConfirmDialog.show(
       context: context,
       title: 'Eliminar Avistamiento',
-      message: 'Esta acción eliminará el reporte de avistamiento. \n¿Desea continuar?'
+      message: 'Esta acción eliminará el reporte de avistamiento. \n\n¿Deseas continuar?'
     );
 
     if (confirm == true) onSightingDeleted(sight.id);
