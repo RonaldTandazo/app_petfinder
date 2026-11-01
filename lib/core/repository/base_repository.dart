@@ -12,4 +12,10 @@ abstract class BaseRepository {
   }) {
     return safeApiCall<T>(apiCall, fromJson: fromJson);
   }
+
+  Future<List<int>> safeFileCall(
+    Future<Response<List<int>>> Function() apiCall,
+  ) {
+    return safeFileApiCall(apiCall);
+  }
 }

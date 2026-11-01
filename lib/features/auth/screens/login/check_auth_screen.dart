@@ -78,15 +78,15 @@ class _CheckAuthScreenState extends State<CheckAuthScreen> {
                     color: Colors.teal,
                   ),
                 ),
-                SizedBox(height: 20),
-                Text(
-                  'Cargando PetFinder...',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey,
-                  ),
-                ),
+                // SizedBox(height: 20),
+                // Text(
+                //   'Cargando PetFinder...',
+                //   textAlign: TextAlign.center,
+                //   style: TextStyle(
+                //     fontSize: 16,
+                //     color: Colors.grey,
+                //   ),
+                // ),
               ],
             ),
           ),

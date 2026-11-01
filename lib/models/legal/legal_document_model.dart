@@ -5,7 +5,6 @@ class LegalDocumentModel {
   final String name;
   final LegalDocumentType tag;
   final String version;
-  final String? path;
   final DateTime publishedAt;
 
   LegalDocumentModel({
@@ -13,7 +12,6 @@ class LegalDocumentModel {
     required this.name,
     required this.tag,
     required this.version,
-    this.path,
     required this.publishedAt
   });
 
@@ -23,7 +21,6 @@ class LegalDocumentModel {
       name: json['name'] as String,
       tag: LegalDocumentType.fromString(json['tag'] as String?),
       version: json['version'] as String,
-      path: (json['path'] ?? '') as String,
       publishedAt: json['published_at'] is DateTime ? json['published_at'] as DateTime : DateTime.parse(json['published_at'] as String),
     );
   }
@@ -33,7 +30,6 @@ class LegalDocumentModel {
     String? name,
     LegalDocumentType? tag,
     String? version,
-    String? path,
     DateTime? publishedAt,
   }) {
     return LegalDocumentModel(
@@ -41,7 +37,6 @@ class LegalDocumentModel {
       name: name ?? this.name,
       tag: tag ?? this.tag,
       version: version ?? this.version,
-      path: path ?? this.path,
       publishedAt: publishedAt ?? this.publishedAt
     );
   }

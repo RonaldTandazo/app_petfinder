@@ -41,6 +41,13 @@ class _HelpFormScreenState extends State<HelpFormScreen> {
   String get _titleScreen => _isSupport ? 'Centro de Ayuda' : 'Comentarios y Sugerencias';
   String get _typeHint => _isSupport ? 'Soporte':'Feedback';
 
+  final List<Map<String, String>> _categories = [
+    {'value': 'feature', 'label': 'Nueva funcionalidad'},
+    {'value': 'improvement', 'label': 'Mejora de una funcionalidad'},
+    {'value': 'design', 'label': 'Diseño y experiencia'},
+    {'value': 'other', 'label': 'Otro'},
+  ];
+
   @override
   void dispose() {
     _subjectController.dispose();
@@ -229,7 +236,7 @@ class _HelpFormScreenState extends State<HelpFormScreen> {
                           _buildLabel('Tipo de sugerencia'),
                           const SizedBox(height: 8),
                           DropdownButtonFormField<String>(
-                            value: _selectedCategory,
+                            initialValue: _selectedCategory,
                             isExpanded: true,
                             decoration: const InputDecoration(
                               border: OutlineInputBorder(),
@@ -238,24 +245,12 @@ class _HelpFormScreenState extends State<HelpFormScreen> {
                               ),
                             ),
                             hint: const Text('Selecciona una categoría'),
-                            items: const [
-                              DropdownMenuItem(
-                                value: 'feature',
-                                child: Text('Nueva funcionalidad'),
-                              ),
-                              DropdownMenuItem(
-                                value: 'improvement',
-                                child: Text('Mejora de una función'),
-                              ),
-                              DropdownMenuItem(
-                                value: 'design',
-                                child: Text('Diseño y experiencia'),
-                              ),
-                              DropdownMenuItem(
-                                value: 'other',
-                                child: Text('Otro'),
-                              ),
-                            ],
+                            items: _categories.map((category) {
+                              return DropdownMenuItem<String>(
+                                value: category['label'],
+                                child: Text(category['label']!),
+                              );
+                            }).toList(),
                             onChanged: (value) {
                               setState(() {
                                 _selectedCategory = value;
