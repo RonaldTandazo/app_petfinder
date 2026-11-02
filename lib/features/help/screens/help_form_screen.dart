@@ -42,9 +42,9 @@ class _HelpFormScreenState extends State<HelpFormScreen> {
   String get _typeHint => _isSupport ? 'Soporte':'Feedback';
 
   final List<Map<String, String>> _categories = [
-    {'value': 'feature', 'label': 'Nueva funcionalidad'},
-    {'value': 'improvement', 'label': 'Mejora de una funcionalidad'},
-    {'value': 'design', 'label': 'Diseño y experiencia'},
+    {'value': 'feature', 'label': 'Nueva Funcionalidad'},
+    {'value': 'improvement', 'label': 'Mejora de Funcionalidad'},
+    {'value': 'design', 'label': 'Diseño y Experiencia'},
     {'value': 'other', 'label': 'Otro'},
   ];
 
