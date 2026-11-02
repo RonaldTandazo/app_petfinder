@@ -249,7 +249,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
                       )
                     : const Text(
-                        'Actualizar contraseña',
+                        'Actualizar Contraseña',
                         style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
                       ),
               ),

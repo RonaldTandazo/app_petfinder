@@ -9,6 +9,7 @@ import 'package:app_petfinder/core/router/account/account_routes.dart';
 import 'package:app_petfinder/core/router/management/management_routes.dart';
 import 'package:app_petfinder/core/router/legal/legal_routes.dart';
 import 'package:app_petfinder/core/router/help/help_routes.dart';
+import 'package:app_petfinder/core/router/password/password_routes.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -25,5 +26,6 @@ final appRouter = GoRouter(
     ...ManagementRoutes.getRoutes(),
     ...LegalRoutes.getRoutes(),
     ...HelpRoutes.getRoutes(),
+    ...PasswordRoutes.getRoutes(),
   ],
 );

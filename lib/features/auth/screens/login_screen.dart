@@ -1,6 +1,3 @@
-import 'package:app_petfinder/core/router/legal/legal_routes.dart';
-import 'package:app_petfinder/models/legal/legal_document_model.dart';
-import 'package:app_petfinder/widgets/dialog/app_confirm_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:app_petfinder/core/utils/api_error_handler.dart';
@@ -10,6 +7,10 @@ import 'package:app_petfinder/core/router/main/main_routes.dart';
 import 'package:app_petfinder/repository/auth/auth_repository.dart';
 import 'package:app_petfinder/features/auth/widgets/account_selection_bottom_sheet.dart';
 import 'package:app_petfinder/features/auth/widgets/register_type_bottom_sheet.dart';
+import 'package:app_petfinder/core/router/password/password_routes.dart';
+import 'package:app_petfinder/core/router/legal/legal_routes.dart';
+import 'package:app_petfinder/models/legal/legal_document_model.dart';
+import 'package:app_petfinder/widgets/dialog/app_confirm_dialog.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -254,7 +255,15 @@ class _LoginScreenState extends State<LoginScreen> {
                             },
                           ),
 
-                          SizedBox(height: isSmallPhone ? 22.0 : 28.0),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton(
+                              onPressed: () => context.push(PasswordRoutes.forgotPassword),
+                              child: const Text('¿Olvidaste tu contraseña?'),
+                            ),
+                          ),
+
+                          SizedBox(height: isSmallPhone ? 12.0 : 20.0),
 
                           FilledButton(
                             onPressed: _isLoading ? null : () => _submitLogin(),

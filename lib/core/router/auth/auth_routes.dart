@@ -1,8 +1,8 @@
 import 'package:go_router/go_router.dart';
-import 'package:app_petfinder/features/auth/screens/login/check_auth_screen.dart';
-import 'package:app_petfinder/features/auth/screens/login/login_screen.dart';
-import 'package:app_petfinder/features/auth/screens/register/register_shelter.dart';
-import 'package:app_petfinder/features/auth/screens/register/register_user.dart';
+import 'package:app_petfinder/features/auth/screens/check_auth_screen.dart';
+import 'package:app_petfinder/features/auth/screens/login_screen.dart';
+import 'package:app_petfinder/features/auth/screens/register_shelter.dart';
+import 'package:app_petfinder/features/auth/screens/register_user.dart';
 
 class AuthRoutes {
   static const String prefix = '/auth';
