@@ -1,5 +1,7 @@
+import 'package:app_petfinder/core/helpers/color_helper.dart';
+import 'package:app_petfinder/enums/status/status_type.dart';
 import 'package:flutter/material.dart';
-import 'package:app_petfinder/core/utils/common_helpers.dart';
+import 'package:app_petfinder/core/helpers/gender_helper.dart';
 
 class AppPetHeaderInfo extends StatelessWidget {
   final String name;
@@ -31,6 +33,9 @@ class AppPetHeaderInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final bool isMale = genderTag == 'MALE';
     final IconData genderIcon = getGenderIcon(isMale);
     final Color genderColor = getGenderColor(isMale);
@@ -71,11 +76,11 @@ class AppPetHeaderInfo extends StatelessWidget {
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   if (_hasStatus)
-                    _buildStatusChip(isSmallPhone: isSmallPhone),
+                    _buildStatusChip(colorScheme: colorScheme, isSmallPhone: isSmallPhone),
                   if (isUrgent)
-                    _buildUrgentChip(isSmallPhone: isSmallPhone),
+                    _buildUrgentChip(colorScheme: colorScheme, isSmallPhone: isSmallPhone),
                   if (showReward)
-                    _buildReward(isSmallPhone: isSmallPhone),
+                    _buildReward(colorScheme: colorScheme, isSmallPhone: isSmallPhone),
                 ],
               ),
               SizedBox(height: sectionSpacing + 2),
@@ -94,6 +99,7 @@ class AppPetHeaderInfo extends StatelessWidget {
                       fontSize: nameFontSize,
                       fontWeight: FontWeight.bold,
                       height: 1.15,
+                      color: colorScheme.onSurface
                     ),
                   ),
                 ),
@@ -115,7 +121,7 @@ class AppPetHeaderInfo extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: infoFontSize,
-                color: Colors.grey.shade700,
+                color: colorScheme.onSurfaceVariant,
                 height: 1.35,
               ),
             ),
@@ -125,19 +131,20 @@ class AppPetHeaderInfo extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusChip({bool isSmallPhone = false}) {
+  Widget _buildStatusChip({required ColorScheme colorScheme, bool isSmallPhone = false}) {
+    final StatusType type = reportStatusTag == 'ACTIVE' ? StatusType.error : StatusType.information;
+    final colors = getSemanticColors(colorScheme, type);
+
     return Chip(
       label: Text(
         reportStatus!.toUpperCase(),
         style: TextStyle(
-          color: Colors.white,
+          color: colors.foreground,
           fontWeight: FontWeight.bold,
           fontSize: isSmallPhone ? 9 : 11,
         ),
       ),
-      backgroundColor: reportStatusTag == 'ACTIVE'
-        ? Colors.redAccent
-        : Colors.teal,
+      backgroundColor: colors.background,
       visualDensity: VisualDensity.compact,
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       padding: EdgeInsets.symmetric(
@@ -146,44 +153,60 @@ class AppPetHeaderInfo extends StatelessWidget {
       labelPadding: EdgeInsets.symmetric(
         horizontal: isSmallPhone ? 4 : 6,
       ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+        side: BorderSide(
+          color: colors.background,
+        ),
+      ),
     );
   }
 
-  Widget _buildUrgentChip({bool isSmallPhone = false}) {
+  Widget _buildUrgentChip({required ColorScheme colorScheme, bool isSmallPhone = false}) {
+    final colors = getSemanticColors(colorScheme, StatusType.warning);
+
     return Chip(
       avatar: Icon(
         Icons.warning_amber_rounded,
-        color: Colors.white,
+        color: colors.foreground,
         size: isSmallPhone ? 13 : 16,
       ),
       label: Text(
         'URGENTE',
         style: TextStyle(
-          color: Colors.white,
+          color: colors.foreground,
           fontWeight: FontWeight.bold,
           fontSize: isSmallPhone ? 9 : 11,
         ),
       ),
-      backgroundColor: Colors.deepOrangeAccent,
+      backgroundColor: colors.background,
       visualDensity: VisualDensity.compact,
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      padding: EdgeInsets.zero,
+      padding: EdgeInsets.symmetric(
+        horizontal: isSmallPhone ? 2 : 4,
+      ),
       labelPadding: EdgeInsets.only(
         right: isSmallPhone ? 4 : 6,
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+        side: BorderSide(
+          color: colors.background,
+        ),
       ),
     );
   }
 
-  Widget _buildReward({bool isSmallPhone = false}) {
+  Widget _buildReward({required ColorScheme colorScheme, bool isSmallPhone = false}) {
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: isSmallPhone ? 8 : 12,
         vertical: isSmallPhone ? 4 : 6,
       ),
       decoration: BoxDecoration(
-        color: Colors.amber.shade100,
+        color: colorScheme.tertiary.withValues(alpha: 0.25),
         border: Border.all(
-          color: Colors.amber.shade700,
+          color: colorScheme.tertiary,
         ),
         borderRadius: BorderRadius.circular(20),
       ),
@@ -192,7 +215,7 @@ class AppPetHeaderInfo extends StatelessWidget {
         children: [
           Icon(
             Icons.stars,
-            color: Colors.amber.shade800,
+            color: colorScheme.tertiary,
             size: isSmallPhone ? 15 : 18,
           ),
 
@@ -201,7 +224,7 @@ class AppPetHeaderInfo extends StatelessWidget {
           Text(
             'Recompensa: \$${rewardAmount!.toStringAsFixed(2)}',
             style: TextStyle(
-              color: Colors.amber.shade900,
+              color: colorScheme.tertiary,
               fontWeight: FontWeight.bold,
               fontSize: isSmallPhone ? 10 : 12,
             ),

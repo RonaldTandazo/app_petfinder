@@ -1,4 +1,3 @@
-import 'package:app_petfinder/repository/help/help_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:app_petfinder/widgets/images/app_image_picker_grid.dart';
@@ -8,10 +7,11 @@ import 'package:app_petfinder/core/network/api_exception.dart';
 import 'package:app_petfinder/core/network/api_response.dart';
 import 'package:app_petfinder/core/utils/api_error_handler.dart';
 import 'package:app_petfinder/core/utils/api_success_handler.dart';
-import 'package:app_petfinder/enums/snackbar/snackbar_type.dart';
+import 'package:app_petfinder/enums/status/status_type.dart';
 import 'package:app_petfinder/widgets/loaders/app_loading_overlay.dart';
 import 'package:app_petfinder/widgets/snackbars/app_snackbar.dart';
-
+import 'package:app_petfinder/styles/app_form_styles.dart';
+import 'package:app_petfinder/repository/help/help_repository.dart';
 
 class HelpFormScreen extends StatefulWidget {
   final HelpFormType type;
@@ -62,9 +62,9 @@ class _HelpFormScreenState extends State<HelpFormScreen> {
     if (hasUploading) {
       AppSnackBar.show(
         context,
-        title: 'Imágenes subiendo',
+        title: 'Subiendo Imágenes',
         description: 'Por favor espera a que terminen de subirse las fotografías.',
-        type: SnackBarType.warning,
+        type: StatusType.warning,
       );
       return;
     }
@@ -130,11 +130,12 @@ class _HelpFormScreenState extends State<HelpFormScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
-    final Size screenSize = MediaQuery.sizeOf(context);
+    final double screenWidth = MediaQuery.sizeOf(context).width;
 
-    final bool isSmallPhone = screenSize.width < 360;
-    final bool isTablet = screenSize.width >= 600;
+    final bool isSmallPhone = screenWidth < 360;
+    final bool isTablet = screenWidth >= 600;
 
     final double horizontalPadding = isSmallPhone
       ? 12.0
@@ -142,7 +143,12 @@ class _HelpFormScreenState extends State<HelpFormScreen> {
           ? 32.0
           : 20.0;
 
+    final double spacing = isSmallPhone ? 12 : 16;
+    final double sectionSpacing = isSmallPhone ? 20.0 : 24.0;
+    final double fieldSpacing = isSmallPhone ? 12.0 : 14.0;
+
     return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
           _titleScreen,
@@ -176,9 +182,9 @@ class _HelpFormScreenState extends State<HelpFormScreen> {
                               ? Icons.bug_report_outlined
                               : Icons.lightbulb_outline_rounded,
                           size: isSmallPhone ? 44 : 56,
-                          color: theme.colorScheme.primary,
+                          color: colorScheme.primary,
                         ),
-                        const SizedBox(height: 16),
+                        SizedBox(height: spacing),
                         Text(
                           _isSupport
                               ? 'Cuéntanos qué problema encontraste'
@@ -199,29 +205,25 @@ class _HelpFormScreenState extends State<HelpFormScreen> {
                                   'Puedes adjuntar imágenes para '
                                   'explicarla mejor.',
                           textAlign: TextAlign.center,
-                          style: theme.textTheme.bodyMedium
-                              ?.copyWith(
-                            color: theme.colorScheme
-                                .onSurfaceVariant,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
                             height: 1.5,
                           ),
                         ),
-                        const SizedBox(height: 28),
+
+                        SizedBox(height: isSmallPhone ? 20 : 28),
 
                         if (_isSupport) ...[
-                          _buildLabel('Título del problema'),
-                          const SizedBox(height: 8),
                           TextFormField(
                             controller: _subjectController,
                             textCapitalization: TextCapitalization.sentences,
                             maxLength: 100,
-                            decoration: const InputDecoration(
-                              hintText:
-                                  'Ej. No puedo publicar una mascota',
-                              border: OutlineInputBorder(),
-                              prefixIcon: Icon(
-                                Icons.title_rounded,
-                              ),
+                            decoration: AppFormStyles.inputDecoration(
+                              context,
+                              'Título del Problema',
+                              Icons.title_rounded,
+                            ).copyWith(
+                              hintText: 'Ej. No puedo publicar una mascota',
                             ),
                             validator: (value) {
                               if (value == null ||
@@ -231,20 +233,16 @@ class _HelpFormScreenState extends State<HelpFormScreen> {
                               return null;
                             },
                           ),
-                          const SizedBox(height: 16),
                         ] else ...[
-                          _buildLabel('Tipo de sugerencia'),
-                          const SizedBox(height: 8),
                           DropdownButtonFormField<String>(
                             initialValue: _selectedCategory,
                             isExpanded: true,
-                            decoration: const InputDecoration(
-                              border: OutlineInputBorder(),
-                              prefixIcon: Icon(
-                                Icons.category_outlined,
-                              ),
+                            decoration: AppFormStyles.inputDecoration(
+                              context,
+                              'Tipo de Sugerencia',
+                              Icons.category_outlined,
                             ),
-                            hint: const Text('Selecciona una categoría'),
+                            hint: const Text('Selecciona una Categoría'),
                             items: _categories.map((category) {
                               return DropdownMenuItem<String>(
                                 value: category['label'],
@@ -263,15 +261,10 @@ class _HelpFormScreenState extends State<HelpFormScreen> {
                               return null;
                             },
                           ),
-                          const SizedBox(height: 16),
                         ],
 
-                        _buildLabel(
-                          _isSupport
-                              ? 'Descripción del problema'
-                              : 'Tu comentario',
-                        ),
-                        const SizedBox(height: 8),
+                        SizedBox(height: fieldSpacing),
+
                         TextFormField(
                           controller: _commentController,
                           textCapitalization: TextCapitalization.sentences,
@@ -279,38 +272,34 @@ class _HelpFormScreenState extends State<HelpFormScreen> {
                           minLines: 5,
                           maxLines: 8,
                           maxLength: 3000,
-                          decoration: InputDecoration(
-                            hintText: _isSupport
-                                ? '¿Qué ocurrió? ¿Qué esperabas que sucediera?'
-                                : '¿Qué te gustaría que mejoráramos?',
-                            alignLabelWithHint: true,
-                            border: const OutlineInputBorder(),
+                          decoration: AppFormStyles.inputDecoration(
+                            context,
+                            _isSupport
+                              ? '¿Qué ocurrió? ¿Qué esperabas que sucediera?'
+                              : '¿Qué te gustaría que mejoráramos?',
+                            Icons.description_rounded,
                           ),
                           validator: (value) {
-                            if (value == null ||
-                                value.trim().isEmpty) {
-                              return 'Escribe una descripción.';
+                            if (value == null || value.trim().isEmpty) {
+                              return 'Escribe una descripción';
                             }
+
                             if (value.trim().length < 10) {
-                              return 'Escribe al menos 10 caracteres.';
+                              return 'Escribe al menos 10 caracteres';
                             }
+                            
                             return null;
                           },
                         ),
-                        const SizedBox(height: 20),
 
-                        _buildLabel(
+                        SizedBox(height: sectionSpacing),
+
+                        AppFormStyles.buildSectionHeader(
+                          context,
                           'Imágenes (opcional)',
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
                           _isSupport
-                              ? 'Puedes adjuntar capturas del error.'
-                              : 'Puedes adjuntar imágenes de referencia.',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme
-                                .onSurfaceVariant,
-                          ),
+                              ? 'Puedes adjuntar capturas del error'
+                              : 'Puedes adjuntar imágenes de referencia',
                         ),
                         const SizedBox(height: 12),
 
@@ -323,27 +312,40 @@ class _HelpFormScreenState extends State<HelpFormScreen> {
                           },
                         ),
 
-                        const SizedBox(height: 28),
-                        FilledButton.icon(
-                          onPressed: _submitForm,
-                          icon: const Icon(
-                            Icons.send_rounded,
-                          ),
-                          label: const Text('Enviar comentario'),
-                          style: FilledButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 16,
+                        SizedBox(height: sectionSpacing),
+
+                        SizedBox(
+                          height: 54,
+                          child: FilledButton.icon(
+                            onPressed: _submitForm,
+                            style: FilledButton.styleFrom(
+                              backgroundColor: colorScheme.primary,
+                              foregroundColor: colorScheme.onPrimary,
+                              elevation: 2,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                            icon: const Icon(Icons.send_rounded),
+                            label: Text(
+                              'Enviar Comentario',
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: colorScheme.onPrimary,
+                              ),
                             ),
                           ),
                         ),
+                        
                         const SizedBox(height: 12),
+                        
                         Text(
                           'No incluyas contraseñas ni información '
                           'personal sensible en tu comentario '
                           'o en las imágenes.',
                           textAlign: TextAlign.center,
                           style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
+                            color: colorScheme.onSurfaceVariant,
                           ),
                         ),
                       ],
@@ -354,15 +356,6 @@ class _HelpFormScreenState extends State<HelpFormScreen> {
             );
           },
         ),
-      ),
-    );
-  }
-
-  Widget _buildLabel(String text) {
-    return Text(
-      text,
-      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-        fontWeight: FontWeight.w600,
       ),
     );
   }

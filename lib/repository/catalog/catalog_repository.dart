@@ -1,6 +1,6 @@
 import 'package:app_petfinder/core/network/api_response.dart';
 import 'package:app_petfinder/core/repository/base_repository.dart';
-import 'package:app_petfinder/core/utils/catalog_storage_service.dart';
+import 'package:app_petfinder/core/storage/catalog_storage_service.dart';
 
 class CatalogRepository extends BaseRepository {
   static const String _prefix = '/catalog';

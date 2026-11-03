@@ -24,6 +24,21 @@ class AppLocationPickerTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    final Color backgroundColor = _hasLocation
+      ? colorScheme.primaryContainer
+      : colorScheme.surfaceContainer;
+
+    final Color foregroundColor = _hasLocation
+        ? colorScheme.onPrimaryContainer
+        : colorScheme.onSurface;
+
+    final Color borderColor = _hasLocation
+        ? colorScheme.primary
+        : colorScheme.outlineVariant;
+
     final String labelTag = isRequired ? '*' : '(Opcional)';
     final String defaultHint = _hasLocation
         ? 'Lat: ${latitude!.toStringAsFixed(5)}, Lng: ${longitude!.toStringAsFixed(5)}'
@@ -50,17 +65,15 @@ class AppLocationPickerTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: _hasLocation ? Colors.teal.shade50 : Colors.grey.shade100,
+          color: backgroundColor,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: _hasLocation ? Colors.teal : Colors.grey.shade300,
-          ),
+          border: Border.all(color: borderColor),
         ),
         child: Row(
           children: [
             Icon(
               _hasLocation ? Icons.pin_drop_rounded : Icons.map_rounded,
-              color: _hasLocation ? Colors.teal : Colors.grey.shade600,
+              color: _hasLocation ? colorScheme.primary : colorScheme.onSurfaceVariant,
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -74,7 +87,7 @@ class AppLocationPickerTile extends StatelessWidget {
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 14,
-                      color: _hasLocation ? Colors.teal.shade900 : Colors.black87,
+                      color: foregroundColor,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -82,7 +95,7 @@ class AppLocationPickerTile extends StatelessWidget {
                     defaultHint,
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.grey.shade600,
+                      color: colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ],
@@ -90,7 +103,7 @@ class AppLocationPickerTile extends StatelessWidget {
             ),
             Icon(
               Icons.chevron_right_rounded,
-              color: Colors.grey.shade500,
+              color: colorScheme.onSurfaceVariant,
             ),
           ],
         ),

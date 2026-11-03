@@ -7,7 +7,7 @@ import 'package:app_petfinder/models/pictures/picture_model.dart';
 import 'package:app_petfinder/repository/auth/auth_repository.dart';
 import 'package:app_petfinder/core/network/api_exception.dart';
 import 'package:app_petfinder/core/utils/api_error_handler.dart';
-import 'package:app_petfinder/core/utils/session_storage_service.dart';
+import 'package:app_petfinder/core/storage/session_storage_service.dart';
 import 'package:app_petfinder/features/account/widgets/account_skeleton.dart';
 import 'package:app_petfinder/features/account/widgets/account_adoptions_grid.dart';
 import 'package:app_petfinder/features/account/widgets/account_lost_pets_grid.dart';
@@ -27,7 +27,7 @@ import 'package:app_petfinder/core/network/api_response.dart';
 import 'package:app_petfinder/core/router/adoption/adoption_routes.dart';
 import 'package:app_petfinder/core/router/lost_pet/lost_pet_routes.dart';
 import 'package:app_petfinder/core/utils/api_success_handler.dart';
-import 'package:app_petfinder/widgets/dialog/app_confirm_dialog.dart';
+import 'package:app_petfinder/widgets/dialogs/app_confirm_dialog.dart';
 import 'package:app_petfinder/widgets/loaders/app_loading_overlay.dart';
 
 class AccountScreen extends StatefulWidget {
@@ -385,6 +385,9 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final bool hasAvatar = _avatar != null && _avatar!.url.isNotEmpty && !_avatarLoadError;
 
     final double screenWidth = MediaQuery.sizeOf(context).width;
@@ -441,7 +444,7 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
                         SizedBox(height: topSpacing),
                         CircleAvatar(
                           radius: avatarRadius,
-                          backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                          backgroundColor: colorScheme.primaryContainer,
                           backgroundImage: hasAvatar ? NetworkImage(_avatar!.url) : null,
                           onBackgroundImageError: hasAvatar
                             ? (_, _) {
@@ -456,7 +459,7 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
                             ? Icon(
                                 Icons.person_rounded,
                                 size: avatarIconSize,
-                                color: Theme.of(context).colorScheme.onPrimaryContainer,
+                                color: colorScheme.onPrimaryContainer,
                               )
                             : null,
                         ),
@@ -468,10 +471,10 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
                             textAlign: TextAlign.center,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                  fontSize: nameFontSize,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                            style: theme.textTheme.titleLarge?.copyWith(
+                              fontSize: nameFontSize,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 2),
@@ -482,10 +485,10 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
                             textAlign: TextAlign.center,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  fontSize: emailFontSize,
-                                  color: Colors.grey[600],
-                                ),
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              fontSize: emailFontSize,
+                              color: colorScheme.onSurfaceVariant,
+                            ),
                           ),
                         ),
                         SizedBox(height: sectionSpacing),
@@ -500,7 +503,7 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
                                   count: _metrics[i].count.toString(),
                                   onTap: () => _handleMetricTap(_metrics[i].action),
                                 ),
-                                if (i < _metrics.length - 1) _buildDivider(),
+                                if (i < _metrics.length - 1) _buildDivider(context),
                               ],
                             ],
                           ),
@@ -514,9 +517,9 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
                     delegate: StickyTabBar(
                       TabBar(
                         controller: _tabController,
-                        labelColor: Theme.of(context).colorScheme.primary,
-                        unselectedLabelColor: Colors.grey,
-                        indicatorColor: Theme.of(context).colorScheme.primary,
+                        labelColor: colorScheme.primary,
+                        unselectedLabelColor: colorScheme.onSurfaceVariant,
+                        indicatorColor: colorScheme.primary,
                         labelStyle: TextStyle(
                           fontSize: tabFontSize,
                           fontWeight: FontWeight.w600,
@@ -587,11 +590,14 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
     );
   }
 
-  Widget _buildDivider() {
+  Widget _buildDivider(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Container(
       height: 28,
       width: 1,
-      color: Colors.grey[300],
+      color: colorScheme.outlineVariant,
     );
   }
 }

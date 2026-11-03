@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:app_petfinder/core/utils/common_helpers.dart';
+import 'package:app_petfinder/core/helpers/gender_helper.dart';
 import 'package:app_petfinder/enums/badge/badge_position.dart';
 import 'package:app_petfinder/models/adoption/adoption_pet_list_model.dart';
 import 'package:app_petfinder/widgets/badges/app_badge.dart';
@@ -21,6 +21,9 @@ class PetSwipeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final Size screenSize = MediaQuery.sizeOf(context);
 
     final bool isSmallPhone = screenSize.width < 360;
@@ -65,7 +68,7 @@ class PetSwipeCard extends StatelessWidget {
               height: cardHeight,
               width: double.infinity,
               decoration: BoxDecoration(
-                color: Colors.teal.shade700,
+                color: colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(cardRadius),
                 boxShadow: [
                   BoxShadow(
@@ -214,7 +217,7 @@ class PetSwipeCard extends StatelessWidget {
                                 Icon(
                                   Icons.location_on_outlined,
                                   size: isSmallPhone ? 14 : 16,
-                                  color: Colors.tealAccent,
+                                  color: colorScheme.onPrimaryContainer,
                                 ),
                                 const SizedBox(width: 4),
                                 Flexible(

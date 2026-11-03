@@ -14,6 +14,9 @@ class MetricItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final double screenWidth = MediaQuery.sizeOf(context).width;
 
     final bool isSmallPhone = screenWidth < 360;
@@ -56,11 +59,11 @@ class MetricItem extends StatelessWidget {
                 maxLines: 1,
                 textAlign: TextAlign.center,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontSize: countFontSize,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontSize: countFontSize,
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.primary,
+                ),
               ),
               SizedBox(height: isSmallPhone ? 1 : 2),
               Text(
@@ -68,11 +71,11 @@ class MetricItem extends StatelessWidget {
                 maxLines: 2,
                 textAlign: TextAlign.center,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      fontSize: labelFontSize,
-                      color: Colors.grey[600],
-                      height: 1.2,
-                    ),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  fontSize: labelFontSize,
+                  color: colorScheme.onSurfaceVariant,
+                  height: 1.2,
+                ),
               ),
             ],
           ),

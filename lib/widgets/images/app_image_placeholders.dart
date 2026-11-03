@@ -11,6 +11,9 @@ class AppImagePlaceholders {
   }) {
     return LayoutBuilder(
       builder: (context, constraints) {
+        final theme = Theme.of(context);
+        final colorScheme = theme.colorScheme;
+
         final double width = constraints.maxWidth;
         final double height = constraints.maxHeight;
 
@@ -30,7 +33,7 @@ class AppImagePlaceholders {
         return Container(
           width: double.infinity,
           height: double.infinity,
-          color: Colors.grey.shade100,
+          color: colorScheme.surfaceContainer,
           padding: EdgeInsets.all(padding),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -39,7 +42,7 @@ class AppImagePlaceholders {
               Icon(
                 icon,
                 size: iconSize,
-                color: Colors.grey.shade400,
+                color: colorScheme.onSurfaceVariant,
               ),
               SizedBox(height: spacing),
               Flexible(
@@ -50,7 +53,7 @@ class AppImagePlaceholders {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: fontSize,
-                      color: Colors.grey.shade500,
+                      color: colorScheme.onSurfaceVariant,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -70,6 +73,9 @@ class AppImagePlaceholders {
   }) {
     return LayoutBuilder(
       builder: (context, constraints) {
+        final theme = Theme.of(context);
+        final colorScheme = theme.colorScheme;
+
         final double width = constraints.maxWidth;
         final double height = constraints.maxHeight;
 
@@ -83,7 +89,7 @@ class AppImagePlaceholders {
         return Container(
           width: double.infinity,
           height: double.infinity,
-          color: Colors.grey.shade900,
+          color: colorScheme.surfaceContainer,
           padding: EdgeInsets.all(padding),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -92,7 +98,7 @@ class AppImagePlaceholders {
               Icon(
                 icon,
                 size: iconSize,
-                color: Colors.white54,
+                color: colorScheme.onSurfaceVariant,
               ),
               SizedBox(height: spacing),
               Flexible(
@@ -102,7 +108,7 @@ class AppImagePlaceholders {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: fontSize,
-                    color: Colors.white70,
+                    color: colorScheme.onSurfaceVariant,
                     fontWeight: FontWeight.w500,
                   ),
                 ),

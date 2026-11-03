@@ -1,8 +1,8 @@
 import 'package:app_petfinder/core/network/api_response.dart';
 import 'package:app_petfinder/core/repository/base_repository.dart';
-import 'package:app_petfinder/core/utils/storage_service.dart';
-import 'package:app_petfinder/core/utils/token_storage_service.dart';
-import 'package:app_petfinder/core/utils/session_storage_service.dart';
+import 'package:app_petfinder/core/storage/storage_service.dart';
+import 'package:app_petfinder/core/storage/token_storage_service.dart';
+import 'package:app_petfinder/core/storage/session_storage_service.dart';
 
 class AuthRepository extends BaseRepository {
   static const String _prefix = '/auth';

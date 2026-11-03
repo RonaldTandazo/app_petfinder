@@ -10,7 +10,10 @@ class AccountSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final baseColor = Colors.grey[300]!;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
+    final Color baseColor = colorScheme.surfaceContainerHighest;
 
     return CustomScrollView(
       physics: const NeverScrollableScrollPhysics(),

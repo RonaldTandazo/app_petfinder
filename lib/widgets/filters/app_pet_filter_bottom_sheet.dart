@@ -23,8 +23,7 @@ class AppPetFiltersBottomSheet extends StatefulWidget {
   });
 
   @override
-  State<AppPetFiltersBottomSheet> createState() =>
-      _AppPetFiltersBottomSheetState();
+  State<AppPetFiltersBottomSheet> createState() => _AppPetFiltersBottomSheetState();
 }
 
 class _AppPetFiltersBottomSheetState
@@ -65,6 +64,9 @@ class _AppPetFiltersBottomSheetState
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final Size screenSize = MediaQuery.sizeOf(context);
 
     final bool isSmallPhone = screenSize.width < 360;
@@ -82,18 +84,18 @@ class _AppPetFiltersBottomSheetState
     final double sectionFontSize = isSmallPhone ? 14 : 15;
     final double chipSpacing = isSmallPhone ? 5 : 8;
 
-    final speciesList = widget.filtersData['species'] as List? ?? [];
-    final gendersList = widget.filtersData['genders'] as List? ?? [];
-    final sizesList = widget.filtersData['sizes'] as List? ?? [];
-    final healthList = widget.filtersData['health_conditions'] as List? ?? [];
+    final List speciesList = widget.filtersData['species'] as List? ?? [];
+    final List gendersList = widget.filtersData['genders'] as List? ?? [];
+    final List sizesList = widget.filtersData['sizes'] as List? ?? [];
+    final List healthList = widget.filtersData['health_conditions'] as List? ?? [];
 
     return SafeArea(
       top: false,
       child: Container(
         height: screenSize.height * (isShortScreen ? 0.92 : 0.80),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(
+        decoration: BoxDecoration(
+          color: colorScheme.surfaceContainer,
+          borderRadius: const BorderRadius.vertical(
             top: Radius.circular(24),
           ),
         ),
@@ -113,7 +115,7 @@ class _AppPetFiltersBottomSheetState
                   bottom: isSmallPhone ? 8 : 12,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
+                  color: colorScheme.outlineVariant,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -124,9 +126,10 @@ class _AppPetFiltersBottomSheetState
                 Expanded(
                   child: Text(
                     'Filtros',
-                    style: TextStyle(
+                    style: theme.textTheme.titleLarge?.copyWith(
                       fontSize: titleFontSize,
                       fontWeight: FontWeight.bold,
+                      color: colorScheme.onSurface,
                     ),
                   ),
                 ),
@@ -142,7 +145,7 @@ class _AppPetFiltersBottomSheetState
                   child: Text(
                     'Limpiar todo',
                     style: TextStyle(
-                      color: Colors.teal,
+                      color: colorScheme.primary,
                       fontSize: isSmallPhone ? 12 : 14,
                     ),
                   ),
@@ -150,7 +153,10 @@ class _AppPetFiltersBottomSheetState
               ],
             ),
 
-            const Divider(height: 16),
+            Divider(
+              height: 16,
+              color: colorScheme.outlineVariant,
+            ),
 
             Expanded(
               child: ListView(
@@ -165,6 +171,8 @@ class _AppPetFiltersBottomSheetState
                       sectionFontSize,
                       chipSpacing,
                       isSmallPhone,
+                      theme: theme,
+                      colorScheme: colorScheme
                     ),
 
                   if (widget.showGenders)
@@ -175,6 +183,8 @@ class _AppPetFiltersBottomSheetState
                       sectionFontSize,
                       chipSpacing,
                       isSmallPhone,
+                      theme: theme,
+                      colorScheme: colorScheme
                     ),
 
                   if (widget.showSizes)
@@ -185,6 +195,8 @@ class _AppPetFiltersBottomSheetState
                       sectionFontSize,
                       chipSpacing,
                       isSmallPhone,
+                      theme: theme,
+                      colorScheme: colorScheme
                     ),
 
                   if (widget.showHealthConditions)
@@ -195,6 +207,8 @@ class _AppPetFiltersBottomSheetState
                       sectionFontSize,
                       chipSpacing,
                       isSmallPhone,
+                      theme: theme,
+                      colorScheme: colorScheme
                     ),
                 ],
               ),
@@ -203,16 +217,15 @@ class _AppPetFiltersBottomSheetState
             SizedBox(height: isSmallPhone ? 8 : 12),
 
             SizedBox(
+              height: 54,
               width: double.infinity,
-              child: ElevatedButton(
+              child: FilledButton.icon(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.teal,
-                  foregroundColor: Colors.white,
-                  padding: EdgeInsets.symmetric(
-                    vertical: isSmallPhone ? 12 : 14,
-                  ),
+                  backgroundColor: colorScheme.primary,
+                  foregroundColor: colorScheme.onPrimary,
+                  elevation: 2,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(16),
                   ),
                 ),
                 onPressed: () {
@@ -234,15 +247,18 @@ class _AppPetFiltersBottomSheetState
                   widget.onApply(appliedFilters);
                   Navigator.pop(context);
                 },
-                child: Text(
-                  'Aplicar filtros',
-                  style: TextStyle(
-                    fontSize: isSmallPhone ? 14 : 16,
+                icon: const Icon(Icons.filter_alt_rounded),
+                label: Text(
+                  'Aplicar Filtros',
+                  style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
+                    color: colorScheme.onPrimary,
                   ),
                 ),
               ),
             ),
+
+            SizedBox(height: isSmallPhone ? 8 : 12),
           ],
         ),
       ),
@@ -256,6 +272,10 @@ class _AppPetFiltersBottomSheetState
     double titleFontSize,
     double chipSpacing,
     bool isSmallPhone,
+    {
+      required ColorScheme colorScheme,
+      required ThemeData theme,
+    }
   ) {
     if (items.isEmpty) return const SizedBox.shrink();
 
@@ -268,10 +288,10 @@ class _AppPetFiltersBottomSheetState
         children: [
           Text(
             title,
-            style: TextStyle(
+            style: theme.textTheme.titleSmall?.copyWith(
               fontWeight: FontWeight.w600,
               fontSize: titleFontSize,
-              color: Colors.black87,
+              color: colorScheme.onSurface,
             ),
           ),
           SizedBox(height: isSmallPhone ? 6 : 8),
@@ -300,23 +320,18 @@ class _AppPetFiltersBottomSheetState
                   horizontal: isSmallPhone ? 2 : 4,
                 ),
                 selected: isSelected,
-                selectedColor: Colors.teal.shade100,
-                checkmarkColor: Colors.teal.shade900,
+                selectedColor: colorScheme.secondaryContainer,
+                checkmarkColor: colorScheme.primary,
                 labelStyle: TextStyle(
-                  color: isSelected
-                      ? Colors.teal.shade900
-                      : Colors.black87,
+                  color: isSelected ? colorScheme.primary : colorScheme.onSurface,
                   fontSize: isSmallPhone ? 12 : 14,
-                  fontWeight:
-                      isSelected ? FontWeight.bold : FontWeight.normal,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 ),
-                backgroundColor: Colors.grey.shade100,
+                backgroundColor: colorScheme.surfaceContainer,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                   side: BorderSide(
-                    color: isSelected
-                        ? Colors.teal
-                        : Colors.transparent,
+                    color: isSelected ? colorScheme.primary : colorScheme.outlineVariant,
                   ),
                 ),
                 onSelected: (_) => _toggleSelection(selectedList, id),

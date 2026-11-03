@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:app_petfinder/core/utils/common_helpers.dart';
+import 'package:app_petfinder/core/helpers/gender_helper.dart';
 import 'package:app_petfinder/enums/badge/badge_position.dart';
 import 'package:app_petfinder/models/adoption/adoption_pet_list_model.dart';
 import 'package:app_petfinder/widgets/badges/app_badge.dart';
@@ -19,6 +19,9 @@ class PetGridCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final double screenWidth = MediaQuery.sizeOf(context).width;
 
     final bool isSmallPhone = screenWidth < 360;
@@ -46,7 +49,7 @@ class PetGridCard extends StatelessWidget {
         onTap: onTap,
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: colorScheme.surfaceContainer,
             borderRadius: BorderRadius.circular(cardRadius),
             boxShadow: [
               BoxShadow(
@@ -77,7 +80,7 @@ class PetGridCard extends StatelessWidget {
                             if (loadingProgress == null) return child;
 
                             return Container(
-                              color: Colors.grey.shade100,
+                              color: colorScheme.surfaceContainerHighest,
                               child: Center(
                                 child: SizedBox(
                                   width: isSmallPhone ? 18 : 24,
@@ -134,6 +137,7 @@ class PetGridCard extends StatelessWidget {
                               fontWeight: FontWeight.bold,
                               fontSize: nameFontSize,
                               height: 1.15,
+                              color: colorScheme.onSurface,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -153,7 +157,7 @@ class PetGridCard extends StatelessWidget {
                       Text(
                         pet.race!,
                         style: TextStyle(
-                          color: Colors.grey.shade600,
+                          color: colorScheme.onSurfaceVariant,
                           fontSize: raceFontSize,
                           height: 1.2,
                         ),
@@ -171,7 +175,7 @@ class PetGridCard extends StatelessWidget {
                             pet.age,
                             style: TextStyle(
                               fontSize: detailFontSize,
-                              color: Colors.grey.shade600,
+                              color: colorScheme.onSurfaceVariant,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -187,7 +191,7 @@ class PetGridCard extends StatelessWidget {
                                 vertical: isSmallPhone ? 1 : 2,
                               ),
                               decoration: BoxDecoration(
-                                color: Colors.teal.withValues(alpha: 0.1),
+                                color: colorScheme.primaryContainer,
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Row(
@@ -196,7 +200,7 @@ class PetGridCard extends StatelessWidget {
                                   Icon(
                                     Icons.location_on_outlined,
                                     size: locationIconSize,
-                                    color: Colors.teal.shade600,
+                                    color: colorScheme.onPrimaryContainer,
                                   ),
                                   const SizedBox(width: 2),
                                   Flexible(
@@ -205,7 +209,7 @@ class PetGridCard extends StatelessWidget {
                                       style: TextStyle(
                                         fontSize: detailFontSize,
                                         fontWeight: FontWeight.w600,
-                                        color: Colors.teal.shade700,
+                                        color: colorScheme.onPrimaryContainer,
                                       ),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,

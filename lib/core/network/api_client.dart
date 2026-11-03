@@ -1,13 +1,13 @@
-import 'package:app_petfinder/core/utils/account_storage_service.dart';
+import 'package:app_petfinder/core/storage/account_storage_service.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:app_petfinder/core/router/app_router.dart';
 import 'package:app_petfinder/core/network/api_exception.dart';
 import 'package:app_petfinder/core/router/auth/auth_routes.dart';
-import 'package:app_petfinder/core/utils/token_storage_service.dart';
-import 'package:app_petfinder/core/utils/session_storage_service.dart';
-import 'package:app_petfinder/core/utils/catalog_storage_service.dart';
+import 'package:app_petfinder/core/storage/token_storage_service.dart';
+import 'package:app_petfinder/core/storage/session_storage_service.dart';
+import 'package:app_petfinder/core/storage/catalog_storage_service.dart';
 
 class ApiClient {
   static final ApiClient _instance = ApiClient._internal();

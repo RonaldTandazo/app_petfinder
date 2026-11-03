@@ -1,14 +1,14 @@
-
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:app_petfinder/core/network/api_exception.dart';
 import 'package:app_petfinder/core/router/auth/auth_routes.dart';
 import 'package:app_petfinder/core/utils/api_error_handler.dart';
-import 'package:app_petfinder/core/utils/storage_service.dart';
+import 'package:app_petfinder/core/storage/storage_service.dart';
+import 'package:app_petfinder/enums/status/status_type.dart';
 import 'package:app_petfinder/features/management/widgets/information_item.dart';
 import 'package:app_petfinder/repository/management/management_repository.dart';
-import 'package:app_petfinder/widgets/dialog/app_confirm_dialog.dart';
+import 'package:app_petfinder/widgets/dialogs/app_confirm_dialog.dart';
 import 'package:app_petfinder/widgets/loaders/app_loading_overlay.dart';
-import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 class DeleteAccountScreen extends StatefulWidget {
   final Future<void> Function()? onDeleteAccount;
@@ -27,7 +27,10 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text(
           'Eliminar Cuenta',
@@ -48,12 +51,14 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
           final bool isTablet = width >= 600;
 
           final double horizontalPadding = isSmallPhone
-              ? 12.0
-              : isTablet
-                  ? 32.0
-                  : 20.0;
+            ? 12.0
+            : isTablet
+                ? 32.0
+                : 20.0;
 
+          final double spacing = isSmallPhone ? 12 : 16;
           final double contentWidth = isTablet ? 680.0 : 520.0;
+          final double sectionSpacing = isSmallPhone ? 20.0 : 24.0;
 
           return SingleChildScrollView(
             padding: EdgeInsets.symmetric(
@@ -68,16 +73,20 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    _buildHeader(isSmallPhone: isSmallPhone),
-                    const SizedBox(height: 24),
-                    _buildInformationCard(),
-                    const SizedBox(height: 16),
-                    _buildConsequencesCard(),
-                    const SizedBox(height: 16),
-                    _buildCancellationCard(),
-                    const SizedBox(height: 24),
-                    _buildActions(),
-                    const SizedBox(height: 16),
+                    _buildHeader(theme: theme, isSmallPhone: isSmallPhone),
+                    SizedBox(height: sectionSpacing),
+                    
+                    _buildInformationCard(theme),
+                    SizedBox(height: spacing),
+                    
+                    _buildConsequencesCard(theme),
+                    SizedBox(height: spacing),
+                    
+                    _buildCancellationCard(theme),
+                    SizedBox(height: sectionSpacing),
+                    
+                    _buildActions(theme),
+                    SizedBox(height: spacing),
                   ],
                 ),
               ),
@@ -89,10 +98,12 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
   }
 
   Widget _buildHeader({
+    required ThemeData theme,
     required bool isSmallPhone,
   }) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
+    final colorScheme = theme.colorScheme;
+
+    final double spacing = isSmallPhone ? 12.0 : 16.0;
 
     return Column(
       children: [
@@ -100,16 +111,16 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
           width: isSmallPhone ? 76 : 92,
           height: isSmallPhone ? 76 : 92,
           decoration: BoxDecoration(
-            color: colors.errorContainer,
+            color: colorScheme.errorContainer,
             shape: BoxShape.circle,
           ),
           child: Icon(
             Icons.person_off_outlined,
             size: isSmallPhone ? 38 : 46,
-            color: colors.onErrorContainer,
+            color: colorScheme.onErrorContainer,
           ),
         ),
-        const SizedBox(height: 20),
+        SizedBox(height: spacing),
         Text(
           '¿Quieres eliminar tu cuenta?',
           textAlign: TextAlign.center,
@@ -118,13 +129,13 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
             fontSize: isSmallPhone ? 21 : null,
           ),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 8),
         Text(
           'Antes de continuar, revisa qué implica eliminar '
           'tu cuenta de PetFinder y cómo se gestionará tu solicitud.',
           textAlign: TextAlign.center,
           style: theme.textTheme.bodyMedium?.copyWith(
-            color: colors.onSurfaceVariant,
+            color: colorScheme.onSurfaceVariant,
             height: 1.5,
           ),
         ),
@@ -132,17 +143,16 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
     );
   }
 
-  Widget _buildInformationCard() {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
+  Widget _buildInformationCard(ThemeData theme) {
+    final colorScheme = theme.colorScheme;
 
     return Card(
       elevation: 0,
-      color: colors.surfaceContainerLow,
+      color: colorScheme.surfaceContainerLow,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(
-          color: colors.outlineVariant,
+          color: colorScheme.outlineVariant,
         ),
       ),
       child: Padding(
@@ -154,7 +164,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
               children: [
                 Icon(
                   Icons.schedule_rounded,
-                  color: colors.primary,
+                  color: colorScheme.primary,
                   size: 24,
                 ),
                 const SizedBox(width: 10),
@@ -182,7 +192,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
               'podrás volver a iniciar sesión y decidir si deseas '
               'cancelar la solicitud, siempre que aún esté pendiente.',
               style: theme.textTheme.bodySmall?.copyWith(
-                color: colors.onSurfaceVariant,
+                color: colorScheme.onSurfaceVariant,
                 height: 1.5,
               ),
             ),
@@ -192,17 +202,16 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
     );
   }
 
-  Widget _buildConsequencesCard() {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
+  Widget _buildConsequencesCard(ThemeData theme) {
+    final colorScheme = theme.colorScheme;
 
     return Card(
       elevation: 0,
-      color: colors.surfaceContainerLow,
+      color: colorScheme.surfaceContainerLow,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(
-          color: colors.outlineVariant,
+          color: colorScheme.outlineVariant,
         ),
       ),
       child: Padding(
@@ -214,7 +223,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
               children: [
                 Icon(
                   Icons.info_outline_rounded,
-                  color: colors.primary,
+                  color: colorScheme.primary,
                   size: 24,
                 ),
                 const SizedBox(width: 10),
@@ -258,17 +267,16 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
     );
   }
 
-  Widget _buildCancellationCard() {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
+  Widget _buildCancellationCard(ThemeData theme) {
+    final colorScheme = theme.colorScheme;
 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: colors.tertiaryContainer.withValues(alpha: 0.45),
+        color: colorScheme.tertiaryContainer.withValues(alpha: 0.45),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: colors.tertiary.withValues(alpha: 0.3),
+          color: colorScheme.tertiary.withValues(alpha: 0.3),
         ),
       ),
       child: Row(
@@ -276,7 +284,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
         children: [
           Icon(
             Icons.login_rounded,
-            color: colors.onTertiaryContainer,
+            color: colorScheme.onTertiaryContainer,
             size: 24,
           ),
           const SizedBox(width: 12),
@@ -288,7 +296,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                   '¿Cambiaste de opinión?',
                   style: theme.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: colors.onTertiaryContainer,
+                    color: colorScheme.onTertiaryContainer,
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -299,7 +307,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                   'decidir si deseas cancelar el proceso o '
                   'mantener tu solicitud de eliminación.',
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: colors.onTertiaryContainer,
+                    color: colorScheme.onTertiaryContainer,
                     height: 1.5,
                   ),
                 ),
@@ -309,7 +317,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                   'la solicitud. La cancelación requerirá '
                   'tu confirmación.',
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: colors.onTertiaryContainer,
+                    color: colorScheme.onTertiaryContainer,
                     fontWeight: FontWeight.w600,
                     height: 1.5,
                   ),
@@ -322,41 +330,59 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
     );
   }
 
-  Widget _buildActions() {
-    final colors = Theme.of(context).colorScheme;
+  Widget _buildActions(ThemeData theme) {
+    final colorScheme = theme.colorScheme;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        FilledButton.icon(
-          onPressed: () => _handleDelete(),
-          icon: const Icon(Icons.person_off_outlined),
-          label: const Text('Solicitar eliminación'),
-          style: FilledButton.styleFrom(
-            backgroundColor: colors.error,
-            foregroundColor: colors.onError,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 20,
-              vertical: 15,
+        SizedBox(
+          height: 54,
+          child: FilledButton.icon(
+            onPressed: () => _handleDelete(),
+            style: FilledButton.styleFrom(
+              backgroundColor: colorScheme.error,
+              foregroundColor: colorScheme.onError,
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
             ),
-            textStyle: const TextStyle(
-              fontWeight: FontWeight.w600,
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+            icon: const Icon(Icons.person_off_outlined),
+            label: Text(
+              'Solicitar Eliminación',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: colorScheme.onError,
+              ),
             ),
           ),
         ),
+        
         const SizedBox(height: 12),
-        OutlinedButton(
-          onPressed: () => Navigator.of(context).maybePop(),
-          style: OutlinedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 15),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+
+        SizedBox(
+          height: 54,
+          child: OutlinedButton(
+            onPressed: () => Navigator.of(context).maybePop(),
+            style: OutlinedButton.styleFrom(
+              elevation: 2,
+              side: BorderSide(
+                color: colorScheme.primary,
+                width: 1.5,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+            child: Text(
+              'Conservar mi cuenta',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: colorScheme.primary,
+              ),
             ),
           ),
-          child: const Text('Conservar mi cuenta'),
         ),
       ],
     );
@@ -401,7 +427,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
     final bool? confirm = await AppConfirmDialog.show(
       context: context,
       title: 'Eliminar Cuenta',
-      message: '¿Estás seguro de que deseas solicitar la eliminación de tu cuenta? \n\nRevisa las consecuencias antes de continuar.'
+      message: '¿Estás seguro de que deseas solicitar la eliminación de tu cuenta? \n\nRevisa las consecuencias antes de continuar.',
     );
 
     return confirm ?? false;
@@ -410,13 +436,11 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
   Future<bool> _deletionMessage(String message) async {
     final bool? confirm = await AppConfirmDialog.show(
       context: context,
-      titleIcon: Icons.check_circle,
-      titleIconColor: Colors.teal,
       title: 'Solicitud Ingresada',
       message: message,
       showCancel: false,
       confirmText: 'Aceptar',
-      confirmColor: Colors.teal
+      type: StatusType.success
     );
 
     return confirm ?? true;

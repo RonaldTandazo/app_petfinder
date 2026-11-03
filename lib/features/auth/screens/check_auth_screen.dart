@@ -62,7 +62,11 @@ class _CheckAuthScreenState extends State<CheckAuthScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Center(
           child: Padding(
@@ -75,7 +79,7 @@ class _CheckAuthScreenState extends State<CheckAuthScreen> {
                   height: 32,
                   child: CircularProgressIndicator(
                     strokeWidth: 3,
-                    color: Colors.teal,
+                    color: colorScheme.primary,
                   ),
                 ),
                 // SizedBox(height: 20),

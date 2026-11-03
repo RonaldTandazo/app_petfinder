@@ -1,8 +1,10 @@
-import 'package:app_petfinder/core/utils/common_helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:app_petfinder/enums/status/status_type.dart';
+import 'package:app_petfinder/widgets/snackbars/app_snackbar.dart';
 import 'package:app_petfinder/core/services/location_service.dart';
+import 'package:app_petfinder/core/helpers/number_helper.dart';
 
 class AppLocationPicker extends StatefulWidget {
   final LatLng? initialPosition;
@@ -62,10 +64,10 @@ class _AppLocationPickerState extends State<AppLocationPicker> {
       });
       _mapController.move(userLatLng, 16.0);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No se pudo obtener la ubicación. Verifica los permisos de GPS.'),
-        ),
+      AppSnackBar.show(
+        context,
+        type: StatusType.error,
+        title: 'No se pudo obtener la ubicación. Verifica los permisos de GPS.'
       );
     }
 
@@ -81,9 +83,15 @@ class _AppLocationPickerState extends State<AppLocationPicker> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Fija la ubicación', style: TextStyle(fontSize: 16)),
+        title: Text(
+          'Fija la ubicación',
+          style: theme.textTheme.titleMedium,
+        ),
         actions: [
           TextButton(
             onPressed: _isInitializing
@@ -92,7 +100,14 @@ class _AppLocationPickerState extends State<AppLocationPicker> {
                 final LatLng result = _formatLatLng(_selectedLatLng);
                 Navigator.pop(context, result);
               },
-            child: const Text('Confirmar', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            child: Text(
+              'Confirmar',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: colorScheme.primary,
+              ),
+            ),
           ),
         ],
       ),
@@ -121,7 +136,11 @@ class _AppLocationPickerState extends State<AppLocationPicker> {
           const Center(
             child: Padding(
               padding: EdgeInsets.only(bottom: 35.0),
-              child: Icon(Icons.location_on_rounded, size: 45, color: Colors.redAccent),
+              child: Icon(
+                Icons.location_on_rounded,
+                size: 45,
+                color: Colors.redAccent,
+              ),
             ),
           ),
 
@@ -129,20 +148,32 @@ class _AppLocationPickerState extends State<AppLocationPicker> {
           if (_isInitializing)
             Container(
               color: Colors.black26,
-              child: const Center(
+              child: Center(
                 child: Card(
+                  color: colorScheme.surfaceContainer,
                   child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 16,
+                    ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         SizedBox(
                           width: 20,
                           height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: colorScheme.primary,
+                          ),
                         ),
-                        SizedBox(width: 12),
-                        Text('Obteniendo ubicación...'),
+                        const SizedBox(width: 12),
+                        Text(
+                          'Obteniendo Ubicación...',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: colorScheme.onSurface,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -155,15 +186,21 @@ class _AppLocationPickerState extends State<AppLocationPicker> {
             bottom: 20,
             right: 20,
             child: FloatingActionButton(
-              backgroundColor: Colors.white,
-              onPressed: (_isLocating || _isInitializing) ? null : _fetchCurrentLocation,
+              backgroundColor: colorScheme.primary,
+              foregroundColor: colorScheme.onPrimary,
+              onPressed: (_isLocating || _isInitializing)
+                ? null
+                : _fetchCurrentLocation,
               child: _isLocating
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2.5),
-                    )
-                  : const Icon(Icons.my_location, color: Colors.teal),
+                ? SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      color: colorScheme.onPrimary,
+                    ),
+                  )
+                : const Icon(Icons.my_location),
             ),
           ),
         ],

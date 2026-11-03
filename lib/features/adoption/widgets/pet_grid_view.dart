@@ -22,6 +22,9 @@ class PetGridView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final double width = constraints.maxWidth;
@@ -105,9 +108,9 @@ class PetGridView extends StatelessWidget {
                   padding: EdgeInsets.symmetric(
                     vertical: isShortScreen ? 12 : 16,
                   ),
-                  child: const Center(
+                  child: Center(
                     child: CircularProgressIndicator(
-                      color: Colors.teal,
+                      color: colorScheme.primary,
                     ),
                   ),
                 ),

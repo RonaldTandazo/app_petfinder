@@ -23,6 +23,9 @@ class AppTrackingMap extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final double initialLat = mainLatitude ?? -2.1894;
     final double initialLng = mainLongitude ?? -79.8891;
 
@@ -34,7 +37,7 @@ class AppTrackingMap extends StatelessWidget {
       height: 400,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade300),
+        border: Border.all(color: colorScheme.outlineVariant),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
@@ -59,9 +62,9 @@ class AppTrackingMap extends StatelessWidget {
                     child: const Icon(Icons.location_pin, color: Colors.red, size: 40),
                   ),
                 ...validSightings.map((sight) {
-                  final isSelected = selectedSightId == sight.id;
-                  final lat = sight.latitude!;
-                  final lng = sight.longitude!;
+                  final bool isSelected = selectedSightId == sight.id;
+                  final double lat = sight.latitude!;
+                  final double lng = sight.longitude!;
 
                   return Marker(
                     point: LatLng(lat, lng),
@@ -73,7 +76,7 @@ class AppTrackingMap extends StatelessWidget {
                         duration: const Duration(milliseconds: 200),
                         child: Icon(
                           Icons.visibility,
-                          color: isSelected ? Colors.orange.shade800 : Colors.teal,
+                          color: isSelected ? colorScheme.secondary : colorScheme.primary,
                           size: isSelected ? 40 : 28,
                         ),
                       ),

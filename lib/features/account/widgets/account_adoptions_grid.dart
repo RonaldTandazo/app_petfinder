@@ -29,6 +29,9 @@ class AccountAdoptionsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final double screenWidth = MediaQuery.sizeOf(context).width;
 
     final bool isSmallPhone = screenWidth < 360;
@@ -78,7 +81,7 @@ class AccountAdoptionsGrid extends StatelessWidget {
                 genderTag: pet.genderTag,
                 isUrgent: pet.isUrgent,
                 badgeLabel: 'En adopción',
-                badgeColor: Colors.blue,
+                badgeColor: colorScheme.primary,
                 iconData: Icons.pets,
                 showActions: isMyProfile,
                 onTap: () => onTap?.call(pet.id, PetSource.adoption),

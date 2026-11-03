@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:app_petfinder/enums/snackbar/snackbar_type.dart';
+import 'package:app_petfinder/enums/status/status_type.dart';
 import 'package:app_petfinder/widgets/snackbars/app_snackbar.dart';
 import 'package:app_petfinder/core/network/api_exception.dart';
 
@@ -26,7 +26,7 @@ class ApiErrorHandler {
     AppSnackBar.show(
       context,
       title: errorDetail,
-      type: SnackBarType.error,
+      type: StatusType.error,
     );
   }
 }

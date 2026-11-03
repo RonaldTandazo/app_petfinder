@@ -14,6 +14,9 @@ class AppEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final double width = constraints.maxWidth;
@@ -46,7 +49,7 @@ class AppEmptyState extends StatelessWidget {
                 Icon(
                   icon,
                   size: iconSize,
-                  color: Colors.grey.shade400,
+                  color: colorScheme.onSurfaceVariant,
                 ),
                 SizedBox(height: isCompact ? 8 : 12),
                 if (title != null && title!.trim().isNotEmpty) ...[
@@ -56,7 +59,7 @@ class AppEmptyState extends StatelessWidget {
                     style: TextStyle(
                       fontSize: titleFontSize,
                       fontWeight: FontWeight.bold,
-                      color: Colors.grey.shade800,
+                      color: colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 6),
@@ -66,7 +69,7 @@ class AppEmptyState extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: descriptionFontSize,
-                    color: Colors.grey.shade600,
+                    color: colorScheme.onSurfaceVariant,
                     height: 1.3,
                   ),
                 ),

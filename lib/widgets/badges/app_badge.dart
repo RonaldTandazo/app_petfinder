@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:app_petfinder/enums/badge/badge_position.dart';
-import 'package:app_petfinder/enums/badge/badge_type.dart';
+import 'package:app_petfinder/core/helpers/color_helper.dart';
+import 'package:app_petfinder/enums/status/status_type.dart';
 
 class AppBadge extends StatelessWidget {
   final String text;
   final IconData? icon;
-  final BadgeType type;
+  final StatusType type;
   final BadgePosition position;
   final double fontSize;
   final double iconSize;
@@ -15,30 +16,22 @@ class AppBadge extends StatelessWidget {
     super.key,
     required this.text,
     this.icon,
-    this.type = BadgeType.warning,
+    this.type = StatusType.warning,
     this.position = BadgePosition.topLeft,
     this.fontSize = 11,
     this.iconSize = 14,
     this.padding,
   });
 
-  Color _getBackgroundColor() {
-    switch (type) {
-      case BadgeType.error:
-        return Colors.red.shade700;
-      case BadgeType.warning:
-        return Colors.amber.shade900;
-      case BadgeType.information:
-        return Colors.blue.shade800;
-      case BadgeType.success:
-        return Colors.teal.shade700;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final isTop = [BadgePosition.topLeft, BadgePosition.topRight].contains(position);
-    final isLeft = [BadgePosition.topLeft, BadgePosition.bottomLeft].contains(position);
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    final badgeColors = getSemanticColors(colorScheme, type);
+
+    final bool isTop = [BadgePosition.topLeft, BadgePosition.topRight].contains(position);
+    final bool isLeft = [BadgePosition.topLeft, BadgePosition.bottomLeft].contains(position);
 
     final double verticalOffset = 12;
     final double horizontalOffset = 12;
@@ -51,7 +44,7 @@ class AppBadge extends StatelessWidget {
       child: Container(
         padding: padding ?? const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         decoration: BoxDecoration(
-          color: _getBackgroundColor(),
+          color: badgeColors.background,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
@@ -67,7 +60,7 @@ class AppBadge extends StatelessWidget {
             if (icon != null) ...[
               Icon(
                 icon,
-                color: Colors.white,
+                color: badgeColors.foreground,
                 size: iconSize,
               ),
               const SizedBox(width: 4),
@@ -75,7 +68,7 @@ class AppBadge extends StatelessWidget {
             Text(
               text,
               style: TextStyle(
-                color: Colors.white,
+                color: badgeColors.foreground,
                 fontSize: fontSize,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 0.4,

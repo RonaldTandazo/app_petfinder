@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:app_petfinder/core/utils/common_helpers.dart';
+import 'package:app_petfinder/core/helpers/date_helper.dart';
 import 'package:app_petfinder/widgets/images/app_full_screen_gallery.dart';
 import 'package:app_petfinder/models/lost_pet/sight_report_model.dart';
 import 'package:app_petfinder/models/pictures/picture_model.dart';
-import 'package:app_petfinder/widgets/dialog/app_confirm_dialog.dart';
+import 'package:app_petfinder/widgets/dialogs/app_confirm_dialog.dart';
 
 class AppSightingsList extends StatelessWidget {
   final List<SightReportModel> sightings;
@@ -46,6 +46,9 @@ class AppSightingsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final bool isSmallPhone = constraints.maxWidth < 360;
@@ -59,15 +62,13 @@ class AppSightingsList extends StatelessWidget {
           itemBuilder: (context, index) {
             final SightReportModel sight = sightings[index];
 
-            final bool hasCoordinates =
-                sight.latitude != null && sight.longitude != null;
+            final bool hasCoordinates = sight.latitude != null && sight.longitude != null;
 
             final bool hasPictures = sight.pictures.isNotEmpty;
 
             final bool isSelected = selectedSightId == sight.id;
 
-            final bool isOwner = currentTutorId != null &&
-                sight.tutorId == currentTutorId;
+            final bool isOwner = currentTutorId != null && sight.tutorId == currentTutorId;
 
             final String subtitle =
                 sight.comment != null && sight.comment!.isNotEmpty
@@ -83,11 +84,11 @@ class AppSightingsList extends StatelessWidget {
                   icon: Badge(
                     label: Text('${sight.pictures.length}'),
                     isLabelVisible: sight.pictures.length > 1,
-                    backgroundColor: Colors.teal,
+                    backgroundColor: colorScheme.primary,
                     child: Icon(
                       Icons.photo_library_outlined,
                       size: iconSize,
-                      color: Colors.teal,
+                      color: colorScheme.primary
                     ),
                   ),
                   tooltip: 'Ver fotos',
@@ -107,7 +108,7 @@ class AppSightingsList extends StatelessWidget {
                   icon: Icon(
                     Icons.my_location,
                     size: iconSize,
-                    color: Colors.teal,
+                    color: colorScheme.primary,
                   ),
                   tooltip: 'Ver en mapa',
                   onPressed: () => onSightingSelected(sight),
@@ -123,7 +124,7 @@ class AppSightingsList extends StatelessWidget {
                   icon: Icon(
                     Icons.delete_outline,
                     size: iconSize,
-                    color: Colors.redAccent,
+                    color: colorScheme.error,
                   ),
                   tooltip: 'Eliminar Reporte',
                   onPressed: () => _confirmDelete(context, sight),
@@ -141,13 +142,13 @@ class AppSightingsList extends StatelessWidget {
                 bottom: isSmallPhone ? 8 : 10,
               ),
               elevation: isSelected ? 3 : 1,
-              color: isSelected ? Colors.teal.shade50 : Colors.white,
+              color: isSelected ? colorScheme.primaryContainer : colorScheme.surfaceContainer,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
                 side: BorderSide(
                   color: isSelected
-                      ? Colors.teal
-                      : Colors.grey.shade200,
+                      ? colorScheme.primary
+                      : colorScheme.outlineVariant,
                   width: isSelected ? 1.5 : 1,
                 ),
               ),
@@ -164,16 +165,12 @@ class AppSightingsList extends StatelessWidget {
                     children: [
                       CircleAvatar(
                         radius: isSmallPhone ? 17 : 20,
-                        backgroundColor: isSelected
-                            ? Colors.teal
-                            : Colors.grey.shade200,
+                        backgroundColor: isSelected ? colorScheme.primary : colorScheme.surfaceContainerHighest,
                         child: Icon(
                           hasCoordinates
                               ? Icons.remove_red_eye
                               : Icons.location_off,
-                          color: isSelected
-                              ? Colors.white
-                              : Colors.grey.shade700,
+                          color: isSelected ? colorScheme.onPrimary : colorScheme.onSurfaceVariant,
                           size: iconSize,
                         ),
                       ),
@@ -191,6 +188,7 @@ class AppSightingsList extends StatelessWidget {
                                 fontWeight: FontWeight.w600,
                                 fontSize: isSmallPhone ? 12 : 13,
                                 height: 1.3,
+                                color: colorScheme.onSurface,
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -200,7 +198,7 @@ class AppSightingsList extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: isSmallPhone ? 10 : 12,
-                                color: Colors.grey.shade700,
+                                color: colorScheme.onSurfaceVariant,
                                 height: 1.3,
                               ),
                             ),

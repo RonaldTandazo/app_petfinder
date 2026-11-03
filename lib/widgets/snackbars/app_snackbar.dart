@@ -1,36 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:app_petfinder/enums/snackbar/snackbar_position.dart';
-import 'package:app_petfinder/enums/snackbar/snackbar_type.dart';
+import 'package:app_petfinder/core/helpers/color_helper.dart';
+import 'package:app_petfinder/enums/status/status_type.dart';
 
 class AppSnackBar {
   static void show(
     BuildContext context, {
     required String title,
     String? description,
-    SnackBarType type = SnackBarType.information,
+    StatusType type = StatusType.information,
     SnackBarPosition position = SnackBarPosition.top,
     Duration duration = const Duration(seconds: 3),
   }) {
     final overlayState = Overlay.of(context);
 
-    final (Color bgColor, IconData iconData) = switch (type) {
-      SnackBarType.success => (
-          Colors.teal.shade700,
-          Icons.check_circle_rounded,
-        ),
-      SnackBarType.error => (
-          Colors.red.shade700,
-          Icons.cancel_rounded,
-        ),
-      SnackBarType.warning => (
-          Colors.amber.shade900,
-          Icons.warning_rounded,
-        ),
-      SnackBarType.information => (
-          Colors.blue.shade800,
-          Icons.info_rounded,
-        ),
-    };
+    final colorScheme = Theme.of(context).colorScheme;
+
+    final semanticColors = getSemanticColors(colorScheme, type);
 
     late final OverlayEntry overlayEntry;
 
@@ -43,8 +29,9 @@ class AppSnackBar {
           child: _SnackBarContent(
             title: title,
             description: description,
-            bgColor: bgColor,
-            iconData: iconData,
+            bgColor: semanticColors.background,
+            foregroundColor: semanticColors.foreground,
+            iconData: semanticColors.icon,
           ),
         );
       },
@@ -58,12 +45,14 @@ class _SnackBarContent extends StatelessWidget {
   final String title;
   final String? description;
   final Color bgColor;
+  final Color foregroundColor;
   final IconData iconData;
 
   const _SnackBarContent({
     required this.title,
     required this.description,
     required this.bgColor,
+    required this.foregroundColor,
     required this.iconData,
   });
 
@@ -112,7 +101,7 @@ class _SnackBarContent extends StatelessWidget {
             children: [
               Icon(
                 iconData,
-                color: Colors.white,
+                color: foregroundColor,
                 size: iconSize,
               ),
               SizedBox(width: isSmallPhone ? 8 : 12),
@@ -125,20 +114,19 @@ class _SnackBarContent extends StatelessWidget {
                       title,
                       softWrap: true,
                       style: TextStyle(
-                        color: Colors.white,
+                        color: foregroundColor,
                         fontWeight: FontWeight.bold,
                         fontSize: titleFontSize,
                         decoration: TextDecoration.none,
                       ),
                     ),
-                    if (description != null &&
-                        description!.trim().isNotEmpty) ...[
+                    if (description != null && description!.trim().isNotEmpty) ...[
                       const SizedBox(height: 2),
                       Text(
                         description!,
                         softWrap: true,
                         style: TextStyle(
-                          color: Colors.white70,
+                          color: foregroundColor.withValues(alpha: 0.85),
                           fontSize: descriptionFontSize,
                           height: 1.3,
                           decoration: TextDecoration.none,
@@ -218,10 +206,10 @@ class _SnackBarAnimatedWidgetState extends State<_SnackBarAnimatedWidget> {
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeOutBack,
             offset: _isVisible
-                ? Offset.zero
-                : (isTop
-                    ? const Offset(0, -0.5)
-                    : const Offset(0, 0.5)),
+              ? Offset.zero
+              : (isTop
+                  ? const Offset(0, -0.5)
+                  : const Offset(0, 0.5)),
             child: widget.child,
           ),
         ),

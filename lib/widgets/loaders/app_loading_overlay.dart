@@ -37,6 +37,9 @@ class _LoadingOverlayWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final Size screenSize = MediaQuery.sizeOf(context);
 
     final bool isSmallPhone = screenSize.width < 360;
@@ -73,13 +76,13 @@ class _LoadingOverlayWidget extends StatelessWidget {
                     vertical: isShortScreen ? 16 : verticalPadding,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: colorScheme.surfaceContainer,
                     borderRadius: BorderRadius.circular(20),
-                    boxShadow: const [
+                    boxShadow: [
                       BoxShadow(
-                        color: Colors.black12,
+                        color: Colors.black.withValues(alpha: 0.12),
                         blurRadius: 15,
-                        offset: Offset(0, 8),
+                        offset: const Offset(0, 8),
                       ),
                     ],
                   ),
@@ -89,8 +92,8 @@ class _LoadingOverlayWidget extends StatelessWidget {
                       SizedBox(
                         width: indicatorSize,
                         height: indicatorSize,
-                        child: const CircularProgressIndicator(
-                          color: Colors.teal,
+                        child: CircularProgressIndicator(
+                          color: colorScheme.primary,
                           strokeWidth: 3.5,
                         ),
                       ),
@@ -98,10 +101,10 @@ class _LoadingOverlayWidget extends StatelessWidget {
                       Text(
                         title,
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: theme.textTheme.titleMedium?.copyWith(
                           fontSize: titleFontSize,
                           fontWeight: FontWeight.bold,
-                          color: const Color(0xFF212121),
+                          color: colorScheme.onSurface,
                         ),
                       ),
                       if (description != null &&
@@ -110,9 +113,9 @@ class _LoadingOverlayWidget extends StatelessWidget {
                         Text(
                           description!,
                           textAlign: TextAlign.center,
-                          style: TextStyle(
+                          style: theme.textTheme.bodyMedium?.copyWith(
                             fontSize: descriptionFontSize,
-                            color: Colors.grey.shade600,
+                            color: colorScheme.onSurfaceVariant,
                             height: 1.3,
                           ),
                         ),

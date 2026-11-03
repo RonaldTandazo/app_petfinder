@@ -1,11 +1,11 @@
 import 'package:app_petfinder/enums/snackbar/snackbar_position.dart';
-import 'package:app_petfinder/enums/snackbar/snackbar_type.dart';
+import 'package:app_petfinder/enums/status/status_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:app_petfinder/models/adoption/adoption_pet_model.dart';
 import 'package:app_petfinder/core/network/api_exception.dart';
 import 'package:app_petfinder/core/utils/api_error_handler.dart';
-import 'package:app_petfinder/features/lost_pet/widgets/lost_pet_detail_skeleton.dart';
+import 'package:app_petfinder/widgets/loaders/pet_detail_skeleton.dart';
 import 'package:app_petfinder/repository/adoption/adoption_repository.dart';
 import 'package:app_petfinder/widgets/images/app_bar_image_carousel.dart';
 import 'package:app_petfinder/widgets/pets/app_pet_quick_info_grid.dart';
@@ -85,7 +85,6 @@ class _AdoptionPetScreenState extends State<AdoptionPetScreen> {
     AppSnackBar.show(
       context,
       title: message,
-      type: SnackBarType.information,
       position: SnackBarPosition.bottom
     );
     
@@ -102,10 +101,13 @@ class _AdoptionPetScreenState extends State<AdoptionPetScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     if (_isLoadingAdoptionPet || _adoptionPet == null) {
       return Scaffold(
-        backgroundColor: Colors.grey.shade50,
-        body: const LostPetDetailSkeleton(),
+        backgroundColor: theme.scaffoldBackgroundColor,
+        body: const PetDetailSkeleton(),
       );
     }
 
@@ -136,7 +138,7 @@ class _AdoptionPetScreenState extends State<AdoptionPetScreen> {
     final bool hasCoordinates = _adoptionPet!.latitude != null && _adoptionPet!.longitude != null;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAF9),
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: CustomScrollView(
         slivers: [
           AppBarImageCarousel(
@@ -169,37 +171,37 @@ class _AdoptionPetScreenState extends State<AdoptionPetScreen> {
 
                   // Descripción opcional
                   if (hasDescription) ...[
-                    const Text('Descripción', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    Text('Descripción', style: theme.textTheme.titleMedium,),
                     const SizedBox(height: 6),
                     Text(
                       _adoptionPet!.description!,
-                      style: const TextStyle(fontSize: 14, color: Colors.black87, height: 1.4),
+                      style: theme.textTheme.bodyMedium?.copyWith(height: 1.4),
                     ),
                     const SizedBox(height: 20),
                   ],
 
                   if(hasHealthConditions)...[
-                    const Text('Estado de Salud', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    Text('Estado de Salud', style: theme.textTheme.titleMedium,),
                     const SizedBox(height: 6),
                     Wrap(
                       spacing: 8.0,
                       runSpacing: 8.0,
                       children: _adoptionPet!.healthConditions.map((condition) {
                         return RawChip(
-                          avatar: const Icon(
+                          avatar: Icon(
                             Icons.check_circle_outline_rounded,
                             size: 18,
-                            color: Color(0xFF0F766E),
+                            color: colorScheme.onPrimaryContainer,
                           ),
                           label: Text(
                             condition['name'],
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
-                              color: Color(0xFF0F766E),
+                              color: colorScheme.onPrimaryContainer,
                             ),
                           ),
-                          backgroundColor: const Color(0xFFCCFBF1),
+                          backgroundColor: colorScheme.primaryContainer,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
                           ),
@@ -217,15 +219,12 @@ class _AdoptionPetScreenState extends State<AdoptionPetScreen> {
                   const SizedBox(height: 20),
 
                   if (hasAddress || hasCoordinates) ...[
-                    const Text(
-                      'Ubicación',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
+                    Text('Ubicación', style: theme.textTheme.titleMedium,),
                     if (hasAddress) ...[
                       const SizedBox(height: 6),
                       Text(
                         '${_adoptionPet!.address}, ${_adoptionPet!.city}',
-                        style: const TextStyle(fontSize: 14, color: Colors.black87, height: 1.4),
+                        style: theme.textTheme.bodyMedium?.copyWith(height: 1.4),
                       ),
                     ],
                     if (hasCoordinates) ...[

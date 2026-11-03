@@ -1,6 +1,6 @@
 import 'package:app_petfinder/core/router/main/main_routes.dart';
 import 'package:app_petfinder/core/utils/api_success_handler.dart';
-import 'package:app_petfinder/enums/snackbar/snackbar_type.dart';
+import 'package:app_petfinder/enums/status/status_type.dart';
 import 'package:app_petfinder/repository/legal/legal_repository.dart';
 import 'package:app_petfinder/widgets/snackbars/app_snackbar.dart';
 import 'package:flutter/material.dart';
@@ -46,9 +46,10 @@ class _LegalAcceptanceScreenState extends State<LegalAcceptanceScreen> {
     }
   }
 
-  Widget _buildLegalAcceptance(LegalDocumentModel document) {
+  Widget _buildLegalAcceptance(ThemeData theme, LegalDocumentModel document) {
     return CheckboxListTile(
       value: _accepted[document.id] ?? false,
+      activeColor: theme.colorScheme.primary,
       onChanged: _isLoading
         ? null
         : (value) {
@@ -60,7 +61,10 @@ class _LegalAcceptanceScreenState extends State<LegalAcceptanceScreen> {
       contentPadding: EdgeInsets.zero,
       title: Wrap(
         children: [
-          const Text('He leído y acepto los '),
+          Text(
+            'He leído y acepto los ',
+            style: theme.textTheme.bodyMedium,
+          ),
           InkWell(
             onTap: document.tag == LegalDocumentType.unknown
               ? null
@@ -68,7 +72,7 @@ class _LegalAcceptanceScreenState extends State<LegalAcceptanceScreen> {
             child: Text(
               document.name,
               style: TextStyle(
-                color: Theme.of(context).colorScheme.primary,
+                color: theme.colorScheme.primary,
                 decoration: TextDecoration.underline,
                 fontWeight: FontWeight.w600,
               ),
@@ -76,7 +80,12 @@ class _LegalAcceptanceScreenState extends State<LegalAcceptanceScreen> {
           ),
         ],
       ),
-      subtitle: Text('Versión ${document.version}'),
+      subtitle: Text(
+        'Versión ${document.version}',
+        style: theme.textTheme.bodySmall?.copyWith(
+          color: theme.colorScheme.onSurfaceVariant,
+        ),
+      ),
     );
   }
 
@@ -105,7 +114,7 @@ class _LegalAcceptanceScreenState extends State<LegalAcceptanceScreen> {
           title: response.message.isNotEmpty
             ? response.message
             : 'No se pudieron aceptar los documentos legales.',
-          type: SnackBarType.error
+          type: StatusType.error
         );
       }
 
@@ -122,27 +131,30 @@ class _LegalAcceptanceScreenState extends State<LegalAcceptanceScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return PopScope(
       canPop: false,
       child: Scaffold(
+        backgroundColor: theme.scaffoldBackgroundColor,
         body: SafeArea(
           child: LayoutBuilder(
             builder: (context, constraints) {
-              final width = constraints.maxWidth;
-              final height = constraints.maxHeight;
+              final double width = constraints.maxWidth;
+              final double height = constraints.maxHeight;
 
-              final isSmallPhone = width < 360;
-              final isTablet = width >= 600;
+              final bool isSmallPhone = width < 360;
+              final bool isTablet = width >= 600;
 
-              final horizontalPadding =
-                  isTablet ? 40.0 : 24.0;
+              final double horizontalPadding = isTablet ? 40.0 : 24.0;
 
-              final iconSize = isSmallPhone
-                  ? 64.0
-                  : isTablet
-                      ? 104.0
-                      : 88.0;
+              final double iconSize = isSmallPhone
+                ? 64.0
+                : isTablet
+                    ? 104.0
+                    : 88.0;
+
+              final double sectionSpacing = isSmallPhone ? 20.0 : 24.0;
 
               return SingleChildScrollView(
                 padding: EdgeInsets.symmetric(
@@ -168,15 +180,15 @@ class _LegalAcceptanceScreenState extends State<LegalAcceptanceScreen> {
                           Icon(
                             Icons.gpp_good_outlined,
                             size: iconSize,
-                            color: theme.colorScheme.primary,
+                            color: colorScheme.primary,
                           ),
                           const SizedBox(height: 24),
                           Text(
                             'Actualizamos nuestros documentos legales',
                             textAlign: TextAlign.center,
-                            style: theme.textTheme.headlineSmall
-                                ?.copyWith(
+                            style: theme.textTheme.headlineSmall?.copyWith(
                               fontWeight: FontWeight.bold,
+                              color: colorScheme.onSurface,
                             ),
                           ),
                           const SizedBox(height: 12),
@@ -184,9 +196,13 @@ class _LegalAcceptanceScreenState extends State<LegalAcceptanceScreen> {
                             'Para continuar usando PetFinder, '
                             'revisa y acepta los siguientes documentos.',
                             textAlign: TextAlign.center,
-                            style: theme.textTheme.bodyMedium,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                            ),
                           ),
-                          const SizedBox(height: 24),
+                          
+                          SizedBox(height: sectionSpacing),
+
                           if (widget.legalDocuments.isEmpty)
                             const Text(
                               'No se pudieron cargar los documentos '
@@ -199,27 +215,44 @@ class _LegalAcceptanceScreenState extends State<LegalAcceptanceScreen> {
                                 padding: const EdgeInsets.only(
                                   bottom: 12,
                                 ),
-                                child: _buildLegalAcceptance(document),
+                                child: _buildLegalAcceptance(theme, document),
                               ),
                             ),
-                          const SizedBox(height: 24),
-                          FilledButton(
-                            onPressed:
-                                _allAccepted && !_isLoading
-                                    ? _submitAcceptances
-                                    : null,
-                            child: _isLoading
-                                ? const SizedBox(
+
+                          SizedBox(height: sectionSpacing),
+                          
+                          SizedBox(
+                            height: 54,
+                            child: FilledButton.icon(
+                              onPressed: _allAccepted && !_isLoading ? _submitAcceptances : null,
+                              style: FilledButton.styleFrom(
+                                backgroundColor: colorScheme.primary,
+                                foregroundColor: colorScheme.onPrimary,
+                                disabledBackgroundColor: colorScheme.primary.withValues(alpha: 0.5),
+                                disabledForegroundColor: colorScheme.onPrimary,
+                                elevation: 2,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                              ),
+                              icon: _isLoading
+                                ? SizedBox(
                                     width: 20,
                                     height: 20,
-                                    child:
-                                        CircularProgressIndicator(
+                                    child: CircularProgressIndicator(
+                                      color: colorScheme.onPrimary,
                                       strokeWidth: 2,
                                     ),
                                   )
-                                : const Text(
-                                    'Aceptar y continuar',
-                                  ),
+                                : const Icon(Icons.check_circle_outline_rounded),
+                              label: Text(
+                                _isLoading ? 'Procesando...' : 'Aceptar y continuar',
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: colorScheme.onPrimary,
+                                ),
+                              ),
+                            ),
                           ),
                         ],
                       ),

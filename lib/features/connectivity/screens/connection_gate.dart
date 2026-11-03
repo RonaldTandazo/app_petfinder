@@ -86,10 +86,10 @@ class _ConnectionGateState extends State<ConnectionGate> {
           if (isBlocked)
             Positioned.fill(
               child: _hasInternet == null
-                  ? const CheckingConnectionScreen()
-                  : NoConnectionScreen(
-                      onRetry: _checkConnection,
-                    ),
+                ? const CheckingConnectionScreen()
+                : NoConnectionScreen(
+                    onRetry: _checkConnection,
+                  ),
             ),
         ],
       ),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:app_petfinder/enums/snackbar/snackbar_type.dart';
+import 'package:app_petfinder/enums/status/status_type.dart';
 import 'package:app_petfinder/widgets/snackbars/app_snackbar.dart';
 
 class ApiSuccessHandler {
@@ -8,7 +8,7 @@ class ApiSuccessHandler {
       context,
       title: title,
       description: description,
-      type: SnackBarType.success,
+      type: StatusType.success,
     );
   }
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:app_petfinder/enums/snackbar/snackbar_type.dart';
+import 'package:app_petfinder/enums/status/status_type.dart';
 import 'package:app_petfinder/models/pictures/picture_model.dart';
 import 'package:app_petfinder/models/storage/temp_file_model.dart';
 import 'package:app_petfinder/models/catalog/size_model.dart';
@@ -18,13 +18,13 @@ import 'package:app_petfinder/widgets/datepickers/app_datepicker.dart';
 import 'package:app_petfinder/widgets/snackbars/app_snackbar.dart';
 import 'package:app_petfinder/widgets/images/app_image_picker_grid.dart';
 import 'package:app_petfinder/widgets/toggles/app_toggle_tile.dart';
-import 'package:app_petfinder/features/adoption/styles/pet_form_styles.dart';
+import 'package:app_petfinder/styles/app_form_styles.dart';
 import 'package:app_petfinder/widgets/locations/app_location_picket_tile.dart';
 import 'package:app_petfinder/enums/datepicker/date_filter_type.dart';
 import 'package:app_petfinder/enums/datepicker/date_selection_type.dart';
 import 'package:app_petfinder/widgets/contact/app_contact_phone_fields.dart';
 import 'package:app_petfinder/core/network/api_response.dart';
-import 'package:app_petfinder/features/lost_pet/widgets/publish_pet_skeleton.dart';
+import 'package:app_petfinder/widgets/loaders/publish_pet_skeleton.dart';
 import 'package:app_petfinder/models/lost_pet/lost_pet_model.dart';
 import 'package:app_petfinder/core/router/main/main_routes.dart';
 
@@ -204,9 +204,9 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
     if (_selectedImages.isEmpty) {
       AppSnackBar.show(
         context,
-        title: 'Fotografías requeridas',
+        title: 'Fotografías Requeridas',
         description: 'Por favor agrega al menos 1 fotografía de la mascota.',
-        type: SnackBarType.warning,
+        type: StatusType.warning,
       );
       return;
     }
@@ -215,9 +215,9 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
     if (hasUploading) {
       AppSnackBar.show(
         context,
-        title: 'Imágenes subiendo',
+        title: 'Subiendo Imágenes',
         description: 'Por favor espera a que terminen de subirse las fotografías.',
-        type: SnackBarType.warning,
+        type: StatusType.warning,
       );
       return;
     }
@@ -318,16 +318,19 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final double screenWidth = MediaQuery.sizeOf(context).width;
 
     final bool isSmallPhone = screenWidth < 360;
     final bool isTablet = screenWidth >= 600;
 
     final double horizontalPadding = isSmallPhone
-        ? 16.0
-        : isTablet
-            ? 32.0
-            : 20.0;
+      ? 16.0
+      : isTablet
+          ? 32.0
+          : 20.0;
 
     final double fieldSpacing = isSmallPhone ? 12.0 : 14.0;
     final double sectionSpacing = isSmallPhone ? 20.0 : 24.0;
@@ -335,7 +338,7 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
     return _isLoadingForm
         ? const PublishPetSkeleton()
         : Scaffold(
-            backgroundColor: const Color(0xFFF8FAF9),
+            backgroundColor: theme.scaffoldBackgroundColor,
             appBar: AppBar(
               title: Text(
                 _titleScreen,
@@ -375,7 +378,8 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
                             ),
                             children: [
                               // FOTOGRAFÍAS
-                              PetFormStyles.buildSectionHeader(
+                              AppFormStyles.buildSectionHeader(
+                                context,
                                 'Fotografías',
                                 'Sube imágenes recientes y claras de la mascota',
                               ),
@@ -400,7 +404,8 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
                               SizedBox(height: sectionSpacing),
 
                               // INFORMACIÓN DE LA MASCOTA
-                              PetFormStyles.buildSectionHeader(
+                              AppFormStyles.buildSectionHeader(
+                                context,
                                 'Información de la Mascota',
                                 'Datos de identificación',
                               ),
@@ -408,7 +413,8 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
 
                               TextFormField(
                                 controller: _nameController,
-                                decoration: PetFormStyles.inputDecoration(
+                                decoration: AppFormStyles.inputDecoration(
+                                  context,
                                   'Nombre de la mascota *',
                                   Icons.pets_rounded,
                                 ),
@@ -420,14 +426,15 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
 
                               SizedBox(height: fieldSpacing),
 
-                              // ESPECIE Y SEXO
+                              // ESPECIE Y GÉNERO
                               _responsiveRow(
                                 availableWidth: availableWidth,
                                 fieldSpacing: fieldSpacing,
                                 first: DropdownButtonFormField<int>(
                                   initialValue: _selectedSpeciesId,
                                   isExpanded: true,
-                                  decoration: PetFormStyles.inputDecoration(
+                                  decoration: AppFormStyles.inputDecoration(
+                                    context,
                                     'Especie *',
                                     Icons.category_rounded,
                                   ),
@@ -451,8 +458,9 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
                                 second: DropdownButtonFormField<int>(
                                   initialValue: _selectedGenderId,
                                   isExpanded: true,
-                                  decoration: PetFormStyles.inputDecoration(
-                                    'Sexo *',
+                                  decoration: AppFormStyles.inputDecoration(
+                                    context,
+                                    'Género *',
                                     Icons.transgender_rounded,
                                   ),
                                   items: _gendersList.map((item) {
@@ -483,7 +491,8 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
                                 first: DropdownButtonFormField<int>(
                                   initialValue: _selectedSizeId,
                                   isExpanded: true,
-                                  decoration: PetFormStyles.inputDecoration(
+                                  decoration: AppFormStyles.inputDecoration(
+                                    context,
                                     'Tamaño *',
                                     Icons.straighten_rounded,
                                   ),
@@ -506,7 +515,8 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
                                 ),
                                 second: TextFormField(
                                   controller: _raceController,
-                                  decoration: PetFormStyles.inputDecoration(
+                                  decoration: AppFormStyles.inputDecoration(
+                                    context,
                                     'Raza / Mezcla',
                                     Icons.merge_type_rounded,
                                   ),
@@ -517,7 +527,8 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
 
                               TextFormField(
                                 controller: _colorController,
-                                decoration: PetFormStyles.inputDecoration(
+                                decoration: AppFormStyles.inputDecoration(
+                                  context,
                                   'Color principal',
                                   Icons.palette_rounded,
                                 ),
@@ -526,7 +537,8 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
                               SizedBox(height: sectionSpacing),
 
                               // UBICACIÓN Y FECHA
-                              PetFormStyles.buildSectionHeader(
+                              AppFormStyles.buildSectionHeader(
+                                context,
                                 'Ubicación y Fecha',
                                 '¿Dónde y cuándo sucedió?',
                               ),
@@ -537,7 +549,8 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
                                 fieldSpacing: fieldSpacing,
                                 first: TextFormField(
                                   controller: _cityController,
-                                  decoration: PetFormStyles.inputDecoration(
+                                  decoration: AppFormStyles.inputDecoration(
+                                    context,
                                     'Ciudad *',
                                     Icons.location_city_rounded,
                                   ),
@@ -577,7 +590,8 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
                                     val == null || val.trim().isEmpty
                                         ? 'Ingresa la dirección'
                                         : null,
-                                decoration: PetFormStyles.inputDecoration(
+                                decoration: AppFormStyles.inputDecoration(
+                                  context,
                                   'Dirección de referencia / Sector *',
                                   Icons.place_rounded,
                                 ),
@@ -611,7 +625,8 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
                               SizedBox(height: sectionSpacing),
 
                               // RECOMPENSA
-                              PetFormStyles.buildSectionHeader(
+                              AppFormStyles.buildSectionHeader(
+                                context,
                                 'Recompensa',
                                 'Incentivo opcional por devolución o datos',
                               ),
@@ -619,10 +634,10 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
 
                               Container(
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
+                                  color: colorScheme.surfaceContainer,
                                   borderRadius: BorderRadius.circular(16),
                                   border: Border.all(
-                                    color: Colors.grey.shade200,
+                                    color: colorScheme.outlineVariant,
                                   ),
                                 ),
                                 padding: EdgeInsets.symmetric(
@@ -646,11 +661,13 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
                                       subtitle:
                                           'Actívalo para motivar búsquedas comunitarias en la zona',
                                       icon: Icons.monetization_on_rounded,
-                                      activeColor: Colors.teal.shade700,
+                                      activeColor: colorScheme.tertiary,
                                     ),
 
                                     if (_hasReward) ...[
-                                      const Divider(),
+                                      Divider(
+                                        color: colorScheme.outlineVariant,
+                                      ),
                                       const SizedBox(height: 8),
 
                                       TextFormField(
@@ -664,7 +681,8 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
                                             RegExp(r'^\d*\.?\d{0,2}'),
                                           ),
                                         ],
-                                        decoration: PetFormStyles.inputDecoration(
+                                        decoration: AppFormStyles.inputDecoration(
+                                          context,
                                           'Monto de Recompensa (\$) *',
                                           Icons.attach_money_rounded,
                                         ),
@@ -702,7 +720,8 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
                               SizedBox(height: sectionSpacing),
 
                               // DETALLES ADICIONALES
-                              PetFormStyles.buildSectionHeader(
+                              AppFormStyles.buildSectionHeader(
+                                context,
                                 'Detalles Adicionales',
                                 'Señas particulares y lo que sea de ayuda',
                               ),
@@ -711,7 +730,8 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
                               TextFormField(
                                 controller: _descriptionController,
                                 maxLines: 4,
-                                decoration: PetFormStyles.inputDecoration(
+                                decoration: AppFormStyles.inputDecoration(
+                                  context,
                                   'Describe collar, manchas, cicatrices, temperamento o si necesita medicación urgente...',
                                   Icons.description_rounded,
                                 ),
@@ -722,22 +742,23 @@ class _PublishLostPetScreenState extends State<PublishLostPetScreen> {
                               // PUBLICAR / ACTUALIZAR
                               SizedBox(
                                 height: 54,
-                                child: ElevatedButton(
+                                child: FilledButton.icon(
                                   onPressed: _submitForm,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.redAccent.shade400,
+                                  style: FilledButton.styleFrom(
+                                    backgroundColor: colorScheme.error,
+                                    foregroundColor: colorScheme.onError,
                                     elevation: 2,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(16),
                                     ),
                                   ),
-                                  child: Text(
+                                  icon: const Icon(Icons.campaign_rounded),
+                                  label: Text(
                                     _submitButton,
                                     textAlign: TextAlign.center,
-                                    style: const TextStyle(
-                                      fontSize: 16,
+                                    style: theme.textTheme.titleMedium?.copyWith(
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.white,
+                                      color: colorScheme.onError,
                                     ),
                                   ),
                                 ),

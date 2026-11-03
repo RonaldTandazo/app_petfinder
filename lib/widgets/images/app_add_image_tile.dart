@@ -14,6 +14,9 @@ class AppAddImageTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final double screenWidth = MediaQuery.sizeOf(context).width;
 
     final bool isSmallPhone = screenWidth < 360;
@@ -42,10 +45,10 @@ class AppAddImageTile extends StatelessWidget {
         child: Container(
           width: tileWidth,
           decoration: BoxDecoration(
-            color: Colors.teal.shade50.withValues(alpha: 0.5),
+            color: colorScheme.primaryContainer.withValues(alpha: 0.35),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: Colors.teal.shade200,
+              color: colorScheme.primary.withValues(alpha: 0.5),
               width: 1.5,
             ),
           ),
@@ -54,7 +57,7 @@ class AppAddImageTile extends StatelessWidget {
             children: [
               Icon(
                 Icons.add_a_photo_rounded,
-                color: Colors.teal.shade700,
+                color: colorScheme.primary,
                 size: iconSize,
               ),
               const SizedBox(height: 6),
@@ -62,7 +65,7 @@ class AppAddImageTile extends StatelessWidget {
                 '$currentCount/$maxImages',
                 style: TextStyle(
                   fontSize: counterFontSize,
-                  color: Colors.teal.shade800,
+                  color: colorScheme.primary,
                   fontWeight: FontWeight.bold,
                 ),
               ),

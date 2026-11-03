@@ -109,7 +109,9 @@ class ManagementScreen extends StatelessWidget {
                           ),
                         ),
                       ),
+                      
                       SizedBox(height: isSmallPhone ? 20 : 28),
+
                       if (isTablet)
                         GridView.builder(
                           shrinkWrap: true,

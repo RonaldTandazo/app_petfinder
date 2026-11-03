@@ -23,7 +23,7 @@ class CardOption extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colors = _getColors(theme);
+    final colors = _getColors(theme.colorScheme);
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -69,9 +69,7 @@ class CardOption extends StatelessWidget {
     );
   }
 
-  CardOptionColor _getColors(ThemeData theme) {
-    final colorScheme = theme.colorScheme;
-
+  CardOptionColor _getColors(ColorScheme colorScheme) {
     switch (type) {
       case CardOptionType.normal:
         return CardOptionColor(

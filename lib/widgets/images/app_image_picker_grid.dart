@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
 import 'package:app_petfinder/core/utils/api_error_handler.dart';
-import 'package:app_petfinder/enums/snackbar/snackbar_type.dart';
+import 'package:app_petfinder/enums/status/status_type.dart';
 import 'package:app_petfinder/models/storage/temp_file_model.dart';
 import 'package:app_petfinder/repository/file/file_repository.dart';
 import 'package:app_petfinder/widgets/images/app_add_image_tile.dart';
@@ -42,9 +42,9 @@ class _AppImagePickerGridState extends State<AppImagePickerGrid> {
     if (widget.images.length >= widget.maxImages) {
       AppSnackBar.show(
         context,
-        title: 'Límite alcanzado',
+        title: 'Límite Alcanzado',
         description: 'Ya has seleccionado el máximo de ${widget.maxImages} fotos',
-        type: SnackBarType.warning,
+        type: StatusType.warning,
       );
       return;
     }
@@ -64,9 +64,9 @@ class _AppImagePickerGridState extends State<AppImagePickerGrid> {
 
         AppSnackBar.show(
           context,
-          title: 'Límite alcanzado',
+          title: 'Límite Alcanzado',
           description: 'Ya has seleccionado el máximo de ${widget.maxImages} fotos.',
-          type: SnackBarType.warning,
+          type: StatusType.warning,
         );
         return;
       }
@@ -103,7 +103,7 @@ class _AppImagePickerGridState extends State<AppImagePickerGrid> {
         context,
         title: 'Error de imagen',
         description: 'No se pudo cargar la imagen. Inténtalo de nuevo.',
-        type: SnackBarType.error,
+        type: StatusType.error,
       );
     }
   }

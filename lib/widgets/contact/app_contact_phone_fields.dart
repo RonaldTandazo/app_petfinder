@@ -1,4 +1,4 @@
-import 'package:app_petfinder/features/adoption/styles/pet_form_styles.dart';
+import 'package:app_petfinder/styles/app_form_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -40,7 +40,7 @@ class AppContactPhoneFields extends StatelessWidget {
 
         final fields = <Widget>[
           if (showPhoneMobile)
-            _buildMobileField(),
+            _buildMobileField(context),
 
           if (showPhoneMobile && showPhoneHome)
             SizedBox(
@@ -49,14 +49,15 @@ class AppContactPhoneFields extends StatelessWidget {
             ),
 
           if (showPhoneHome)
-            _buildHomeField(),
+            _buildHomeField(context),
         ];
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (showHeader) ...[
-              PetFormStyles.buildSectionHeader(
+              AppFormStyles.buildSectionHeader(
+                context,
                 'Información de Contacto',
                 'Teléfonos de referencia para recibir información',
               ),
@@ -75,10 +76,10 @@ class AppContactPhoneFields extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  if (showPhoneMobile) _buildMobileField(),
+                  if (showPhoneMobile) _buildMobileField(context),
                   if (showPhoneMobile && showPhoneHome)
                     const SizedBox(height: 14),
-                  if (showPhoneHome) _buildHomeField(),
+                  if (showPhoneHome) _buildHomeField(context),
                 ],
               ),
           ],
@@ -87,19 +88,19 @@ class AppContactPhoneFields extends StatelessWidget {
     );
   }
 
-  Widget _buildMobileField() {
+  Widget _buildMobileField(BuildContext context) {
     return TextFormField(
       controller: mobileController,
       keyboardType: TextInputType.phone,
       maxLength: 15,
       validator: mobileValidator ??
-          (val) {
-            if (isPhoneMobileRequired &&
-                (val == null || val.trim().isEmpty)) {
-              return 'Ingresa el celular';
-            }
-            return null;
-          },
+        (val) {
+          if (isPhoneMobileRequired &&
+              (val == null || val.trim().isEmpty)) {
+            return 'Ingresa el celular';
+          }
+          return null;
+        },
       inputFormatters: [
         FilteringTextInputFormatter.allow(RegExp(r'[\d+\s]')),
         TextInputFormatter.withFunction((oldValue, newValue) {
@@ -123,7 +124,8 @@ class AppContactPhoneFields extends StatelessWidget {
         }),
         LengthLimitingTextInputFormatter(15),
       ],
-      decoration: PetFormStyles.inputDecoration(
+      decoration: AppFormStyles.inputDecoration(
+        context,
         'Teléfono Celular${isPhoneMobileRequired ? ' *' : ''}',
         Icons.smartphone_rounded,
       ).copyWith(
@@ -133,24 +135,25 @@ class AppContactPhoneFields extends StatelessWidget {
     );
   }
 
-  Widget _buildHomeField() {
+  Widget _buildHomeField(BuildContext context) {
     return TextFormField(
       controller: homeController,
       keyboardType: TextInputType.phone,
       maxLength: 10,
       validator: homeValidator ??
-          (val) {
-            if (isPhoneHomeRequired &&
-                (val == null || val.trim().isEmpty)) {
-              return 'Ingresa el convencional';
-            }
-            return null;
-          },
+        (val) {
+          if (isPhoneHomeRequired &&
+              (val == null || val.trim().isEmpty)) {
+            return 'Ingresa el convencional';
+          }
+          return null;
+        },
       inputFormatters: [
         FilteringTextInputFormatter.digitsOnly,
         LengthLimitingTextInputFormatter(10),
       ],
-      decoration: PetFormStyles.inputDecoration(
+      decoration: AppFormStyles.inputDecoration(
+        context,
         'Teléfono Convencional${isPhoneHomeRequired ? ' *' : ''}',
         Icons.phone_rounded,
       ).copyWith(counterText: ''),

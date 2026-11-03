@@ -13,7 +13,7 @@ class InformationItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colors = theme.colorScheme;
+    final colorScheme = theme.colorScheme;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -21,7 +21,7 @@ class InformationItem extends StatelessWidget {
         Icon(
           icon,
           size: 21,
-          color: colors.onSurfaceVariant,
+          color: colorScheme.onSurfaceVariant,
         ),
         const SizedBox(width: 12),
         Expanded(

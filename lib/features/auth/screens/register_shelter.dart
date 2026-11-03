@@ -1,5 +1,3 @@
-import 'package:app_petfinder/enums/snackbar/snackbar_type.dart';
-import 'package:app_petfinder/widgets/snackbars/app_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:app_petfinder/widgets/requirements/requirement_item.dart';
@@ -8,6 +6,9 @@ import 'package:app_petfinder/core/utils/api_success_handler.dart';
 import 'package:app_petfinder/core/router/auth/auth_routes.dart';
 import 'package:app_petfinder/core/network/api_exception.dart';
 import 'package:app_petfinder/repository/auth/auth_repository.dart';
+import 'package:app_petfinder/enums/status/status_type.dart';
+import 'package:app_petfinder/styles/app_form_styles.dart';
+import 'package:app_petfinder/widgets/snackbars/app_snackbar.dart';
 
 class RegisterShelterScreen extends StatefulWidget {
   const RegisterShelterScreen({super.key});
@@ -79,7 +80,7 @@ class _RegisterShelterScreenState extends State<RegisterShelterScreen> {
       AppSnackBar.show(
         context,
         title: 'Debes aceptar los términos y leer la política de privacidad',
-        type: SnackBarType.warning,
+        type: StatusType.warning,
       );
 
       return;
@@ -122,18 +123,20 @@ class _RegisterShelterScreenState extends State<RegisterShelterScreen> {
       controller: _businessNameController,
       textCapitalization: TextCapitalization.words,
       textInputAction: TextInputAction.next,
-      decoration: const InputDecoration(
-        labelText: 'Razón Social',
-        prefixIcon: Icon(Icons.badge_outlined),
+      decoration: AppFormStyles.inputDecoration(
+        context,
+        'Razón Social',
+        Icons.badge_outlined,
       ),
     );
 
     final taxIdField = TextFormField(
       controller: _taxIdController,
       textInputAction: TextInputAction.next,
-      decoration: const InputDecoration(
-        labelText: 'RUC / RIF / NIT',
-        prefixIcon: Icon(Icons.assignment_ind_outlined),
+      decoration: AppFormStyles.inputDecoration(
+        context,
+        'RUC / RIF / NIT',
+        Icons.assignment_ind_outlined,
       ),
     );
 
@@ -165,9 +168,10 @@ class _RegisterShelterScreenState extends State<RegisterShelterScreen> {
       controller: _phoneMobileController,
       keyboardType: TextInputType.phone,
       textInputAction: TextInputAction.next,
-      decoration: const InputDecoration(
-        labelText: 'Teléfono',
-        prefixIcon: Icon(Icons.phone_outlined),
+      decoration: AppFormStyles.inputDecoration(
+        context,
+        'Teléfono',
+        Icons.phone_outlined,
       ),
     );
 
@@ -175,9 +179,10 @@ class _RegisterShelterScreenState extends State<RegisterShelterScreen> {
       controller: _cityController,
       textCapitalization: TextCapitalization.words,
       textInputAction: TextInputAction.next,
-      decoration: const InputDecoration(
-        labelText: 'Ciudad',
-        prefixIcon: Icon(Icons.location_city_outlined),
+      decoration: AppFormStyles.inputDecoration(
+        context,
+        'Ciudad',
+        Icons.location_city_outlined,
       ),
     );
 
@@ -209,6 +214,7 @@ class _RegisterShelterScreenState extends State<RegisterShelterScreen> {
     required VoidCallback onLinkTap,
   }) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -228,7 +234,7 @@ class _RegisterShelterScreenState extends State<RegisterShelterScreen> {
                   child: Text(
                     linkText,
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.primary,
+                      color: colorScheme.primary,
                       decoration: TextDecoration.underline,
                       fontWeight: FontWeight.w600,
                     ),
@@ -245,6 +251,8 @@ class _RegisterShelterScreenState extends State<RegisterShelterScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final double screenWidth = MediaQuery.sizeOf(context).width;
 
     final bool isSmallPhone = screenWidth < 360;
@@ -263,6 +271,7 @@ class _RegisterShelterScreenState extends State<RegisterShelterScreen> {
     final double fieldSpacing = isSmallPhone ? 12.0 : 16.0;
 
     return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -290,15 +299,15 @@ class _RegisterShelterScreenState extends State<RegisterShelterScreen> {
                           Icon(
                             Icons.pets_rounded,
                             size: iconSize,
-                            color: theme.colorScheme.primary,
+                            color: colorScheme.primary,
                           ),
                           const SizedBox(height: 16),
 
                           Text(
-                            'Crea tu cuenta de Refugio',
+                            'Crear Cuenta de Refugio',
                             style: theme.textTheme.headlineSmall?.copyWith(
                               fontWeight: FontWeight.bold,
-                              color: theme.colorScheme.onSurface,
+                              color: colorScheme.onSurface,
                               fontSize: isSmallPhone ? 21 : null,
                             ),
                             textAlign: TextAlign.center,
@@ -308,16 +317,17 @@ class _RegisterShelterScreenState extends State<RegisterShelterScreen> {
                           Text(
                             'Regístrate como fundación o refugio para publicar y gestionar adopciones',
                             style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.colorScheme.onSurfaceVariant,
+                              color: colorScheme.onSurfaceVariant,
                             ),
                             textAlign: TextAlign.center,
                           ),
 
                           SizedBox(height: sectionSpacing),
 
-                          _buildSectionHeader(
+                          AppFormStyles.buildSectionHeader(
                             context,
                             'Datos Institucionales',
+                            'Información de identificación de la fundación o refugio',
                           ),
                           const SizedBox(height: 12),
 
@@ -325,9 +335,10 @@ class _RegisterShelterScreenState extends State<RegisterShelterScreen> {
                             controller: _nameController,
                             textCapitalization: TextCapitalization.words,
                             textInputAction: TextInputAction.next,
-                            decoration: const InputDecoration(
-                              labelText: 'Nombre de la Fundación/Refugio *',
-                              prefixIcon: Icon(Icons.business_outlined),
+                            decoration: AppFormStyles.inputDecoration(
+                              context,
+                              'Nombre de la Fundación/Refugio *',
+                              Icons.business_outlined,
                             ),
                             validator: (v) =>
                                 (v != null && v.trim().isNotEmpty)
@@ -340,16 +351,21 @@ class _RegisterShelterScreenState extends State<RegisterShelterScreen> {
 
                           SizedBox(height: sectionSpacing),
 
-                          _buildSectionHeader(context, 'Cuenta de Acceso'),
+                          AppFormStyles.buildSectionHeader(
+                            context,
+                            'Cuenta de Acceso',
+                            'Credenciales para ingresar a PetFinder',
+                          ),
                           const SizedBox(height: 12),
 
                           TextFormField(
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
                             textInputAction: TextInputAction.next,
-                            decoration: const InputDecoration(
-                              labelText: 'Correo electrónico institucional *',
-                              prefixIcon: Icon(Icons.email_outlined),
+                            decoration: AppFormStyles.inputDecoration(
+                              context,
+                              'Correo electrónico institucional *',
+                              Icons.email_outlined,
                             ),
                             validator: (v) {
                               if (v == null || v.trim().isEmpty) {
@@ -374,14 +390,17 @@ class _RegisterShelterScreenState extends State<RegisterShelterScreen> {
                             controller: _passwordController,
                             obscureText: _obscurePassword,
                             textInputAction: TextInputAction.next,
-                            decoration: InputDecoration(
-                              labelText: 'Contraseña *',
-                              prefixIcon: const Icon(Icons.lock_outline),
+                            decoration: AppFormStyles.inputDecoration(
+                              context,
+                              'Contraseña *',
+                              Icons.lock_outline,
+                            ).copyWith(
                               suffixIcon: IconButton(
                                 icon: Icon(
                                   _obscurePassword
                                       ? Icons.visibility_outlined
                                       : Icons.visibility_off_outlined,
+                                  color: colorScheme.onSurfaceVariant,
                                 ),
                                 onPressed: () {
                                   setState(() {
@@ -429,9 +448,10 @@ class _RegisterShelterScreenState extends State<RegisterShelterScreen> {
 
                           SizedBox(height: sectionSpacing),
 
-                          _buildSectionHeader(
+                          AppFormStyles.buildSectionHeader(
                             context,
                             'Contacto y Ubicación',
+                            'Medios para contactar y localizar al refugio',
                           ),
                           const SizedBox(height: 12),
 
@@ -443,27 +463,31 @@ class _RegisterShelterScreenState extends State<RegisterShelterScreen> {
                             controller: _addressController,
                             textCapitalization: TextCapitalization.sentences,
                             textInputAction: TextInputAction.next,
-                            decoration: const InputDecoration(
-                              labelText: 'Dirección física',
-                              prefixIcon: Icon(Icons.map_outlined),
+                            decoration: AppFormStyles.inputDecoration(
+                              context,
+                              'Dirección física',
+                              Icons.map_outlined,
                             ),
                           ),
 
                           SizedBox(height: sectionSpacing),
 
-                          _buildSectionHeader(
+                          AppFormStyles.buildSectionHeader(
                             context,
                             'Información Adicional',
+                            'Horarios y enlaces para conocer más sobre el refugio',
                           ),
                           const SizedBox(height: 12),
 
                           TextFormField(
                             controller: _hoursController,
                             textInputAction: TextInputAction.next,
-                            decoration: const InputDecoration(
-                              labelText: 'Horario de atención',
+                            decoration: AppFormStyles.inputDecoration(
+                              context,
+                              'Horario de atención',
+                              Icons.access_time_outlined,
+                            ).copyWith(
                               hintText: 'Ej: Lun-Vie 9:00 - 17:00',
-                              prefixIcon: Icon(Icons.access_time_outlined),
                             ),
                           ),
 
@@ -474,10 +498,12 @@ class _RegisterShelterScreenState extends State<RegisterShelterScreen> {
                             keyboardType: TextInputType.url,
                             textInputAction: TextInputAction.done,
                             onFieldSubmitted: (_) => _submitRegister(),
-                            decoration: const InputDecoration(
-                              labelText: 'Sitio Web / Red Social',
+                            decoration: AppFormStyles.inputDecoration(
+                              context,
+                              'Sitio Web / Red Social',
+                              Icons.language_outlined,
+                            ).copyWith(
                               hintText: 'https://...',
-                              prefixIcon: Icon(Icons.language_outlined),
                             ),
                           ),
 
@@ -511,33 +537,40 @@ class _RegisterShelterScreenState extends State<RegisterShelterScreen> {
                             },
                           ),
 
-                          FilledButton(
-                            onPressed:
-                                _isLoading ? null : _submitRegister,
-                            style: FilledButton.styleFrom(
-                              padding: EdgeInsets.symmetric(
-                                vertical: isSmallPhone ? 14 : 16,
+                          SizedBox(height: sectionSpacing),
+
+                          SizedBox(
+                            height: 54,
+                            child: FilledButton.icon(
+                              onPressed: _isLoading ? null : _submitRegister,
+                              style: FilledButton.styleFrom(
+                                backgroundColor: colorScheme.primary,
+                                foregroundColor: colorScheme.onPrimary,
+                                disabledBackgroundColor: colorScheme.primary.withValues(alpha: 0.5),
+                                disabledForegroundColor: colorScheme.onPrimary,
+                                elevation: 2,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
                               ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: _isLoading
-                                ? const SizedBox(
-                                    height: 20,
+                              icon: _isLoading
+                                ? SizedBox(
                                     width: 20,
+                                    height: 20,
                                     child: CircularProgressIndicator(
-                                      color: Colors.white,
+                                      color: colorScheme.onPrimary,
                                       strokeWidth: 2,
                                     ),
                                   )
-                                : const Text(
-                                    'Crear Cuenta',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
+                                : const Icon(Icons.person_add_alt_1_rounded),
+                              label: Text(
+                                _isLoading ? 'Creando cuenta...' : 'Crear Cuenta',
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: colorScheme.onPrimary,
+                                ),
+                              ),
+                            ),
                           ),
 
                           const SizedBox(height: 16),
@@ -549,13 +582,13 @@ class _RegisterShelterScreenState extends State<RegisterShelterScreen> {
                               Text(
                                 '¿Ya tienes una cuenta?',
                                 style: TextStyle(
-                                  color: theme.colorScheme.onSurfaceVariant,
+                                  color: colorScheme.onSurfaceVariant,
                                 ),
                               ),
                               TextButton(
                                 onPressed: () =>
                                     context.go(AuthRoutes.login),
-                                child: const Text('Inicia sesión'),
+                                child: const Text('Inicia Sesión'),
                               ),
                             ],
                           ),
@@ -568,16 +601,6 @@ class _RegisterShelterScreenState extends State<RegisterShelterScreen> {
             );
           },
         ),
-      ),
-    );
-  }
-
-  Widget _buildSectionHeader(BuildContext context, String title) {
-    return Text(
-      title,
-      style: Theme.of(context).textTheme.labelLarge?.copyWith(
-        color: Theme.of(context).colorScheme.primary,
-        fontWeight: FontWeight.bold,
       ),
     );
   }

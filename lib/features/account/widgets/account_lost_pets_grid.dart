@@ -29,6 +29,9 @@ class AccountLostPetsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final double screenWidth = MediaQuery.sizeOf(context).width;
 
     final bool isSmallPhone = screenWidth < 360;
@@ -77,7 +80,7 @@ class AccountLostPetsGrid extends StatelessWidget {
                 picture: lostPet.picture,
                 genderTag: lostPet.genderTag,
                 badgeLabel: 'Perdida',
-                badgeColor: Colors.amber[800]!,
+                badgeColor: colorScheme.tertiary,
                 iconData: Icons.warning_amber_rounded,
                 statusActionLabel: 'Marcar como Encontrada',
                 showActions: isMyProfile,

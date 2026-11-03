@@ -39,6 +39,9 @@ class _AppBarImageCarouselState extends State<AppBarImageCarousel> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final Size screenSize = MediaQuery.sizeOf(context);
 
     final bool isSmallPhone = screenSize.width < 360;
@@ -59,7 +62,7 @@ class _AppBarImageCarouselState extends State<AppBarImageCarousel> {
     return SliverAppBar(
       expandedHeight: expandedHeight,
       pinned: true,
-      backgroundColor: Colors.teal,
+      backgroundColor: colorScheme.surface,
       actions: [
         Padding(
           padding: EdgeInsets.only(right: isSmallPhone ? 8 : 12),
@@ -74,9 +77,7 @@ class _AppBarImageCarouselState extends State<AppBarImageCarousel> {
               ),
               padding: EdgeInsets.zero,
               icon: Icon(
-                widget.isFollowing
-                    ? Icons.bookmark
-                    : Icons.bookmark_border,
+                widget.isFollowing ? Icons.bookmark : Icons.bookmark_border,
                 color: widget.isFollowing ? Colors.amber : Colors.white,
                 size: actionIconSize,
               ),

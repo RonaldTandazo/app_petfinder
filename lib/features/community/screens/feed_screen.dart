@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:app_petfinder/core/network/api_exception.dart';
 import 'package:app_petfinder/core/router/community/community_routes.dart';
 import 'package:app_petfinder/core/utils/api_error_handler.dart';
-import 'package:app_petfinder/core/utils/session_storage_service.dart';
+import 'package:app_petfinder/core/storage/session_storage_service.dart';
 import 'package:app_petfinder/features/community/widgets/feed_skeleton.dart';
 import 'package:app_petfinder/features/community/widgets/post_card.dart';
 import 'package:app_petfinder/features/community/widgets/reaction_button.dart';

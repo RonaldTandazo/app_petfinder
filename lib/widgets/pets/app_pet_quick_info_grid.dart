@@ -22,6 +22,9 @@ class AppPetQuickInfoGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final double width = constraints.maxWidth;
@@ -45,14 +48,17 @@ class AppPetQuickInfoGrid extends StatelessWidget {
         return Container(
           padding: EdgeInsets.all(containerPadding),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: colorScheme.surfaceContainer,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey.shade200),
+            border: Border.all(
+              color: colorScheme.outlineVariant,
+            ),
           ),
           child: items.isEmpty
             ? const SizedBox.shrink()
             : useGrid
               ? _buildGrid(
+                  colorScheme: colorScheme,
                   columns: columns,
                   iconSize: iconSize,
                   labelFontSize: labelFontSize,
@@ -66,6 +72,7 @@ class AppPetQuickInfoGrid extends StatelessWidget {
                       Expanded(
                         child: _buildTile(
                           items[i],
+                          colorScheme: colorScheme,
                           iconSize: iconSize,
                           labelFontSize: labelFontSize,
                           valueFontSize: valueFontSize,
@@ -79,7 +86,7 @@ class AppPetQuickInfoGrid extends StatelessWidget {
                           margin: EdgeInsets.symmetric(
                             horizontal: isSmallPhone ? 2 : 4,
                           ),
-                          color: Colors.grey.shade200,
+                          color: colorScheme.outlineVariant,
                         ),
                     ],
                   ],
@@ -90,6 +97,7 @@ class AppPetQuickInfoGrid extends StatelessWidget {
   }
 
   Widget _buildGrid({
+    required ColorScheme colorScheme,
     required int columns,
     required double iconSize,
     required double labelFontSize,
@@ -109,6 +117,7 @@ class AppPetQuickInfoGrid extends StatelessWidget {
       itemBuilder: (context, index) {
         return _buildTile(
           items[index],
+          colorScheme: colorScheme,
           iconSize: iconSize,
           labelFontSize: labelFontSize,
           valueFontSize: valueFontSize,
@@ -120,6 +129,7 @@ class AppPetQuickInfoGrid extends StatelessWidget {
 
   Widget _buildTile(
     QuickInfoItem item, {
+    required ColorScheme colorScheme,
     required double iconSize,
     required double labelFontSize,
     required double valueFontSize,
@@ -132,7 +142,7 @@ class AppPetQuickInfoGrid extends StatelessWidget {
         Icon(
           item.icon,
           size: iconSize,
-          color: Colors.teal,
+          color: colorScheme.primary,
         ),
         
         SizedBox(height: tileSpacing),
@@ -144,7 +154,7 @@ class AppPetQuickInfoGrid extends StatelessWidget {
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: labelFontSize,
-            color: Colors.grey.shade600,
+            color: colorScheme.onSurfaceVariant
           ),
         ),
         const SizedBox(height: 2),
@@ -157,6 +167,7 @@ class AppPetQuickInfoGrid extends StatelessWidget {
             fontSize: valueFontSize,
             fontWeight: FontWeight.w600,
             height: 1.2,
+            color: colorScheme.onSurface
           ),
         ),
       ],

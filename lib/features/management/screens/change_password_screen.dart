@@ -3,7 +3,7 @@ import 'package:app_petfinder/widgets/requirements/requirement_item.dart';
 import 'package:app_petfinder/core/network/api_exception.dart';
 import 'package:app_petfinder/core/utils/api_error_handler.dart';
 import 'package:app_petfinder/core/utils/api_success_handler.dart';
-import 'package:app_petfinder/features/adoption/styles/pet_form_styles.dart';
+import 'package:app_petfinder/styles/app_form_styles.dart';
 import 'package:app_petfinder/repository/account/account_repository.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
@@ -79,25 +79,34 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   }
 
   InputDecoration _inputDecoration({
+    required BuildContext context,
     required String label,
     required IconData icon,
     required String field,
     required bool obscureText,
     required VoidCallback onToggleObscure,
+    required ThemeData theme,
   }) {
-    InputDecoration baseDecoration = PetFormStyles.inputDecoration(label, icon).copyWith(
+    final colorScheme = theme.colorScheme;
+
+    InputDecoration baseDecoration = AppFormStyles.inputDecoration(context, label, icon).copyWith(
       suffixIcon: IconButton(
         icon: Icon(
-          obscureText ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-          color: Colors.grey.shade600,
+          obscureText
+            ? Icons.visibility_outlined
+            : Icons.visibility_off_outlined,
+          color: colorScheme.onSurfaceVariant,
         ),
         onPressed: onToggleObscure,
       ),
     );
 
     final errors = _fieldErrors[field];
+
     if (errors is List && errors.isNotEmpty) {
-      return baseDecoration.copyWith(errorText: errors.first.toString());
+      return baseDecoration.copyWith(
+        errorText: errors.first.toString(),
+      );
     }
 
     return baseDecoration;
@@ -148,8 +157,11 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAF9),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text(
           'Seguridad',
@@ -167,7 +179,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           children: [
-            PetFormStyles.buildSectionHeader(
+            AppFormStyles.buildSectionHeader(
+              context,
               'Contraseña',
               'Usa una contraseña que no uses en otros sitios',
             ),
@@ -179,11 +192,13 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               textInputAction: TextInputAction.next,
               onChanged: (_) => _clearFieldError('current_password'),
               decoration: _inputDecoration(
+                context: context,
                 label: 'Contraseña actual',
                 icon: Icons.lock_outline_rounded,
                 field: 'current_password',
                 obscureText: _obscureCurrent,
                 onToggleObscure: () => setState(() => _obscureCurrent = !_obscureCurrent),
+                theme: theme,
               ),
               validator: (value) => _requiredValidator(value, 'Ingresa tu contraseña actual'),
             ),
@@ -195,11 +210,13 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               textInputAction: TextInputAction.next,
               onChanged: (_) => _clearFieldError('new_password'),
               decoration: _inputDecoration(
+                context: context,
                 label: 'Nueva contraseña',
                 icon: Icons.lock_reset_rounded,
                 field: 'new_password',
                 obscureText: _obscureNew,
                 onToggleObscure: () => setState(() => _obscureNew = !_obscureNew),
+                theme: theme,
               ),
               validator: _newPasswordValidator,
             ),
@@ -223,11 +240,13 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               onFieldSubmitted: (_) => _submit(),
               onChanged: (_) => _clearFieldError('new_password_confirmation'),
               decoration: _inputDecoration(
+                context: context,
                 label: 'Repite la nueva contraseña',
                 icon: Icons.lock_rounded,
                 field: 'new_password_confirmation',
                 obscureText: _obscureConfirm,
                 onToggleObscure: () => setState(() => _obscureConfirm = !_obscureConfirm),
+                theme: theme,
               ),
               validator: _confirmValidator,
             ),
@@ -235,23 +254,33 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
             SizedBox(
               height: 54,
-              child: ElevatedButton(
+              child: FilledButton.icon(
                 onPressed: _isSubmitting ? null : _submit,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.teal.shade600,
+                style: FilledButton.styleFrom(
+                  backgroundColor: colorScheme.primary,
+                  foregroundColor: colorScheme.onPrimary,
                   elevation: 2,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                 ),
-                child: _isSubmitting
-                    ? const SizedBox(
-                        width: 22,
-                        height: 22,
-                        child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
-                      )
-                    : const Text(
-                        'Actualizar Contraseña',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                icon: _isSubmitting
+                  ? SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        color: colorScheme.onPrimary,
+                        strokeWidth: 2,
                       ),
+                    )
+                  : const Icon(Icons.lock_reset_rounded),
+                label: Text(
+                  _isSubmitting ? 'Actualizando...' : 'Actualizar Contraseña',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.onPrimary,
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 40),

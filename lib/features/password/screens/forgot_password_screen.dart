@@ -1,9 +1,9 @@
-
 import 'package:flutter/material.dart';
 import 'package:app_petfinder/repository/password/password_repository.dart';
 import 'package:app_petfinder/core/network/api_exception.dart';
 import 'package:app_petfinder/core/utils/api_error_handler.dart';
 import 'package:app_petfinder/features/auth/widgets/account_selection_bottom_sheet.dart';
+import 'package:app_petfinder/styles/app_form_styles.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -79,6 +79,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
     final double screenWidth = MediaQuery.sizeOf(context).width;
 
     final bool isSmallPhone = screenWidth < 360;
@@ -98,6 +99,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     final double fieldSpacing = isSmallPhone ? 12.0 : 16.0;
 
     return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text(
           'Recuperar Contraseña',
@@ -136,6 +138,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           sectionSpacing,
                         )
                       : _buildFormContent(
+                          context,
                           theme,
                           isSmallPhone,
                           iconSize,
@@ -154,6 +157,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }
 
   Widget _buildFormContent(
+    BuildContext context,
     ThemeData theme,
     bool isSmallPhone,
     double iconSize,
@@ -201,9 +205,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             autocorrect: false,
             enableSuggestions: false,
             onFieldSubmitted: (_) => _submit(),
-            decoration: const InputDecoration(
-              labelText: 'Correo electrónico',
-              prefixIcon: Icon(Icons.email_outlined),
+            decoration: AppFormStyles.inputDecoration(
+              context,
+              'Correo electrónico',
+              Icons.email_outlined,
             ),
             validator: (v) {
               if (v == null || v.trim().isEmpty) {
@@ -221,33 +226,41 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               return null;
             },
           ),
+
           SizedBox(height: isSmallPhone ? 22.0 : 28.0),
-          FilledButton(
-            onPressed: _isLoading ? null : _submit,
-            style: FilledButton.styleFrom(
-              padding: EdgeInsets.symmetric(
-                vertical: isSmallPhone ? 14.0 : 16.0,
+          
+          SizedBox(
+            height: 54,
+            child: FilledButton.icon(
+              onPressed: _isLoading ? null : _submit,
+              style: FilledButton.styleFrom(
+                backgroundColor: theme.colorScheme.primary,
+                foregroundColor: theme.colorScheme.onPrimary,
+                disabledBackgroundColor: theme.colorScheme.primary.withValues(alpha: 0.5),
+                disabledForegroundColor: theme.colorScheme.onPrimary,
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
               ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: _isLoading
-                ? const SizedBox(
-                    height: 20,
+              icon: _isLoading
+                ? SizedBox(
                     width: 20,
+                    height: 20,
                     child: CircularProgressIndicator(
-                      color: Colors.white,
+                      color: theme.colorScheme.onPrimary,
                       strokeWidth: 2,
                     ),
                   )
-                : const Text(
-                    'Enviar Instrucciones',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                : const Icon(Icons.email_outlined),
+              label: Text(
+                _isLoading ? 'Enviando...' : 'Enviar Instrucciones',
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.onPrimary,
+                ),
+              ),
+            ),
           ),
         ],
       ),

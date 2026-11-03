@@ -10,7 +10,9 @@ import 'package:app_petfinder/features/auth/widgets/register_type_bottom_sheet.d
 import 'package:app_petfinder/core/router/password/password_routes.dart';
 import 'package:app_petfinder/core/router/legal/legal_routes.dart';
 import 'package:app_petfinder/models/legal/legal_document_model.dart';
-import 'package:app_petfinder/widgets/dialog/app_confirm_dialog.dart';
+import 'package:app_petfinder/widgets/dialogs/app_confirm_dialog.dart';
+import 'package:app_petfinder/styles/app_form_styles.dart';
+import 'package:app_petfinder/enums/status/status_type.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -112,16 +114,14 @@ class _LoginScreenState extends State<LoginScreen> {
   void _showAccountDeletionModal(String message) async {
     final bool? confirm = await AppConfirmDialog.show(
       context: context,
-      titleIcon: Icons.info_outline,
-      titleIconColor: Colors.orange,
       title: 'Solicitud Activa',
       message: message,
       cancelText: 'No, Mantenerla',
       confirmText: 'Sí, Cancelarla',
-      confirmColor: Colors.teal
+      type: StatusType.information
     );
 
-    setState(() => _cancelAccountDeletion = true);
+    setState(() => _cancelAccountDeletion = confirm ?? false);
 
     if(confirm == true) _submitLogin();
   }
@@ -133,6 +133,8 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final double screenWidth = MediaQuery.sizeOf(context).width;
 
     final bool isSmallPhone = screenWidth < 360;
@@ -152,6 +154,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final double fieldSpacing = isSmallPhone ? 12.0 : 16.0;
 
     return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -179,7 +182,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           Icon(
                             Icons.pets_rounded,
                             size: iconSize,
-                            color: theme.colorScheme.primary,
+                            color: colorScheme.primary,
                           ),
                           const SizedBox(height: 12),
                           Text(
@@ -188,7 +191,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             style: theme.textTheme.headlineMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                               fontSize: titleSize,
-                              color: theme.colorScheme.onSurface,
+                              color: colorScheme.onSurface,
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -196,7 +199,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             'Bienvenido de vuelta',
                             textAlign: TextAlign.center,
                             style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.colorScheme.onSurfaceVariant,
+                              color: colorScheme.onSurfaceVariant,
                             ),
                           ),
                           SizedBox(height: sectionSpacing),
@@ -205,9 +208,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
                             textInputAction: TextInputAction.next,
-                            decoration: const InputDecoration(
-                              labelText: 'Correo electrónico',
-                              prefixIcon: Icon(Icons.email_outlined),
+                            decoration: AppFormStyles.inputDecoration(
+                              context,
+                              'Correo Electrónico',
+                              Icons.email_outlined,
                             ),
                             validator: (v) {
                               if (v == null || v.trim().isEmpty) {
@@ -232,14 +236,17 @@ class _LoginScreenState extends State<LoginScreen> {
                             obscureText: _obscurePassword,
                             textInputAction: TextInputAction.done,
                             onFieldSubmitted: (_) => _submitLogin(),
-                            decoration: InputDecoration(
-                              labelText: 'Contraseña',
-                              prefixIcon: const Icon(Icons.lock_outline),
+                            decoration: AppFormStyles.inputDecoration(
+                              context,
+                              'Contraseña',
+                              Icons.lock_outline,
+                            ).copyWith(
                               suffixIcon: IconButton(
                                 icon: Icon(
                                   _obscurePassword
                                       ? Icons.visibility_outlined
                                       : Icons.visibility_off_outlined,
+                                  color: colorScheme.onSurfaceVariant,
                                 ),
                                 onPressed: () {
                                   setState(() {
@@ -249,9 +256,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ),
                             validator: (v) {
-                              return (v != null && v.length >= 8)
-                                  ? null
-                                  : 'Mínimo 8 caracteres';
+                              return (v != null && v.trim().isNotEmpty)
+                                ? null
+                                : 'Ingresa tu contraseña';
                             },
                           ),
 
@@ -265,32 +272,38 @@ class _LoginScreenState extends State<LoginScreen> {
 
                           SizedBox(height: isSmallPhone ? 12.0 : 20.0),
 
-                          FilledButton(
-                            onPressed: _isLoading ? null : () => _submitLogin(),
-                            style: FilledButton.styleFrom(
-                              padding: EdgeInsets.symmetric(
-                                vertical: isSmallPhone ? 14.0 : 16.0,
+                          SizedBox(
+                            height: 54,
+                            child: FilledButton.icon(
+                              onPressed: _isLoading ? null : _submitLogin,
+                              style: FilledButton.styleFrom(
+                                backgroundColor: colorScheme.primary,
+                                foregroundColor: colorScheme.onPrimary,
+                                disabledBackgroundColor: colorScheme.primary.withValues(alpha: 0.5),
+                                disabledForegroundColor: colorScheme.onPrimary,
+                                elevation: 2,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
                               ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: _isLoading
-                                ? const SizedBox(
-                                    height: 20,
+                              icon: _isLoading
+                                ? SizedBox(
                                     width: 20,
+                                    height: 20,
                                     child: CircularProgressIndicator(
-                                      color: Colors.white,
+                                      color: colorScheme.onPrimary,
                                       strokeWidth: 2,
                                     ),
                                   )
-                                : const Text(
-                                    'Iniciar Sesión',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
+                                : const Icon(Icons.login_rounded),
+                              label: Text(
+                                _isLoading ? 'Iniciando Sesión...' : 'Iniciar Sesión',
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: colorScheme.onPrimary,
+                                ),
+                              ),
+                            ),
                           ),
 
                           SizedBox(height: isSmallPhone ? 12.0 : 20.0),
@@ -302,12 +315,12 @@ class _LoginScreenState extends State<LoginScreen> {
                               Text(
                                 '¿No tienes cuenta?',
                                 style: TextStyle(
-                                  color: theme.colorScheme.onSurfaceVariant,
+                                  color: colorScheme.onSurfaceVariant,
                                 ),
                               ),
                               TextButton(
                                 onPressed: () => _showRegisterTypeModal(context),
-                                child: const Text('Regístrate aquí'),
+                                child: const Text('Regístrate Aquí'),
                               ),
                             ],
                           ),

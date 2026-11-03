@@ -8,13 +8,13 @@ import 'package:app_petfinder/widgets/locations/app_location_picket_tile.dart';
 import 'package:app_petfinder/core/network/api_exception.dart';
 import 'package:app_petfinder/core/utils/api_error_handler.dart';
 import 'package:app_petfinder/core/utils/api_success_handler.dart';
-import 'package:app_petfinder/features/adoption/styles/pet_form_styles.dart';
+import 'package:app_petfinder/styles/app_form_styles.dart';
 import 'package:app_petfinder/models/storage/temp_file_model.dart';
 import 'package:app_petfinder/repository/account/account_repository.dart';
 import 'package:app_petfinder/widgets/images/app_image_picker_grid.dart';
-import 'package:app_petfinder/core/utils/account_storage_service.dart';
-import 'package:app_petfinder/core/utils/session_storage_service.dart';
-import 'package:app_petfinder/enums/snackbar/snackbar_type.dart';
+import 'package:app_petfinder/core/storage/account_storage_service.dart';
+import 'package:app_petfinder/core/storage/session_storage_service.dart';
+import 'package:app_petfinder/enums/status/status_type.dart';
 import 'package:app_petfinder/repository/catalog/catalog_repository.dart';
 import 'package:app_petfinder/widgets/snackbars/app_snackbar.dart';
 
@@ -152,7 +152,7 @@ class _EditShelterScreenState extends State<EditShelterScreen> {
         context,
         title: 'Imágenes subiendo',
         description: 'Por favor espera a que terminen de subirse las fotografías.',
-        type: SnackBarType.warning,
+        type: StatusType.warning,
       );
       return;
     }
@@ -249,6 +249,9 @@ class _EditShelterScreenState extends State<EditShelterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final double screenWidth = MediaQuery.sizeOf(context).width;
     final bool isSmallPhone = screenWidth < 360;
     final bool useTwoColumns = screenWidth >= 480;
@@ -259,7 +262,7 @@ class _EditShelterScreenState extends State<EditShelterScreen> {
     final double verticalFieldGap = useTwoColumns ? 14.0 : 20.0;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAF9),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
           'Refugio',
@@ -273,8 +276,10 @@ class _EditShelterScreenState extends State<EditShelterScreen> {
         elevation: 0,
       ),
       body: _isLoadingData || _isLoadingCatalog
-          ? const Center(
-              child: CircularProgressIndicator(color: Colors.teal),
+          ? Center(
+              child: CircularProgressIndicator(
+                color: colorScheme.primary,
+              ),
             )
           : Center(
               child: ConstrainedBox(
@@ -289,9 +294,10 @@ class _EditShelterScreenState extends State<EditShelterScreen> {
                       vertical: isSmallPhone ? 8 : 12,
                     ),
                     children: [
-                      PetFormStyles.buildSectionHeader(
+                      AppFormStyles.buildSectionHeader(
+                        context,
                         'Logo / Foto de Perfil',
-                        'Sube la imagen representativa del refugio',
+                        'Sube la imagen representativa del refugio'
                       ),
                       const SizedBox(height: 12),
 
@@ -305,7 +311,8 @@ class _EditShelterScreenState extends State<EditShelterScreen> {
 
                       SizedBox(height: sectionSpacing),
 
-                      PetFormStyles.buildSectionHeader(
+                      AppFormStyles.buildSectionHeader(
+                        context,
                         'Información del Refugio',
                         'Datos comerciales y de contacto',
                       ),
@@ -317,7 +324,8 @@ class _EditShelterScreenState extends State<EditShelterScreen> {
                         spacing: fieldSpacing,
                         first: TextFormField(
                           controller: _nameController,
-                          decoration: PetFormStyles.inputDecoration(
+                          decoration: AppFormStyles.inputDecoration(
+                            context,
                             'Nombre *',
                             Icons.store_rounded,
                           ),
@@ -328,7 +336,8 @@ class _EditShelterScreenState extends State<EditShelterScreen> {
                         ),
                         second: TextFormField(
                           controller: _businessNameController,
-                          decoration: PetFormStyles.inputDecoration(
+                          decoration: AppFormStyles.inputDecoration(
+                            context,
                             'Razón Social',
                             Icons.business_rounded,
                           ),
@@ -343,7 +352,8 @@ class _EditShelterScreenState extends State<EditShelterScreen> {
                         spacing: fieldSpacing,
                         first: TextFormField(
                           controller: _taxIdentificationController,
-                          decoration: PetFormStyles.inputDecoration(
+                          decoration: AppFormStyles.inputDecoration(
+                            context,
                             'RUC / Identificación fiscal',
                             Icons.badge_outlined,
                           ),
@@ -351,7 +361,8 @@ class _EditShelterScreenState extends State<EditShelterScreen> {
                         second: TextFormField(
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
-                          decoration: PetFormStyles.inputDecoration(
+                          decoration: AppFormStyles.inputDecoration(
+                            context,
                             'Correo electrónico *',
                             Icons.email,
                           ),
@@ -377,7 +388,8 @@ class _EditShelterScreenState extends State<EditShelterScreen> {
                         second: DropdownButtonFormField<int>(
                           initialValue: _selectedCountryId,
                           isExpanded: true,
-                          decoration: PetFormStyles.inputDecoration(
+                          decoration: AppFormStyles.inputDecoration(
+                            context,
                             'País',
                             Icons.public,
                           ),
@@ -406,14 +418,16 @@ class _EditShelterScreenState extends State<EditShelterScreen> {
                         spacing: fieldSpacing,
                         first: TextFormField(
                           controller: _cityController,
-                          decoration: PetFormStyles.inputDecoration(
+                          decoration: AppFormStyles.inputDecoration(
+                            context,
                             'Ciudad',
                             Icons.location_city_outlined,
                           ),
                         ),
                         second: TextFormField(
                           controller: _addressController,
-                          decoration: PetFormStyles.inputDecoration(
+                          decoration: AppFormStyles.inputDecoration(
+                            context,
                             'Dirección Física',
                             Icons.home_work_outlined,
                           ),
@@ -422,7 +436,8 @@ class _EditShelterScreenState extends State<EditShelterScreen> {
 
                       SizedBox(height: sectionSpacing),
 
-                      PetFormStyles.buildSectionHeader(
+                      AppFormStyles.buildSectionHeader(
+                        context,
                         'Ubicación',
                         'Selecciona las coordenadas en el mapa',
                       ),
@@ -443,7 +458,8 @@ class _EditShelterScreenState extends State<EditShelterScreen> {
 
                       SizedBox(height: sectionSpacing),
 
-                      PetFormStyles.buildSectionHeader(
+                      AppFormStyles.buildSectionHeader(
+                        context,
                         'Información Adicional',
                         'Página web y horarios de atención',
                       ),
@@ -456,14 +472,16 @@ class _EditShelterScreenState extends State<EditShelterScreen> {
                         first: TextFormField(
                           controller: _webPageController,
                           keyboardType: TextInputType.url,
-                          decoration: PetFormStyles.inputDecoration(
+                          decoration: AppFormStyles.inputDecoration(
+                            context,
                             'Sitio Web',
                             Icons.language_rounded,
                           ),
                         ),
                         second: TextFormField(
                           controller: _businessHoursController,
-                          decoration: PetFormStyles.inputDecoration(
+                          decoration: AppFormStyles.inputDecoration(
+                            context,
                             'Horarios de Atención',
                             Icons.access_time_rounded,
                           ),
@@ -477,7 +495,8 @@ class _EditShelterScreenState extends State<EditShelterScreen> {
                         child: ElevatedButton(
                           onPressed: _submit,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.teal.shade600,
+                            backgroundColor: colorScheme.primary,
+                            foregroundColor: colorScheme.onPrimary,
                             elevation: 2,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
@@ -488,7 +507,7 @@ class _EditShelterScreenState extends State<EditShelterScreen> {
                             style: TextStyle(
                               fontSize: isSmallPhone ? 14 : 16,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              color: colorScheme.onPrimary,
                             ),
                           ),
                         ),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:app_petfinder/enums/snackbar/snackbar_type.dart';
+import 'package:app_petfinder/enums/status/status_type.dart';
 import 'package:app_petfinder/models/pictures/picture_model.dart';
 import 'package:app_petfinder/widgets/contact/app_contact_phone_fields.dart';
 import 'package:app_petfinder/widgets/snackbars/app_snackbar.dart';
@@ -8,12 +8,12 @@ import 'package:app_petfinder/models/catalog/gender_model.dart';
 import 'package:app_petfinder/core/network/api_exception.dart';
 import 'package:app_petfinder/core/utils/api_error_handler.dart';
 import 'package:app_petfinder/core/utils/api_success_handler.dart';
-import 'package:app_petfinder/features/adoption/styles/pet_form_styles.dart';
+import 'package:app_petfinder/styles/app_form_styles.dart';
 import 'package:app_petfinder/models/storage/temp_file_model.dart';
 import 'package:app_petfinder/repository/account/account_repository.dart';
 import 'package:app_petfinder/widgets/images/app_image_picker_grid.dart';
-import 'package:app_petfinder/core/utils/account_storage_service.dart';
-import 'package:app_petfinder/core/utils/session_storage_service.dart';
+import 'package:app_petfinder/core/storage/account_storage_service.dart';
+import 'package:app_petfinder/core/storage/session_storage_service.dart';
 import 'package:app_petfinder/repository/catalog/catalog_repository.dart';
 import 'package:app_petfinder/widgets/loaders/app_loading_overlay.dart';
 
@@ -141,7 +141,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
         context,
         title: 'Imágenes subiendo',
         description: 'Por favor espera a que terminen de subirse las fotografías.',
-        type: SnackBarType.warning,
+        type: StatusType.warning,
       );
       return;
     }
@@ -235,6 +235,9 @@ class _EditUserScreenState extends State<EditUserScreen> {
   
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final double screenWidth = MediaQuery.sizeOf(context).width;
     final bool isSmallPhone = screenWidth < 360;
     final bool useTwoColumns = screenWidth >= 480;
@@ -245,7 +248,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
     final double verticalFieldGap = useTwoColumns ? 14.0 : 20.0;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAF9),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
           'Perfil',
@@ -259,8 +262,10 @@ class _EditUserScreenState extends State<EditUserScreen> {
         elevation: 0,
       ),
       body: _isLoadingData || _isLoadingCatalog
-          ? const Center(
-              child: CircularProgressIndicator(color: Colors.teal),
+          ? Center(
+              child: CircularProgressIndicator(
+                color: colorScheme.primary,
+              ),
             )
           : Center(
               child: ConstrainedBox(
@@ -275,7 +280,8 @@ class _EditUserScreenState extends State<EditUserScreen> {
                       vertical: isSmallPhone ? 8 : 12,
                     ),
                     children: [
-                      PetFormStyles.buildSectionHeader(
+                      AppFormStyles.buildSectionHeader(
+                        context,
                         'Avatar',
                         'Sube o actualiza tu foto de perfil',
                       ),
@@ -291,7 +297,8 @@ class _EditUserScreenState extends State<EditUserScreen> {
 
                       SizedBox(height: sectionSpacing),
 
-                      PetFormStyles.buildSectionHeader(
+                      AppFormStyles.buildSectionHeader(
+                        context,
                         'Datos Personales',
                         'Información de la cuenta de usuario',
                       ),
@@ -303,7 +310,8 @@ class _EditUserScreenState extends State<EditUserScreen> {
                         spacing: fieldSpacing,
                         first: TextFormField(
                           controller: _firstNamesController,
-                          decoration: PetFormStyles.inputDecoration(
+                          decoration: AppFormStyles.inputDecoration(
+                            context,
                             'Nombres *',
                             Icons.person,
                           ),
@@ -314,7 +322,8 @@ class _EditUserScreenState extends State<EditUserScreen> {
                         ),
                         second: TextFormField(
                           controller: _lastNamesController,
-                          decoration: PetFormStyles.inputDecoration(
+                          decoration: AppFormStyles.inputDecoration(
+                            context,
                             'Apellidos *',
                             Icons.person,
                           ),
@@ -334,7 +343,8 @@ class _EditUserScreenState extends State<EditUserScreen> {
                         first: TextFormField(
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
-                          decoration: PetFormStyles.inputDecoration(
+                          decoration: AppFormStyles.inputDecoration(
+                            context,
                             'Correo electrónico *',
                             Icons.email,
                           ),
@@ -360,7 +370,8 @@ class _EditUserScreenState extends State<EditUserScreen> {
                         first: DropdownButtonFormField<int>(
                           initialValue: _selectedGenderId,
                           isExpanded: true,
-                          decoration: PetFormStyles.inputDecoration(
+                          decoration: AppFormStyles.inputDecoration(
+                            context,
                             'Género',
                             Icons.wc_rounded,
                           ),
@@ -382,7 +393,8 @@ class _EditUserScreenState extends State<EditUserScreen> {
                         second: DropdownButtonFormField<int>(
                           initialValue: _selectedCountryId,
                           isExpanded: true,
-                          decoration: PetFormStyles.inputDecoration(
+                          decoration: AppFormStyles.inputDecoration(
+                            context,
                             'País',
                             Icons.public,
                           ),
@@ -411,14 +423,16 @@ class _EditUserScreenState extends State<EditUserScreen> {
                         spacing: fieldSpacing,
                         first: TextFormField(
                           controller: _cityController,
-                          decoration: PetFormStyles.inputDecoration(
+                          decoration: AppFormStyles.inputDecoration(
+                            context,
                             'Ciudad',
                             Icons.location_city_outlined,
                           ),
                         ),
                         second: TextFormField(
                           controller: _addressController,
-                          decoration: PetFormStyles.inputDecoration(
+                          decoration: AppFormStyles.inputDecoration(
+                            context,
                             'Dirección',
                             Icons.home_outlined,
                           ),
@@ -432,7 +446,8 @@ class _EditUserScreenState extends State<EditUserScreen> {
                         child: ElevatedButton(
                           onPressed: _submit,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.teal.shade600,
+                            backgroundColor: colorScheme.primary,
+                            foregroundColor: colorScheme.onPrimary,
                             elevation: 2,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
@@ -443,7 +458,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
                             style: TextStyle(
                               fontSize: isSmallPhone ? 14 : 16,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              color: colorScheme.onPrimary,
                             ),
                           ),
                         ),

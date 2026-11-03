@@ -13,6 +13,9 @@ class AppContactActionButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final bool hasPhoneMobile = phoneNumber != null && phoneNumber!.trim().isNotEmpty;
 
     final bool hasPhoneHome = phoneHome != null && phoneHome!.trim().isNotEmpty;
@@ -34,10 +37,10 @@ class AppContactActionButtons extends StatelessWidget {
         final List<Widget> buttons = <Widget>[
           if (hasPhoneMobile)
             _buildButton(
-              label: 'Llamar celular',
+              label: 'Llamar a Celular',
               icon: Icons.phone,
-              backgroundColor: Colors.green,
-              foregroundColor: Colors.white,
+              backgroundColor: colorScheme.primary,
+              foregroundColor: colorScheme.onPrimary,
               height: buttonHeight,
               iconSize: iconSize,
               fontSize: fontSize,
@@ -49,7 +52,7 @@ class AppContactActionButtons extends StatelessWidget {
               label: 'WhatsApp',
               icon: Icons.chat_bubble_outline,
               backgroundColor: Colors.transparent,
-              foregroundColor: Colors.teal,
+              foregroundColor: colorScheme.primary,
               height: buttonHeight,
               iconSize: iconSize,
               fontSize: fontSize,
@@ -59,10 +62,10 @@ class AppContactActionButtons extends StatelessWidget {
 
           if (hasPhoneHome)
             _buildButton(
-              label: 'Llamar casa',
+              label: 'Llamar a Casa',
               icon: Icons.local_phone,
-              backgroundColor: Colors.teal,
-              foregroundColor: Colors.white,
+              backgroundColor: colorScheme.secondary,
+              foregroundColor: colorScheme.onSecondary,
               height: buttonHeight,
               iconSize: iconSize,
               fontSize: fontSize,

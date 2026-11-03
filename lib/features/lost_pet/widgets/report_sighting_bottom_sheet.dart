@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:app_petfinder/enums/snackbar/snackbar_type.dart';
+import 'package:app_petfinder/enums/status/status_type.dart';
 import 'package:app_petfinder/enums/datepicker/date_filter_type.dart';
 import 'package:app_petfinder/enums/datepicker/date_selection_type.dart';
 import 'package:app_petfinder/models/storage/temp_file_model.dart';
@@ -8,7 +8,7 @@ import 'package:app_petfinder/widgets/images/app_image_picker_grid.dart';
 import 'package:app_petfinder/widgets/locations/app_location_picket_tile.dart';
 import 'package:app_petfinder/widgets/snackbars/app_snackbar.dart';
 import 'package:app_petfinder/widgets/datepickers/app_datepicker.dart';
-import 'package:app_petfinder/features/adoption/styles/pet_form_styles.dart';
+import 'package:app_petfinder/styles/app_form_styles.dart';
 
 class ReportSightingBottomSheet extends StatefulWidget {
   const ReportSightingBottomSheet({super.key});
@@ -58,9 +58,9 @@ class _ReportSightingBottomSheetState extends State<ReportSightingBottomSheet> {
     if (hasUploading) {
       AppSnackBar.show(
         context,
-        title: 'Imágenes subiendo',
+        title: 'Subiendo Imágenes',
         description: 'Por favor espera a que terminen de subirse las fotografías.',
-        type: SnackBarType.warning,
+        type: StatusType.warning,
       );
       return;
     }
@@ -91,6 +91,9 @@ class _ReportSightingBottomSheetState extends State<ReportSightingBottomSheet> {
   
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final MediaQueryData mediaQuery = MediaQuery.of(context);
     
     final double screenWidth = mediaQuery.size.width;
@@ -110,9 +113,9 @@ class _ReportSightingBottomSheetState extends State<ReportSightingBottomSheet> {
       child: Container(
         height: screenHeight,
         width: double.infinity,
-        decoration: const BoxDecoration(
-          color: Color(0xFFF8FAF9),
-          borderRadius: BorderRadius.vertical(
+        decoration: BoxDecoration(
+          color: colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(
             top: Radius.circular(20),
           ),
         ),
@@ -127,7 +130,7 @@ class _ReportSightingBottomSheetState extends State<ReportSightingBottomSheet> {
                 16,
               ),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: colorScheme.surfaceContainer,
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(20),
                 ),
@@ -145,7 +148,7 @@ class _ReportSightingBottomSheetState extends State<ReportSightingBottomSheet> {
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
+                      color: colorScheme.outlineVariant,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -157,7 +160,7 @@ class _ReportSightingBottomSheetState extends State<ReportSightingBottomSheet> {
                       style: TextStyle(
                         fontSize: titleFontSize,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                        color: colorScheme.onSurface,
                       ),
                     ),
                   ),
@@ -175,8 +178,7 @@ class _ReportSightingBottomSheetState extends State<ReportSightingBottomSheet> {
                   child: Form(
                     key: _formKey,
                     child: ListView(
-                      keyboardDismissBehavior:
-                          ScrollViewKeyboardDismissBehavior.onDrag,
+                      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                       padding: EdgeInsets.fromLTRB(
                         horizontalPadding,
                         20,
@@ -220,10 +222,11 @@ class _ReportSightingBottomSheetState extends State<ReportSightingBottomSheet> {
                           controller: _addressController,
                           textInputAction: TextInputAction.next,
                           validator: (val) =>
-                              val == null || val.trim().isEmpty
-                                  ? 'Ingresa la dirección'
-                                  : null,
-                          decoration: PetFormStyles.inputDecoration(
+                            val == null || val.trim().isEmpty
+                                ? 'Ingresa la dirección'
+                                : null,
+                          decoration: AppFormStyles.inputDecoration(
+                            context,
                             'Dirección de referencia / Sector *',
                             Icons.place_rounded,
                           ),
@@ -235,8 +238,7 @@ class _ReportSightingBottomSheetState extends State<ReportSightingBottomSheet> {
                           longitude: _longitude,
                           isRequired: false,
                           title: 'Marcar lugar de avistamiento',
-                          customHint:
-                              'Indica el punto de referencia donde viste a la mascota',
+                          customHint: 'Indica el punto de referencia donde viste a la mascota',
                           onLocationSelected: (LatLng result) {
                             setState(() {
                               _latitude = result.latitude;
@@ -251,7 +253,8 @@ class _ReportSightingBottomSheetState extends State<ReportSightingBottomSheet> {
                           maxLines: 3,
                           minLines: 2,
                           textCapitalization: TextCapitalization.sentences,
-                          decoration: PetFormStyles.inputDecoration(
+                          decoration: AppFormStyles.inputDecoration(
+                            context,
                             'Comentario u observación (ej. Tenía collar rojo)',
                             Icons.comment_rounded,
                           ),
@@ -259,24 +262,22 @@ class _ReportSightingBottomSheetState extends State<ReportSightingBottomSheet> {
                         const SizedBox(height: 24),
 
                         SizedBox(
+                          height: 54,
                           width: double.infinity,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.teal,
-                              foregroundColor: Colors.white,
-                              padding: EdgeInsets.symmetric(
-                                vertical: isSmallPhone ? 12 : 15,
-                              ),
+                          child: FilledButton.icon(
+                            style: FilledButton.styleFrom(
+                              backgroundColor: colorScheme.primary,
+                              foregroundColor: colorScheme.onPrimary,
+                              elevation: 2,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(16),
                               ),
                             ),
                             onPressed: _submitReport,
-                            child: const Text(
+                            icon: const Icon(Icons.send_rounded),
+                            label: const Text(
                               'Enviar Reporte',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
+                              style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                           ),
                         ),

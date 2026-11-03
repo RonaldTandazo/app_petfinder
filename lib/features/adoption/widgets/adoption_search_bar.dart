@@ -31,6 +31,9 @@ class _AdoptionSearchBarState extends State<AdoptionSearchBar> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final double screenWidth = MediaQuery.sizeOf(context).width;
 
     final bool isSmallPhone = screenWidth < 360;
@@ -61,7 +64,7 @@ class _AdoptionSearchBarState extends State<AdoptionSearchBar> {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colorScheme.surfaceContainer,
           borderRadius: BorderRadius.circular(isSmallPhone ? 12 : 16),
           boxShadow: [
             BoxShadow(
@@ -77,7 +80,10 @@ class _AdoptionSearchBarState extends State<AdoptionSearchBar> {
             setState(() {});
             widget.onChanged?.call(value);
           },
-          style: TextStyle(fontSize: fontSize),
+          style: TextStyle(
+            fontSize: fontSize,
+            color: colorScheme.onSurface,
+          ),
           textInputAction: TextInputAction.search,
           decoration: InputDecoration(
             isDense: isSmallPhone,
@@ -86,13 +92,13 @@ class _AdoptionSearchBarState extends State<AdoptionSearchBar> {
             ),
             hintText: 'Buscar por nombre, raza, color...',
             hintStyle: TextStyle(
-              color: Colors.grey,
               fontSize: fontSize,
+              color: colorScheme.onSurfaceVariant,
             ),
             prefixIcon: Icon(
               Icons.search,
-              color: Colors.teal,
               size: iconSize,
+              color: colorScheme.primary,
             ),
             prefixIconConstraints: BoxConstraints(
               minWidth: isSmallPhone ? 30 : 40,
@@ -112,8 +118,8 @@ class _AdoptionSearchBarState extends State<AdoptionSearchBar> {
                       padding: EdgeInsets.zero,
                       icon: Icon(
                         Icons.close_rounded,
-                        color: Colors.grey,
                         size: isSmallPhone ? 18 : 20,
+                        color: colorScheme.onSurfaceVariant,
                       ),
                       onPressed: _clearSearch,
                       tooltip: 'Limpiar',
@@ -127,8 +133,8 @@ class _AdoptionSearchBarState extends State<AdoptionSearchBar> {
                       padding: EdgeInsets.zero,
                       icon: Icon(
                         Icons.tune_rounded,
-                        color: Colors.teal,
                         size: iconSize,
+                        color: colorScheme.primary,
                       ),
                       onPressed: widget.onFilterTap,
                       tooltip: 'Filtros',

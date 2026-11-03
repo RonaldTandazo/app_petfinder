@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:app_petfinder/core/utils/session_storage_service.dart';
+import 'package:app_petfinder/core/storage/session_storage_service.dart';
 import 'package:app_petfinder/enums/snackbar/snackbar_position.dart';
-import 'package:app_petfinder/enums/snackbar/snackbar_type.dart';
 import 'package:app_petfinder/core/network/api_exception.dart';
 import 'package:app_petfinder/core/utils/api_error_handler.dart';
-import 'package:app_petfinder/core/utils/common_helpers.dart';
+import 'package:app_petfinder/core/helpers/date_helper.dart';
 import 'package:app_petfinder/core/utils/api_success_handler.dart';
-import 'package:app_petfinder/features/lost_pet/widgets/lost_pet_detail_skeleton.dart';
+import 'package:app_petfinder/widgets/loaders/pet_detail_skeleton.dart';
 import 'package:app_petfinder/repository/lost_pet/lost_pet_repository.dart';
 import 'package:app_petfinder/repository/lost_pet/lost_pet_event_repository.dart';
 import 'package:app_petfinder/features/lost_pet/widgets/report_sighting_bottom_sheet.dart';
@@ -112,7 +111,6 @@ class _LostPetScreenState extends State<LostPetScreen> {
     AppSnackBar.show(
       context,
       title: message,
-      type: SnackBarType.information,
       position: SnackBarPosition.bottom
     );
     
@@ -211,6 +209,9 @@ class _LostPetScreenState extends State<LostPetScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final Size screenSize = MediaQuery.sizeOf(context);
 
     final bool isSmallPhone = screenSize.width < 360;
@@ -229,12 +230,12 @@ class _LostPetScreenState extends State<LostPetScreen> {
 
     if (_isLoadingLostPet || _lostPet == null) {
       return Scaffold(
-        backgroundColor: Colors.grey.shade50,
-        body: const LostPetDetailSkeleton(),
+        backgroundColor: theme.scaffoldBackgroundColor,
+        body: const PetDetailSkeleton(),
       );
     }
 
-    final pet = _lostPet!;
+    final LostPetModel pet = _lostPet!;
 
     final List<QuickInfoItem> quickInfoItems = [
       QuickInfoItem(
@@ -257,8 +258,12 @@ class _LostPetScreenState extends State<LostPetScreen> {
 
     final bool hasDescription = pet.description != null && pet.description!.isNotEmpty;
 
+    final bool hasTracking = _sightings.any(
+      (s) => s.latitude != null && s.longitude != null,
+    );
+
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: CustomScrollView(
         slivers: [
           // 1. Carrusel App Bar
@@ -303,17 +308,18 @@ class _LostPetScreenState extends State<LostPetScreen> {
                         SizedBox(height: sectionSpacing),
                         Text(
                           'Descripción',
-                          style: TextStyle(
+                          style: theme.textTheme.titleMedium?.copyWith(
                             fontSize: sectionTitleSize,
                             fontWeight: FontWeight.bold,
+                            color: colorScheme.onSurface,
                           ),
                         ),
                         const SizedBox(height: 6),
                         Text(
                           pet.description!,
-                          style: TextStyle(
+                          style: theme.textTheme.bodyMedium?.copyWith(
                             fontSize: bodyTextSize,
-                            color: Colors.black87,
+                            color: colorScheme.onSurface,
                             height: 1.5,
                           ),
                         ),
@@ -331,17 +337,18 @@ class _LostPetScreenState extends State<LostPetScreen> {
                           Expanded(
                             child: Text(
                               'Avistamientos',
-                              style: TextStyle(
+                              style: theme.textTheme.titleMedium?.copyWith(
                                 fontSize: sectionTitleSize,
                                 fontWeight: FontWeight.bold,
+                                color: colorScheme.onSurface,
                               ),
                             ),
                           ),
                           const SizedBox(width: 8),
                           Text(
                             '${_sightings.length} reportes',
-                            style: TextStyle(
-                              color: Colors.grey,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
                               fontSize: isSmallPhone ? 11 : 13,
                             ),
                           ),
@@ -350,35 +357,39 @@ class _LostPetScreenState extends State<LostPetScreen> {
                       SizedBox(height: isSmallPhone ? 8 : 12),
                       
                       if (_sightings.isNotEmpty) ...[
-                        Text(
-                          'Ruta en mapa',
-                          style: TextStyle(
-                            fontSize: isSmallPhone ? 13 : 14,
-                            fontWeight: FontWeight.bold,
+                        if(hasTracking)...[
+                          Text(
+                            'Ruta en mapa',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontSize: sectionTitleSize,
+                              fontWeight: FontWeight.bold,
+                              color: colorScheme.onSurface,
+                            ),
                           ),
-                        ),
 
-                        const SizedBox(height: 8),
-                        
-                        AppTrackingMap(
-                          mainLatitude: _lostPet!.latitude,
-                          mainLongitude: _lostPet!.longitude,
-                          sightings: _sightings,
-                          selectedSightId: _selectedSightId,
-                          mapController: _mapController,
-                          onSightTap: (sight) {
-                            setState(() => _selectedSightId = sight.id);
-                            _showSighting(context, sight);
-                          },
-                        ),
+                          const SizedBox(height: 8),
+                          
+                          AppTrackingMap(
+                            mainLatitude: _lostPet!.latitude,
+                            mainLongitude: _lostPet!.longitude,
+                            sightings: _sightings,
+                            selectedSightId: _selectedSightId,
+                            mapController: _mapController,
+                            onSightTap: (sight) {
+                              setState(() => _selectedSightId = sight.id);
+                              _showSighting(context, sight);
+                            },
+                          ),
 
-                        SizedBox(height: sectionSpacing),
+                          SizedBox(height: sectionSpacing)
+                        ],
                         
                         Text(
                           'Historial de avistamientos',
-                          style: TextStyle(
-                            fontSize: isSmallPhone ? 13 : 14,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontSize: sectionTitleSize,
                             fontWeight: FontWeight.bold,
+                            color: colorScheme.onSurface,
                           ),
                         ),
 
@@ -412,16 +423,15 @@ class _LostPetScreenState extends State<LostPetScreen> {
       floatingActionButton: FloatingActionButton.extended(
         heroTag: 'btn_report_sighting',
         onPressed: () => _openReportSighting(context),
-        backgroundColor: Colors.teal,
+        backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.onPrimary,
         icon: Icon(
           Icons.add_location_alt,
-          color: Colors.white,
           size: isSmallPhone ? 19 : 24,
         ),
          label: Text(
           '¡Lo he visto!',
           style: TextStyle(
-            color: Colors.white,
             fontWeight: FontWeight.bold,
             fontSize: isSmallPhone ? 12 : 14,
           ),

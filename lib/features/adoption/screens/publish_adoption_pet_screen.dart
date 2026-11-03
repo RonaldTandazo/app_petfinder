@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:app_petfinder/enums/snackbar/snackbar_type.dart';
+import 'package:app_petfinder/enums/status/status_type.dart';
 import 'package:app_petfinder/models/pictures/picture_model.dart';
 import 'package:app_petfinder/enums/datepicker/date_filter_type.dart';
 import 'package:app_petfinder/enums/datepicker/date_selection_type.dart';
@@ -19,13 +19,13 @@ import 'package:app_petfinder/repository/catalog/catalog_repository.dart';
 import 'package:app_petfinder/widgets/datepickers/app_datepicker.dart';
 import 'package:app_petfinder/widgets/snackbars/app_snackbar.dart';
 import 'package:app_petfinder/widgets/images/app_image_picker_grid.dart';
-import 'package:app_petfinder/features/adoption/styles/pet_form_styles.dart';
+import 'package:app_petfinder/styles/app_form_styles.dart';
 import 'package:app_petfinder/features/adoption/widgets/health_status_card.dart';
 import 'package:app_petfinder/widgets/toggles/app_toggle_tile.dart';
 import 'package:app_petfinder/widgets/contact/app_contact_phone_fields.dart';
 import 'package:app_petfinder/widgets/locations/app_location_picket_tile.dart';
 import 'package:app_petfinder/core/network/api_response.dart';
-import 'package:app_petfinder/features/lost_pet/widgets/publish_pet_skeleton.dart';
+import 'package:app_petfinder/widgets/loaders/publish_pet_skeleton.dart';
 import 'package:app_petfinder/models/adoption/adoption_pet_model.dart';
 import 'package:app_petfinder/core/router/main/main_routes.dart';
 
@@ -223,7 +223,7 @@ class _PublishAdoptionPetScreenState extends State<PublishAdoptionPetScreen> {
         context,
         title: 'Fotografías requeridas',
         description: 'Por favor agrega al menos 1 fotografía de la mascota.',
-        type: SnackBarType.warning,
+        type: StatusType.warning,
       );
       return;
     }
@@ -234,7 +234,7 @@ class _PublishAdoptionPetScreenState extends State<PublishAdoptionPetScreen> {
         context,
         title: 'Imágenes subiendo',
         description: 'Por favor espera a que terminen de subirse las fotografías.',
-        type: SnackBarType.warning,
+        type: StatusType.warning,
       );
       return;
     }
@@ -333,6 +333,9 @@ class _PublishAdoptionPetScreenState extends State<PublishAdoptionPetScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final double screenWidth = MediaQuery.sizeOf(context).width;
 
     final bool isSmallPhone = screenWidth < 360;
@@ -350,7 +353,7 @@ class _PublishAdoptionPetScreenState extends State<PublishAdoptionPetScreen> {
     return _isLoadingForm
         ? const PublishPetSkeleton()
         : Scaffold(
-            backgroundColor: const Color(0xFFF8FAF9),
+            backgroundColor: theme.scaffoldBackgroundColor,
             appBar: AppBar(
               title: Text(
                 _titleScreen,
@@ -382,7 +385,8 @@ class _PublishAdoptionPetScreenState extends State<PublishAdoptionPetScreen> {
                         ),
                         children: [
                           // FOTOGRAFÍAS
-                          PetFormStyles.buildSectionHeader(
+                          AppFormStyles.buildSectionHeader(
+                            context,
                             'Fotografías',
                             'Sube hasta 5 fotos claras (mínimo 1)',
                           ),
@@ -407,7 +411,8 @@ class _PublishAdoptionPetScreenState extends State<PublishAdoptionPetScreen> {
                           SizedBox(height: sectionSpacing),
 
                           // INFORMACIÓN DE LA MASCOTA
-                          PetFormStyles.buildSectionHeader(
+                          AppFormStyles.buildSectionHeader(
+                            context,
                             'Información de la Mascota',
                             'Datos requeridos de la mascota',
                           ),
@@ -415,7 +420,8 @@ class _PublishAdoptionPetScreenState extends State<PublishAdoptionPetScreen> {
 
                           TextFormField(
                             controller: _nameController,
-                            decoration: PetFormStyles.inputDecoration(
+                            decoration: AppFormStyles.inputDecoration(
+                              context,
                               'Nombre de la mascota *',
                               Icons.pets,
                             ),
@@ -427,14 +433,15 @@ class _PublishAdoptionPetScreenState extends State<PublishAdoptionPetScreen> {
 
                           SizedBox(height: fieldSpacing),
 
-                          // ESPECIE Y SEXO
+                          // ESPECIE Y GÉNERO
                           _responsiveRow(
                             availableWidth: availableWidth,
                             fieldSpacing: fieldSpacing,
                             first: DropdownButtonFormField<int>(
                               initialValue: _selectedSpeciesId,
                               isExpanded: true,
-                              decoration: PetFormStyles.inputDecoration(
+                              decoration: AppFormStyles.inputDecoration(
+                                context,
                                 'Especie *',
                                 Icons.category_rounded,
                               ),
@@ -458,8 +465,9 @@ class _PublishAdoptionPetScreenState extends State<PublishAdoptionPetScreen> {
                             second: DropdownButtonFormField<int>(
                               initialValue: _selectedGenderId,
                               isExpanded: true,
-                              decoration: PetFormStyles.inputDecoration(
-                                'Sexo *',
+                              decoration: AppFormStyles.inputDecoration(
+                                context,
+                                'Género *',
                                 Icons.transgender_rounded,
                               ),
                               items: _gendersList
@@ -490,7 +498,8 @@ class _PublishAdoptionPetScreenState extends State<PublishAdoptionPetScreen> {
                             first: DropdownButtonFormField<int>(
                               initialValue: _selectedSizeId,
                               isExpanded: true,
-                              decoration: PetFormStyles.inputDecoration(
+                              decoration: AppFormStyles.inputDecoration(
+                                context,
                                 'Tamaño *',
                                 Icons.straighten_rounded,
                               ),
@@ -541,14 +550,16 @@ class _PublishAdoptionPetScreenState extends State<PublishAdoptionPetScreen> {
                             fieldSpacing: fieldSpacing,
                             first: TextFormField(
                               controller: _raceController,
-                              decoration: PetFormStyles.inputDecoration(
+                              decoration: AppFormStyles.inputDecoration(
+                                context,
                                 'Raza / Mezcla',
                                 Icons.merge_type_rounded,
                               ),
                             ),
                             second: TextFormField(
                               controller: _colorController,
-                              decoration: PetFormStyles.inputDecoration(
+                              decoration: AppFormStyles.inputDecoration(
+                                context,
                                 'Color principal',
                                 Icons.palette_rounded,
                               ),
@@ -558,7 +569,8 @@ class _PublishAdoptionPetScreenState extends State<PublishAdoptionPetScreen> {
                           SizedBox(height: sectionSpacing),
 
                           // UBICACIÓN
-                          PetFormStyles.buildSectionHeader(
+                          AppFormStyles.buildSectionHeader(
+                            context,
                             'Ubicación de Referencia',
                             '¿Dónde se encuentra la mascota actualmente?',
                           ),
@@ -569,7 +581,8 @@ class _PublishAdoptionPetScreenState extends State<PublishAdoptionPetScreen> {
                             fieldSpacing: fieldSpacing,
                             first: TextFormField(
                               controller: _cityController,
-                              decoration: PetFormStyles.inputDecoration(
+                              decoration: AppFormStyles.inputDecoration(
+                                context,
                                 'Ciudad *',
                                 Icons.location_city_rounded,
                               ),
@@ -580,7 +593,8 @@ class _PublishAdoptionPetScreenState extends State<PublishAdoptionPetScreen> {
                             ),
                             second: TextFormField(
                               controller: _addressController,
-                              decoration: PetFormStyles.inputDecoration(
+                              decoration: AppFormStyles.inputDecoration(
+                                context,
                                 'Dirección / Sector / Barrio *',
                                 Icons.place_rounded,
                               ),
@@ -618,7 +632,8 @@ class _PublishAdoptionPetScreenState extends State<PublishAdoptionPetScreen> {
                           SizedBox(height: sectionSpacing),
 
                           // PRIORIDAD
-                          PetFormStyles.buildSectionHeader(
+                          AppFormStyles.buildSectionHeader(
+                            context,
                             'Prioridad de Adopción',
                             'Identifica el nivel de prioridad',
                           ),
@@ -633,13 +648,14 @@ class _PublishAdoptionPetScreenState extends State<PublishAdoptionPetScreen> {
                             subtitle:
                                 'Marca esta opción si la mascota requiere adopción/hogar temporal de forma prioritaria',
                             icon: Icons.warning_amber_rounded,
-                            activeColor: Colors.amber.shade800,
+                            activeColor: colorScheme.tertiary,
                           ),
 
                           SizedBox(height: sectionSpacing),
 
                           // ESTADO DE SALUD
-                          PetFormStyles.buildSectionHeader(
+                          AppFormStyles.buildSectionHeader(
+                            context,
                             'Estado de Salud',
                             'Información clave para los adoptantes',
                           ),
@@ -655,7 +671,8 @@ class _PublishAdoptionPetScreenState extends State<PublishAdoptionPetScreen> {
                           SizedBox(height: sectionSpacing),
 
                           // HISTORIA Y PERSONALIDAD
-                          PetFormStyles.buildSectionHeader(
+                          AppFormStyles.buildSectionHeader(
+                            context,
                             'Historia y Personalidad',
                             'Cuéntale a la comunidad sobre la mascota',
                           ),
@@ -664,7 +681,8 @@ class _PublishAdoptionPetScreenState extends State<PublishAdoptionPetScreen> {
                           TextFormField(
                             controller: _descriptionController,
                             maxLines: 4,
-                            decoration: PetFormStyles.inputDecoration(
+                            decoration: AppFormStyles.inputDecoration(
+                              context,
                               'Describe su carácter, convivencia con niños u otros animales...',
                               Icons.description_rounded,
                             ),
@@ -675,21 +693,22 @@ class _PublishAdoptionPetScreenState extends State<PublishAdoptionPetScreen> {
                           // PUBLICAR / ACTUALIZAR
                           SizedBox(
                             height: 54,
-                            child: ElevatedButton(
+                            child: FilledButton.icon(
                               onPressed: _submitForm,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.teal.shade600,
+                              style: FilledButton.styleFrom(
+                                backgroundColor: colorScheme.primary,
+                                foregroundColor: colorScheme.onPrimary,
                                 elevation: 2,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(16),
                                 ),
                               ),
-                              child: Text(
+                              icon: const Icon(Icons.campaign_rounded),
+                              label: Text(
                                 _submitButton,
-                                style: const TextStyle(
-                                  fontSize: 16,
+                                style: theme.textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.white,
+                                  color: colorScheme.onPrimary,
                                 ),
                               ),
                             ),

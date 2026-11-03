@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:app_petfinder/core/utils/common_helpers.dart';
+import 'package:app_petfinder/core/helpers/gender_helper.dart';
 import 'package:app_petfinder/enums/followed/followed_pet_type.dart';
 import 'package:app_petfinder/models/followed/followed_pet_model.dart';
 import 'package:app_petfinder/widgets/images/app_image_placeholders.dart';

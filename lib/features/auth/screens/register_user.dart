@@ -1,8 +1,3 @@
-import 'package:app_petfinder/enums/datepicker/date_filter_type.dart';
-import 'package:app_petfinder/enums/datepicker/date_selection_type.dart';
-import 'package:app_petfinder/enums/snackbar/snackbar_type.dart';
-import 'package:app_petfinder/widgets/datepickers/app_datepicker.dart';
-import 'package:app_petfinder/widgets/snackbars/app_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:app_petfinder/core/network/api_exception.dart';
@@ -11,6 +6,12 @@ import 'package:app_petfinder/core/utils/api_error_handler.dart';
 import 'package:app_petfinder/core/utils/api_success_handler.dart';
 import 'package:app_petfinder/repository/auth/auth_repository.dart';
 import 'package:app_petfinder/widgets/requirements/requirement_item.dart';
+import 'package:app_petfinder/enums/datepicker/date_filter_type.dart';
+import 'package:app_petfinder/enums/datepicker/date_selection_type.dart';
+import 'package:app_petfinder/enums/status/status_type.dart';
+import 'package:app_petfinder/styles/app_form_styles.dart';
+import 'package:app_petfinder/widgets/datepickers/app_datepicker.dart';
+import 'package:app_petfinder/widgets/snackbars/app_snackbar.dart';
 
 class RegisterUserScreen extends StatefulWidget {
   const RegisterUserScreen({super.key});
@@ -78,7 +79,7 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
       AppSnackBar.show(
         context,
         title: 'Debes aceptar los términos y leer la política de privacidad',
-        type: SnackBarType.warning,
+        type: StatusType.warning,
       );
 
       return;
@@ -119,9 +120,10 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
       controller: _firstNamesController,
       textCapitalization: TextCapitalization.words,
       textInputAction: TextInputAction.next,
-      decoration: const InputDecoration(
-        labelText: 'Nombres *',
-        prefixIcon: Icon(Icons.person_outline),
+      decoration: AppFormStyles.inputDecoration(
+        context,
+        'Nombres *',
+        Icons.person_outline,
       ),
       validator: (v) =>
           (v != null && v.trim().isNotEmpty) ? null : 'Requerido',
@@ -131,9 +133,10 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
       controller: _lastNamesController,
       textCapitalization: TextCapitalization.words,
       textInputAction: TextInputAction.next,
-      decoration: const InputDecoration(
-        labelText: 'Apellidos *',
-        prefixIcon: Icon(Icons.person_outline),
+      decoration: AppFormStyles.inputDecoration(
+        context,
+        'Apellidos *',
+        Icons.person_outline,
       ),
       validator: (v) =>
           (v != null && v.trim().isNotEmpty) ? null : 'Requerido',
@@ -167,9 +170,10 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
       controller: _cityController,
       textCapitalization: TextCapitalization.words,
       textInputAction: TextInputAction.next,
-      decoration: const InputDecoration(
-        labelText: 'Ciudad',
-        prefixIcon: Icon(Icons.location_city_outlined),
+      decoration: AppFormStyles.inputDecoration(
+        context,
+        'Ciudad',
+        Icons.location_city_outlined,
       ),
     );
 
@@ -178,9 +182,10 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
       textCapitalization: TextCapitalization.sentences,
       textInputAction: TextInputAction.done,
       onFieldSubmitted: (_) => _submitRegister(),
-      decoration: const InputDecoration(
-        labelText: 'Dirección',
-        prefixIcon: Icon(Icons.home_outlined),
+      decoration: AppFormStyles.inputDecoration(
+        context,
+        'Dirección',
+        Icons.home_outlined,
       ),
     );
 
@@ -212,6 +217,7 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
     required VoidCallback onLinkTap,
   }) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -231,7 +237,7 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
                   child: Text(
                     linkText,
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.primary,
+                      color: colorScheme.primary,
                       decoration: TextDecoration.underline,
                       fontWeight: FontWeight.w600,
                     ),
@@ -268,6 +274,8 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final double screenWidth = MediaQuery.sizeOf(context).width;
 
     final bool isSmallPhone = screenWidth < 360;
@@ -286,6 +294,7 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
     final double fieldSpacing = isSmallPhone ? 12.0 : 16.0;
 
     return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -313,15 +322,15 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
                           Icon(
                             Icons.pets_rounded,
                             size: iconSize,
-                            color: theme.colorScheme.primary,
+                            color: colorScheme.primary,
                           ),
                           const SizedBox(height: 16),
 
                           Text(
-                            'Crea tu cuenta de Tutor',
+                            'Crear Cuenta Personal',
                             style: theme.textTheme.headlineSmall?.copyWith(
                               fontWeight: FontWeight.bold,
-                              color: theme.colorScheme.onSurface,
+                              color: colorScheme.onSurface,
                               fontSize: isSmallPhone ? 21 : null,
                             ),
                             textAlign: TextAlign.center,
@@ -331,13 +340,17 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
                           Text(
                             'Regístrate para comenzar a gestionar y adoptar mascotas',
                             style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.colorScheme.onSurfaceVariant,
+                              color: colorScheme.onSurfaceVariant,
                             ),
                             textAlign: TextAlign.center,
                           ),
                           SizedBox(height: sectionSpacing),
 
-                          _buildSectionHeader(context, 'Datos Personales'),
+                          AppFormStyles.buildSectionHeader(
+                            context,
+                            'Datos Personales',
+                            'Información básica para crear tu cuenta',
+                          ),
                           const SizedBox(height: 12),
                           buildNameFields(useTwoColumns: useTwoColumns, fieldSpacing: fieldSpacing),
 
@@ -369,16 +382,21 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
 
                           SizedBox(height: sectionSpacing),
 
-                          _buildSectionHeader(context, 'Cuenta de Acceso'),
+                          AppFormStyles.buildSectionHeader(
+                            context,
+                            'Cuenta de Acceso',
+                            'Credenciales para ingresar a PetFinder',
+                          ),
                           const SizedBox(height: 12),
 
                           TextFormField(
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
                             textInputAction: TextInputAction.next,
-                            decoration: const InputDecoration(
-                              labelText: 'Correo electrónico *',
-                              prefixIcon: Icon(Icons.email_outlined),
+                            decoration: AppFormStyles.inputDecoration(
+                              context,
+                              'Correo electrónico *',
+                              Icons.email_outlined,
                             ),
                             validator: (v) {
                               if (v == null || v.trim().isEmpty) {
@@ -402,14 +420,17 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
                             controller: _passwordController,
                             obscureText: _obscurePassword,
                             textInputAction: TextInputAction.next,
-                            decoration: InputDecoration(
-                              labelText: 'Contraseña *',
-                              prefixIcon: const Icon(Icons.lock_outline),
+                            decoration: AppFormStyles.inputDecoration(
+                              context,
+                              'Contraseña *',
+                              Icons.lock_outline,
+                            ).copyWith(
                               suffixIcon: IconButton(
                                 icon: Icon(
                                   _obscurePassword
                                       ? Icons.visibility_outlined
                                       : Icons.visibility_off_outlined,
+                                  color: colorScheme.onSurfaceVariant,
                                 ),
                                 onPressed: () {
                                   setState(() {
@@ -456,9 +477,10 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
 
                           SizedBox(height: fieldSpacing),
 
-                          _buildSectionHeader(
+                          AppFormStyles.buildSectionHeader(
                             context,
                             'Contacto y Ubicación',
+                            'Datos adicionales para facilitar el contacto',
                           ),
                           const SizedBox(height: 12),
 
@@ -466,9 +488,10 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
                             controller: _phoneMobileController,
                             keyboardType: TextInputType.phone,
                             textInputAction: TextInputAction.next,
-                            decoration: const InputDecoration(
-                              labelText: 'Teléfono',
-                              prefixIcon: Icon(Icons.phone_outlined),
+                            decoration: AppFormStyles.inputDecoration(
+                              context,
+                              'Teléfono',
+                              Icons.phone_outlined,
                             ),
                           ),
 
@@ -505,33 +528,40 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
                             },
                           ),
 
-                          FilledButton(
-                            onPressed:
-                                _isLoading ? null : _submitRegister,
-                            style: FilledButton.styleFrom(
-                              padding: EdgeInsets.symmetric(
-                                vertical: isSmallPhone ? 14 : 16,
+                          SizedBox(height: sectionSpacing),
+
+                          SizedBox(
+                            height: 54,
+                            child: FilledButton.icon(
+                              onPressed: _isLoading ? null : _submitRegister,
+                              style: FilledButton.styleFrom(
+                                backgroundColor: colorScheme.primary,
+                                foregroundColor: colorScheme.onPrimary,
+                                disabledBackgroundColor: colorScheme.primary.withValues(alpha: 0.5),
+                                disabledForegroundColor: colorScheme.onPrimary,
+                                elevation: 2,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
                               ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: _isLoading
-                                ? const SizedBox(
-                                    height: 20,
+                              icon: _isLoading
+                                ? SizedBox(
                                     width: 20,
+                                    height: 20,
                                     child: CircularProgressIndicator(
-                                      color: Colors.white,
+                                      color: colorScheme.onPrimary,
                                       strokeWidth: 2,
                                     ),
                                   )
-                                : const Text(
-                                    'Crear Cuenta',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
+                                : const Icon(Icons.person_add_alt_1_rounded),
+                              label: Text(
+                                _isLoading ? 'Creando cuenta...' : 'Crear Cuenta',
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: colorScheme.onPrimary,
+                                ),
+                              ),
+                            ),
                           ),
 
                           const SizedBox(height: 16),
@@ -543,13 +573,13 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
                               Text(
                                 '¿Ya tienes una cuenta?',
                                 style: TextStyle(
-                                  color: theme.colorScheme.onSurfaceVariant,
+                                  color: colorScheme.onSurfaceVariant,
                                 ),
                               ),
                               TextButton(
                                 onPressed: () =>
                                     context.go(AuthRoutes.login),
-                                child: const Text('Inicia sesión'),
+                                child: const Text('Inicia Sesión'),
                               ),
                             ],
                           ),
@@ -562,16 +592,6 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
             );
           },
         ),
-      ),
-    );
-  }
-
-  Widget _buildSectionHeader(BuildContext context, String title) {
-    return Text(
-      title,
-      style: Theme.of(context).textTheme.labelLarge?.copyWith(
-        color: Theme.of(context).colorScheme.primary,
-        fontWeight: FontWeight.bold,
       ),
     );
   }

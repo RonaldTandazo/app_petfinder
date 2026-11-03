@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:app_petfinder/models/lost_pet/sight_report_model.dart';
-import 'package:app_petfinder/core/utils/common_helpers.dart';
+import 'package:app_petfinder/core/helpers/date_helper.dart';
 import 'package:app_petfinder/models/pictures/picture_model.dart';
 import 'package:app_petfinder/widgets/images/app_full_screen_gallery.dart';
 
@@ -26,28 +26,31 @@ class ShowSightingBottomSheet {
     BuildContext context,
     SightReportModel sight,
   ) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    final screenSize = MediaQuery.sizeOf(context);
+    final bool isSmallPhone = screenSize.width < 360;
+    final bool isMobile = screenSize.width < 600;
+
+    final horizontalPadding = isSmallPhone ? 12.0 : 16.0;
+    final titleFontSize = isSmallPhone ? 14.0 : 16.0;
+    final bodyFontSize = isSmallPhone ? 12.0 : 13.0;
+    final photoSize = isSmallPhone ? 76.0 : 90.0;
+
     final bool hasPictures = sight.pictures.isNotEmpty;
 
     return showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      backgroundColor: Colors.white,
+      backgroundColor: colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(20),
         ),
       ),
       builder: (modalContext) {
-        final screenSize = MediaQuery.sizeOf(modalContext);
-        final bool isSmallPhone = screenSize.width < 360;
-        final bool isMobile = screenSize.width < 600;
-
-        final horizontalPadding = isSmallPhone ? 12.0 : 16.0;
-        final titleFontSize = isSmallPhone ? 14.0 : 16.0;
-        final bodyFontSize = isSmallPhone ? 12.0 : 13.0;
-        final photoSize = isSmallPhone ? 76.0 : 90.0;
-
         return ConstrainedBox(
           constraints: BoxConstraints(
             maxHeight: screenSize.height * 0.85,
@@ -69,7 +72,7 @@ class ShowSightingBottomSheet {
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
+                      color: colorScheme.outlineVariant,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -82,7 +85,7 @@ class ShowSightingBottomSheet {
                   children: [
                     Icon(
                       Icons.visibility,
-                      color: Colors.teal,
+                      color: colorScheme.primary,
                       size: isSmallPhone ? 20 : 24,
                     ),
                     const SizedBox(width: 8),
@@ -92,12 +95,14 @@ class ShowSightingBottomSheet {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: titleFontSize,
+                          color: colorScheme.onSurface,
                         ),
                       ),
                     ),
                   ],
                 ),
-                const Divider(height: 24),
+                
+                Divider(height: 24, color: colorScheme.outlineVariant),
 
                 // Fotografías
                 if (hasPictures) ...[
@@ -157,16 +162,17 @@ class ShowSightingBottomSheet {
                   label: 'Dirección',
                   value: sight.eventAddress,
                   fontSize: bodyFontSize,
+                  colorScheme: colorScheme
                 ),
 
                 // Comentario
-                if (sight.comment != null &&
-                    sight.comment!.trim().isNotEmpty) ...[
+                if (sight.comment != null && sight.comment!.trim().isNotEmpty) ...[
                   const SizedBox(height: 12),
                   _buildInfo(
                     label: 'Comentario',
                     value: sight.comment!.trim(),
                     fontSize: bodyFontSize,
+                    colorScheme: colorScheme
                   ),
                 ],
 
@@ -183,6 +189,7 @@ class ShowSightingBottomSheet {
     required String label,
     required String value,
     required double fontSize,
+    required ColorScheme colorScheme,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -192,6 +199,7 @@ class ShowSightingBottomSheet {
           style: TextStyle(
             fontSize: fontSize,
             fontWeight: FontWeight.w600,
+            color: colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: 3),
@@ -200,7 +208,7 @@ class ShowSightingBottomSheet {
           style: TextStyle(
             fontSize: fontSize,
             height: 1.4,
-            color: Colors.black87,
+            color: colorScheme.onSurfaceVariant,
           ),
         ),
       ],

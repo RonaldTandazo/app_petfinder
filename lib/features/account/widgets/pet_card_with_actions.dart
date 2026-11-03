@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:app_petfinder/core/utils/common_helpers.dart';
+import 'package:app_petfinder/core/helpers/gender_helper.dart';
 import 'package:app_petfinder/enums/badge/badge_position.dart';
 import 'package:app_petfinder/widgets/badges/app_badge.dart';
 import 'package:app_petfinder/widgets/images/app_image_placeholders.dart';
@@ -38,6 +38,9 @@ class PetCardWithActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final double screenWidth = MediaQuery.sizeOf(context).width;
 
     final bool isSmallPhone = screenWidth < 360;
@@ -81,17 +84,18 @@ class PetCardWithActions extends StatelessWidget {
                         if (loadingProgress == null) return child;
 
                         return Container(
-                          color: Colors.grey.shade100,
-                          child: const Center(
+                          color: colorScheme.surfaceContainerHighest,
+                          child: Center(
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
+                              color: colorScheme.primary,
                             ),
                           ),
                         );
                       },
                       errorBuilder: (context, error, stackTrace) {
                         return Container(
-                          color: Colors.grey.shade200,
+                          color: colorScheme.surfaceContainerHighest,
                           padding: const EdgeInsets.all(4),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -99,7 +103,7 @@ class PetCardWithActions extends StatelessWidget {
                               Icon(
                                 Icons.broken_image_outlined,
                                 size: isSmallPhone ? 28 : 36,
-                                color: Colors.grey[400],
+                                color: colorScheme.onSurfaceVariant,
                               ),
                               const SizedBox(height: 4),
                               Text(
@@ -107,7 +111,7 @@ class PetCardWithActions extends StatelessWidget {
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: isSmallPhone ? 9 : 10,
-                                  color: Colors.grey[600],
+                                  color: colorScheme.onSurfaceVariant,
                                 ),
                               ),
                             ],
@@ -145,6 +149,7 @@ class PetCardWithActions extends StatelessWidget {
                           tooltip: 'Acciones',
                           padding: EdgeInsets.zero,
                           iconSize: menuIconSize,
+                          color: colorScheme.surfaceContainer,
                           icon: const Icon(
                             Icons.more_vert_rounded,
                             color: Colors.white,
@@ -251,9 +256,10 @@ class PetCardWithActions extends StatelessWidget {
                           title,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
+                          style: theme.textTheme.bodyMedium?.copyWith(
                             fontSize: titleFontSize,
                             fontWeight: FontWeight.bold,
+                            color: colorScheme.onSurface,
                           ),
                         ),
                       ),

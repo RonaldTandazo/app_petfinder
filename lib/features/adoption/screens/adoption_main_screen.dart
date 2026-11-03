@@ -274,6 +274,9 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final Size screenSize = MediaQuery.sizeOf(context);
     final bool isSmallPhone = screenSize.width < 360;
     final bool isMobile = screenSize.width < 600;
@@ -281,7 +284,7 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
     final double searchSpacing = isSmallPhone ? 6 : 12;
     
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAF9),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: _buildAppBar(),
       body: Column(
         children: [
@@ -299,8 +302,8 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
             child: _isLoadingPets
                 ? AppSkeletonLoader(mode: _skeletonMode)
                 : RefreshIndicator(
-                    color: Colors.teal,
-                    backgroundColor: Colors.white,
+                    color: colorScheme.primary,
+                    backgroundColor: colorScheme.surface,
                     onRefresh: () async {
                       await _loadAdoptionPets(reset: true);
                     },
@@ -353,6 +356,9 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
   }
 
   PreferredSizeWidget _buildAppBar() {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final double screenWidth = MediaQuery.sizeOf(context).width;
 
     final bool isSmallPhone = screenWidth < 360;
@@ -371,12 +377,12 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Ubicación actual',
+            'Ubicación Actual',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
               fontSize: locationFontSize,
-              color: Colors.grey,
+              color: colorScheme.onSurfaceVariant,
               fontWeight: FontWeight.normal,
             ),
           ),
@@ -386,7 +392,7 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
               Icon(
                 Icons.location_on,
                 size: isSmallPhone ? 14 : 16,
-                color: Colors.teal,
+                color: colorScheme.primary,
               ),
               const SizedBox(width: 4),
               Expanded(
@@ -397,7 +403,7 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
                   style: TextStyle(
                     fontSize: cityFontSize,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+                    color: colorScheme.onSurface,
                   ),
                 ),
               ),
@@ -414,10 +420,10 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
           padding: EdgeInsets.all(horizontalPadding),
           icon: Icon(
             _getToggleIcon(),
-            color: Colors.teal,
+            color: colorScheme.primary,
             size: isSmallPhone ? 21 : 24,
           ),
-          tooltip: 'Cambiar vista',
+          tooltip: 'Cambiar Vista',
           onPressed: _toggleViewMode,
         ),
         SizedBox(width: isSmallPhone ? 2 : 8),

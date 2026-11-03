@@ -12,7 +12,10 @@ class RequirementItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = isMet ? Colors.teal.shade700 : Colors.grey.shade500;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
+    final Color color = isMet ? colorScheme.primary : colorScheme.onSurfaceVariant;
     
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2.0),
@@ -26,8 +29,7 @@ class RequirementItem extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             text,
-            style: TextStyle(
-              fontSize: 12,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: color,
               fontWeight: isMet ? FontWeight.w600 : FontWeight.normal,
             ),

@@ -2,19 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:app_petfinder/core/router/adoption/adoption_routes.dart';
 import 'package:app_petfinder/core/router/lost_pet/lost_pet_routes.dart';
+import 'package:app_petfinder/enums/status/status_type.dart';
+import 'package:app_petfinder/core/helpers/color_helper.dart';
 
 class QuickActionBottomSheet {
   static Future<void> show(BuildContext context) {
-    final Size screenSize = MediaQuery.sizeOf(context);
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
-    final bool isSmallPhone = screenSize.width < 360;
-    final bool isMobile = screenSize.width < 600;
+    final double screenWidth = MediaQuery.sizeOf(context).width;
+
+    final bool isSmallPhone = screenWidth < 360;
+    final bool isMobile = screenWidth < 600;
 
     final double horizontalPadding = isSmallPhone
-        ? 12
-        : isMobile
-            ? 16
-            : 24;
+      ? 12
+      : isMobile
+          ? 16
+          : 24;
 
     final double verticalPadding = isSmallPhone ? 12 : 20;
     final double titleFontSize = isSmallPhone ? 16 : 18;
@@ -24,7 +29,7 @@ class QuickActionBottomSheet {
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      backgroundColor: Colors.white,
+      backgroundColor: colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(24),
@@ -50,7 +55,7 @@ class QuickActionBottomSheet {
                     bottom: isSmallPhone ? 12 : 20,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
+                    color: colorScheme.outlineVariant,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -58,17 +63,19 @@ class QuickActionBottomSheet {
                 Text(
                   '¿Qué deseas publicar?',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: theme.textTheme.titleLarge?.copyWith(
                     fontSize: titleFontSize,
                     fontWeight: FontWeight.bold,
+                    color: colorScheme.onSurface,
                   ),
                 ),
 
                 SizedBox(height: isSmallPhone ? 8 : 16),
 
                 _buildActionTile(
+                  context: modalContext,
                   icon: Icons.pets,
-                  iconColor: Colors.teal,
+                  type: StatusType.success,
                   title: 'Dar en Adopción',
                   subtitle: 'Publica una mascota que busca hogar',
                   iconRadius: iconRadius,
@@ -79,14 +86,17 @@ class QuickActionBottomSheet {
                   },
                 ),
 
-                const Divider(height: 1),
+                Divider(
+                  height: 1,
+                  color: colorScheme.outlineVariant,
+                ),
 
                 _buildActionTile(
+                  context: modalContext,
                   icon: Icons.warning_amber_rounded,
-                  iconColor: Colors.redAccent,
+                  type: StatusType.error,
                   title: 'Reportar Mascota Perdida',
-                  subtitle:
-                      'Avisa a la comunidad sobre un animal extraviado',
+                  subtitle: 'Avisa a la comunidad sobre un animal extraviado',
                   iconRadius: iconRadius,
                   isSmallPhone: isSmallPhone,
                   onTap: () {
@@ -105,14 +115,20 @@ class QuickActionBottomSheet {
   }
 
   static Widget _buildActionTile({
+    required BuildContext context,
     required IconData icon,
-    required Color iconColor,
+    required StatusType type,
     required String title,
     required String subtitle,
     required double iconRadius,
     required bool isSmallPhone,
     required VoidCallback onTap,
   }) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    final colors = getSemanticColors(colorScheme, type);
+
     return ListTile(
       contentPadding: EdgeInsets.symmetric(
         horizontal: isSmallPhone ? 2 : 8,
@@ -121,28 +137,29 @@ class QuickActionBottomSheet {
       minLeadingWidth: iconRadius * 2,
       leading: CircleAvatar(
         radius: iconRadius,
-        backgroundColor: iconColor,
+        backgroundColor: colors.background,
         child: Icon(
           icon,
-          color: Colors.white,
+          color: colors.foreground,
           size: isSmallPhone ? 20 : 24,
         ),
       ),
       title: Text(
         title,
-        style: TextStyle(
+        style: theme.textTheme.bodyLarge?.copyWith(
           fontSize: isSmallPhone ? 14 : 16,
           fontWeight: FontWeight.w600,
+          color: colorScheme.onSurface,
         ),
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
       ),
       subtitle: Text(
         subtitle,
-        style: TextStyle(
+        style: theme.textTheme.bodySmall?.copyWith(
           fontSize: isSmallPhone ? 11 : 13,
           height: 1.25,
-          color: Colors.grey.shade600,
+          color: colorScheme.onSurfaceVariant,
         ),
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
@@ -150,7 +167,7 @@ class QuickActionBottomSheet {
       trailing: Icon(
         Icons.arrow_forward_ios,
         size: isSmallPhone ? 14 : 16,
-        color: Colors.grey.shade600,
+        color: colorScheme.onSurfaceVariant,
       ),
       onTap: onTap,
     );

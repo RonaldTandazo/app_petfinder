@@ -232,7 +232,7 @@ class _LostPetHomeScreenState extends State<LostPetHomeScreen> {
       backgroundColor: Colors.transparent,
       builder: (context) {
         return FractionallySizedBox(
-          heightFactor: 0.75,
+          heightFactor: .85,
           child: AppPetFiltersBottomSheet(
             filtersData: _filtersData,
             currentFilters: _activeFilters,
@@ -249,24 +249,26 @@ class _LostPetHomeScreenState extends State<LostPetHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final double screenWidth = MediaQuery.sizeOf(context).width;
 
     final bool isSmallPhone = screenWidth < 360;
     final bool isTablet = screenWidth >= 600;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAF9),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
         title: Text(
           'Mascotas Perdidas',
           style: TextStyle(
-            color: Colors.black87,
             fontWeight: FontWeight.bold,
-            fontSize: isSmallPhone ? 18 : 20,
+            fontSize: 18,
           ),
         ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
       floatingActionButton: Builder(
         builder: (context) {
@@ -297,17 +299,16 @@ class _LostPetHomeScreenState extends State<LostPetHomeScreen> {
               onPressed: () {
                 context.push(LostPetRoutes.publish);
               },
-              backgroundColor: Colors.redAccent,
+              backgroundColor: colorScheme.error,
+              foregroundColor: colorScheme.onError,
               elevation: 4,
               icon: Icon(
                 Icons.add_location_alt_rounded,
-                color: Colors.white,
                 size: iconSize,
               ),
               label: Text(
                 'Reportar Mascota',
                 style: TextStyle(
-                  color: Colors.white,
                   fontSize: fontSize,
                   fontWeight: FontWeight.w600,
                 ),
@@ -330,8 +331,8 @@ class _LostPetHomeScreenState extends State<LostPetHomeScreen> {
             child:  _isLoadingLostPets
               ? AppSkeletonLoader(mode: SkeletonViewMode.list) 
               : RefreshIndicator(
-                  color: Colors.teal,
-                  backgroundColor: Colors.white,
+                  color: colorScheme.primary,
+                  backgroundColor: colorScheme.surface,
                   onRefresh: () async {
                     await _loadLostPets(reset: true);
                   },
@@ -352,10 +353,10 @@ class _LostPetHomeScreenState extends State<LostPetHomeScreen> {
                       itemCount: _lostPets.length + (_isLoadingMore ? 1 : 0),
                       itemBuilder: (context, index) {
                         if (index == _lostPets.length) {
-                          return const Padding(
+                          return Padding(
                             padding: EdgeInsets.symmetric(vertical: 16.0),
                             child: Center(
-                              child: CircularProgressIndicator(color: Colors.teal),
+                              child: CircularProgressIndicator(color: colorScheme.primary),
                             ),
                           );
                         }

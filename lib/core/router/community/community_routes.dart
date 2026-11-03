@@ -1,4 +1,4 @@
-import 'package:app_petfinder/core/utils/image_url_helper.dart';
+import 'package:app_petfinder/core/helpers/image_url_helper.dart';
 import 'package:app_petfinder/features/community/screens/post_detail_screen.dart';
 import 'package:app_petfinder/features/community/screens/post_form_screen.dart';
 import 'package:app_petfinder/models/community/community_author_model.dart';

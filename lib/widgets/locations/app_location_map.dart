@@ -31,13 +31,16 @@ class _AppLocationMapState extends State<AppLocationMap> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final LatLng point = LatLng(widget.latitude, widget.longitude);
 
     return Container(
       height: 400,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade300),
+        border: Border.all(color: colorScheme.outlineVariant),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
@@ -93,11 +96,11 @@ class _AppLocationMapState extends State<AppLocationMap> {
                     'Centrar',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  backgroundColor: Colors.white,
-                  foregroundColor: Theme.of(context).primaryColor,
+                  backgroundColor: colorScheme.primary,
+                  foregroundColor: colorScheme.onPrimary,
                   elevation: 4,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(16),
                   ),
                 ),
               ),

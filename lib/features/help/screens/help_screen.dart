@@ -12,8 +12,10 @@ class HelpScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
           'Ayuda y Soporte',
@@ -88,7 +90,7 @@ class HelpScreen extends StatelessWidget {
                       Icon(
                         Icons.support_agent_rounded,
                         size: headerIconSize,
-                        color: theme.colorScheme.primary,
+                        color: colorScheme.primary,
                       ),
                       SizedBox(height: spacing),
                       Text(
@@ -112,7 +114,7 @@ class HelpScreen extends StatelessWidget {
                           'para mejorar PetFinder',
                           textAlign: TextAlign.center,
                           style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
+                            color: colorScheme.onSurfaceVariant,
                             height: 1.5,
                             fontSize: isSmallPhone ? 13 : null,
                           ),

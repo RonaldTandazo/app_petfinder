@@ -20,7 +20,7 @@ class AppImageTile extends StatelessWidget {
     required this.onRemove,
   });
 
-  Widget _buildImage() {
+  Widget _buildImage(ColorScheme colorScheme) {
     if (image != null) {
       return Image.file(
         File(image!.path),
@@ -32,10 +32,10 @@ class AppImageTile extends StatelessWidget {
             return child;
           }
 
-          return _loadingImage();
+          return _loadingImage(colorScheme);
         },
         errorBuilder: (context, error, stackTrace) {
-          return _errorImage();
+          return _errorImage(colorScheme);
         },
       );
     }
@@ -52,54 +52,54 @@ class AppImageTile extends StatelessWidget {
           }
 
           return Container(
-            color: Colors.teal.shade50,
+            color: colorScheme.surfaceContainer,
             child: Center(
               child: SizedBox(
                 width: 24,
                 height: 24,
                 child: CircularProgressIndicator(
                   strokeWidth: 2.5,
-                  color: Colors.teal.shade600,
+                  color: colorScheme.primary,
                   value: loadingProgress.expectedTotalBytes != null
-                      ? loadingProgress.cumulativeBytesLoaded /
-                          loadingProgress.expectedTotalBytes!
-                      : null,
+                    ? loadingProgress.cumulativeBytesLoaded /
+                        loadingProgress.expectedTotalBytes!
+                    : null,
                 ),
               ),
             ),
           );
         },
         errorBuilder: (context, error, stackTrace) {
-          return _errorImage();
+          return _errorImage(colorScheme);
         },
       );
     }
 
-    return _errorImage();
+    return _errorImage(colorScheme);
   }
 
-  Widget _loadingImage() {
+  Widget _loadingImage(ColorScheme colorScheme) {
     return Container(
-      color: Colors.teal.shade50,
+      color: colorScheme.surfaceContainer,
       child: Center(
         child: SizedBox(
           width: 24,
           height: 24,
           child: CircularProgressIndicator(
             strokeWidth: 2.5,
-            color: Colors.teal.shade600,
+            color: colorScheme.primary,
           ),
         ),
       ),
     );
   }
 
-  Widget _errorImage() {
+  Widget _errorImage(ColorScheme colorScheme) {
     return Container(
-      color: Colors.grey.shade200,
-      child: const Icon(
+      color: colorScheme.surfaceContainer,
+      child: Icon(
         Icons.broken_image_rounded,
-        color: Colors.grey,
+        color: colorScheme.onSurfaceVariant,
         size: 28,
       ),
     );
@@ -107,6 +107,9 @@ class AppImageTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final double screenWidth = MediaQuery.sizeOf(context).width;
 
     final bool isSmallPhone = screenWidth < 360;
@@ -135,17 +138,17 @@ class AppImageTile extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(borderRadius),
                 border: isMain
-                    ? Border.all(
-                        color: Colors.teal.shade600,
-                        width: 3,
-                      )
-                    : null,
+                  ? Border.all(
+                      color: colorScheme.primary,
+                      width: 3,
+                    )
+                  : null,
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(
                   borderRadius - 2,
                 ),
-                child: _buildImage(),
+                child: _buildImage(colorScheme),
               ),
             ),
 
@@ -157,15 +160,15 @@ class AppImageTile extends StatelessWidget {
                   padding: EdgeInsets.all(iconPadding),
                   decoration: BoxDecoration(
                     color: isMain
-                        ? Colors.teal.shade600
-                        : Colors.black45,
+                      ? colorScheme.primary
+                      : Colors.black45,
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     isMain
                         ? Icons.star_rounded
                         : Icons.star_border_rounded,
-                    color: Colors.white,
+                    color: isMain ? colorScheme.onPrimary : Colors.white,
                     size: iconSize,
                   ),
                 ),
@@ -200,14 +203,14 @@ class AppImageTile extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 3),
                   decoration: BoxDecoration(
-                    color: Colors.teal.shade600.withValues(alpha: 0.95),
+                    color: colorScheme.primary.withValues(alpha: 0.95),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
                     'Principal',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: Colors.white,
+                      color: colorScheme.onPrimary,
                       fontSize: badgeFontSize,
                       fontWeight: FontWeight.bold,
                     ),

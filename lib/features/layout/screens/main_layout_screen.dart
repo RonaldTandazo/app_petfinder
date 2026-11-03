@@ -43,9 +43,13 @@ class MainLayoutScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currentIndex = _calculateSelectedIndex(context);
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    final int currentIndex = _calculateSelectedIndex(context);
 
     return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: child,
       floatingActionButton: Builder(
         builder: (context) {
@@ -66,13 +70,13 @@ class MainLayoutScreen extends StatelessWidget {
             child: FloatingActionButton(
               heroTag: 'btn_quick_actions',
               onPressed: () => _showQuickActionModal(context),
-              backgroundColor: Colors.teal,
+              backgroundColor: colorScheme.primary,
+              foregroundColor: colorScheme.onPrimary,
               elevation: 4,
               shape: const CircleBorder(),
               child: Icon(
                 Icons.add,
-                size: isSmallPhone ? 24 : isTablet ? 32 : 28,
-                color: Colors.white,
+                size: isSmallPhone ? 24 : isTablet ? 32 : 28
               ),
             ),
           );

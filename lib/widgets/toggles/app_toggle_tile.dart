@@ -20,14 +20,17 @@ class AppToggleTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final activeBg = activeColor.withValues(alpha: 0.08);
-    final activeBorder = activeColor.withValues(alpha: 0.6);
-    final inactiveBorder = Colors.grey.shade200;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    final Color activeBg = activeColor.withValues(alpha: 0.08);
+    final Color activeBorder = activeColor.withValues(alpha: 0.6);
+    final Color inactiveBorder = colorScheme.outlineVariant;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       child: Material(
-        color: value ? activeBg : Colors.white,
+        color: value ? activeBg : colorScheme.surfaceContainer,
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
@@ -45,7 +48,7 @@ class AppToggleTile extends StatelessWidget {
             children: [
               Icon(
                 icon,
-                color: value ? activeColor : Colors.grey.shade600,
+                color: value ? activeColor : colorScheme.onSurfaceVariant,
                 size: 22,
               ),
               const SizedBox(width: 8),
@@ -55,7 +58,7 @@ class AppToggleTile extends StatelessWidget {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
-                    color: value ? activeColor : Colors.black87,
+                    color: value ? activeColor : colorScheme.onSurface,
                   ),
                 ),
               ),
@@ -67,7 +70,7 @@ class AppToggleTile extends StatelessWidget {
               subtitle,
               style: TextStyle(
                 fontSize: 12,
-                color: value ? activeColor.withValues(alpha: 0.85) : Colors.grey.shade600,
+                color: value ? activeColor.withValues(alpha: 0.85) : colorScheme.onSurfaceVariant,
               ),
             ),
           ),

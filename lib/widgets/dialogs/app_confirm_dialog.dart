@@ -1,103 +1,106 @@
-import 'package:app_petfinder/core/utils/common_helpers.dart';
 import 'package:flutter/material.dart';
+import 'package:app_petfinder/core/helpers/color_helper.dart';
+import 'package:app_petfinder/enums/status/status_type.dart';
 
 class AppConfirmDialog extends StatelessWidget {
-  final IconData titleIcon;
-  final Color titleIconColor;
+  final IconData? titleIcon;
   final String title;
   final String message;
   final bool showCancel;
   final String cancelText;
-  final Color cancelColor;
   final bool showConfirm;
   final String confirmText;
-  final Color confirmColor;
+  final StatusType type;
 
   const AppConfirmDialog({
     super.key,
-    this.titleIcon = Icons.warning_outlined,
-    this.titleIconColor = Colors.red,
+    this.titleIcon,
     required this.title,
     required this.message,
     this.showCancel = true,
     this.cancelText = 'No, Cancelar',
-    this.cancelColor = Colors.teal,
     this.showConfirm = true,
     this.confirmText = 'Sí, Eliminar',
-    this.confirmColor = Colors.red
+    this.type = StatusType.error,
   });
 
   static Future<bool?> show({
     required BuildContext context,
-    IconData titleIcon = Icons.warning_outlined,
-    Color titleIconColor = Colors.red,
+    IconData? titleIcon,
     required String title,
     required String message,
     bool showCancel = true,
     String cancelText = 'No, Cancelar',
-    Color cancelColor = Colors.teal,
     bool showConfirm = true,
     String confirmText = 'Sí, Eliminar',
-    Color confirmColor = Colors.red,
+    StatusType type = StatusType.error,
   }) {
     return showDialog<bool>(
       context: context,
       builder: (context) => AppConfirmDialog(
         titleIcon: titleIcon,
-        titleIconColor: titleIconColor,
         title: title,
         message: message,
         showCancel: showCancel,
         cancelText: cancelText,
-        cancelColor: cancelColor,
         showConfirm: showConfirm,
         confirmText: confirmText,
-        confirmColor: confirmColor
+        type: type,
       ),
     );
   }
 
-  Widget _buildActionButton(BuildContext context, {required Color color, required String text, required bool value}){
-    final ColorScheme colors = Theme.of(context).colorScheme;
+  Widget _buildActionButton(
+    BuildContext context, {
+    required Color color,
+    required Color foregroundColor,
+    required String text,
+    required bool value,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
 
     return SizedBox(
       height: 46,
       child: value
-        ? FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: color,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+          ? FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor: color,
+                foregroundColor: foregroundColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 18),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 18),
-            ),
-            onPressed: () => Navigator.of(context).pop(value),
-            child: Text(
-              text,
-              textAlign: TextAlign.center,
-            ),
-          )
-        : OutlinedButton(
-            style: OutlinedButton.styleFrom(
-              foregroundColor: color,
-              side: BorderSide(color: colors.outlineVariant),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+              onPressed: () => Navigator.of(context).pop(value),
+              child: Text(text, textAlign: TextAlign.center),
+            )
+          : OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                foregroundColor: color,
+                side: BorderSide(color: colorScheme.outlineVariant),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 18),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 18),
+              onPressed: () => Navigator.of(context).pop(value),
+              child: Text(text, textAlign: TextAlign.center),
             ),
-            onPressed: () => Navigator.of(context).pop(value),
-            child: Text(
-              text,
-              textAlign: TextAlign.center,
-            ),
-          ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    final semanticColors = getSemanticColors(colorScheme, type);
+
+    final Color confirmColor = semanticColors.background;
+    final Color confirmForegroundColor = semanticColors.foreground;
+
+    final icon = titleIcon ?? semanticColors.icon;
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final Size screenSize = MediaQuery.sizeOf(context);
@@ -108,7 +111,7 @@ class AppConfirmDialog extends StatelessWidget {
         final double horizontalPadding = isSmallPhone ? 16 : 24;
         final double titleFontSize = isSmallPhone ? 18 : 20;
         final double messageFontSize = isSmallPhone ? 13 : 14;
-    
+
         return AlertDialog(
           insetPadding: EdgeInsets.symmetric(
             horizontal: isSmallPhone ? 16 : 24,
@@ -140,23 +143,24 @@ class AppConfirmDialog extends StatelessWidget {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: softenColor(titleIconColor),
+                  color: confirmColor,
                   borderRadius: BorderRadius.circular(14),
                 ),
                 alignment: Alignment.center,
                 child: Icon(
-                  titleIcon,
+                  icon,
                   size: 25,
-                  color: titleIconColor,
+                  color: confirmForegroundColor,
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   title,
-                  style: TextStyle(
+                  style: theme.textTheme.titleLarge?.copyWith(
                     fontSize: titleFontSize,
                     fontWeight: FontWeight.w600,
+                    color: colorScheme.onSurface,
                   ),
                 ),
               ),
@@ -168,9 +172,10 @@ class AppConfirmDialog extends StatelessWidget {
             ),
             child: Text(
               message,
-              style: TextStyle(
+              style: theme.textTheme.bodyMedium?.copyWith(
                 fontSize: messageFontSize,
                 height: 1.45,
+                color: colorScheme.onSurfaceVariant,
               ),
             ),
           ),
@@ -179,17 +184,41 @@ class AppConfirmDialog extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  if(showCancel)
-                    _buildActionButton(context, color: cancelColor, text: cancelText, value: false),
-                  if(showConfirm)
-                    _buildActionButton(context, color: confirmColor, text: confirmText, value: true)
+                  if (showCancel)
+                    _buildActionButton(
+                      context,
+                      color: colorScheme.primary,
+                      foregroundColor: colorScheme.onPrimary,
+                      text: cancelText,
+                      value: false,
+                    ),
+                  if (showConfirm)
+                    _buildActionButton(
+                      context,
+                      color: confirmColor,
+                      foregroundColor: confirmForegroundColor,
+                      text: confirmText,
+                      value: true,
+                    ),
                 ],
               )
             else ...[
-              if(showCancel)
-                _buildActionButton(context, color: cancelColor, text: cancelText, value: false),
-              if(showConfirm)
-                _buildActionButton(context, color: confirmColor, text: confirmText, value: true)
+              if (showCancel)
+                _buildActionButton(
+                  context,
+                  color: colorScheme.primary,
+                  foregroundColor: colorScheme.onPrimary,
+                  text: cancelText,
+                  value: false,
+                ),
+              if (showConfirm)
+                _buildActionButton(
+                  context,
+                  color: confirmColor,
+                  foregroundColor: confirmForegroundColor,
+                  text: confirmText,
+                  value: true,
+                ),
             ],
           ],
         );

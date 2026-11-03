@@ -70,12 +70,7 @@ class AppDatePicker extends StatelessWidget {
         firstDate: effectiveFirst,
         lastDate: effectiveLast,
         selectableDayPredicate: _selectableDayPredicate,
-        builder: (context, child) => Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(primary: Colors.teal.shade600),
-          ),
-          child: child!,
-        ),
+        builder: (context, child) => child!,
       );
 
       if (picked != null && onDateSelected != null) {
@@ -88,12 +83,7 @@ class AppDatePicker extends StatelessWidget {
         initialDateRange: selectedRange,
         firstDate: effectiveFirst,
         lastDate: effectiveLast,
-        builder: (context, child) => Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(primary: Colors.teal.shade600),
-          ),
-          child: child!,
-        ),
+        builder: (context, child) => child!,
       );
 
       if (pickedRange != null && onRangeSelected != null) {
@@ -119,19 +109,22 @@ class AppDatePicker extends StatelessWidget {
       if (selectedDate != null) {
         return dateFormat.format(selectedDate!);
       }
-      return 'Seleccionar fecha';
+      return 'Seleccionar Fecha';
     } else {
       if (selectedRange != null) {
         return '${dateFormat.format(selectedRange!.start)} - ${dateFormat.format(selectedRange!.end)}';
       }
-      return 'Seleccionar rango';
+      return 'Seleccionar Rango';
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final textValue = _getFormattedText();
-    final hasValue = (selectionType == DateSelectionType.single && selectedDate != null) ||
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    final String textValue = _getFormattedText();
+    final bool hasValue = (selectionType == DateSelectionType.single && selectedDate != null) ||
         (selectionType == DateSelectionType.range && selectedRange != null);
 
     return FormField<String>(
@@ -149,30 +142,45 @@ class AppDatePicker extends StatelessWidget {
               borderRadius: BorderRadius.circular(14),
               child: InputDecorator(
                 decoration: InputDecoration(
-                  labelText: label,
-                  prefixIcon: Icon(icon, size: 20, color: Colors.teal.shade600),
                   filled: true,
-                  fillColor: Colors.white,
+                  labelText: label,
+                  prefixIcon: Icon(
+                    icon,
+                    size: 20,
+                    color: colorScheme.primary,
+                  ),
+                  fillColor: colorScheme.surfaceContainer,
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   errorText: state.errorText,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(color: Colors.grey.shade300),
+                    borderSide: BorderSide(
+                      color: colorScheme.outlineVariant,
+                    ),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(color: state.hasError ? Colors.red.shade400 : Colors.grey.shade200),
+                    borderSide: BorderSide(
+                      color: state.hasError
+                          ? colorScheme.error
+                          : colorScheme.outlineVariant,
+                    ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(color: Colors.teal.shade600, width: 1.5),
+                    borderSide: BorderSide(
+                      color: colorScheme.primary,
+                      width: 1.5,
+                    ),
                   ),
                 ),
                 child: Text(
                   textValue,
-                  style: TextStyle(
+                  style: theme.textTheme.bodyMedium?.copyWith(
                     fontSize: 13,
-                    color: hasValue ? Colors.black87 : Colors.grey.shade600,
+                    color: hasValue
+                      ? colorScheme.onSurface
+                      : colorScheme.onSurfaceVariant,
                   ),
                 ),
               ),

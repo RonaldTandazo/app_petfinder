@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:app_petfinder/core/theme/theme_controller.dart';
 
 class AccountDrawer extends StatelessWidget {
   final String name;
@@ -20,21 +22,61 @@ class AccountDrawer extends StatelessWidget {
     this.onLogout,
   });
 
+  Future<void> _showAppearanceDialog(
+    BuildContext context,
+    ThemeController controller,
+  ) async {
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Apariencia'),
+          content: RadioGroup<ThemeMode>(
+            groupValue: controller.themeMode,
+            onChanged: (mode) {
+              if (mode == null) return;
+
+              controller.setThemeMode(mode);
+              Navigator.pop(dialogContext);
+            },
+            child: const Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                RadioListTile<ThemeMode>(
+                  value: ThemeMode.system,
+                  title: Text('Sistema')
+                ),
+                RadioListTile<ThemeMode>(
+                  value: ThemeMode.light,
+                  title: Text('Claro')
+                ),
+                RadioListTile<ThemeMode>(
+                  value: ThemeMode.dark,
+                  title: Text('Oscuro')
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
     final double screenWidth = MediaQuery.sizeOf(context).width;
-          
+
     final bool isSmallPhone = screenWidth < 360;
     final bool isTablet = screenWidth >= 600;
 
-    final double drawerWidth = isSmallPhone 
-      ? screenWidth 
-      : isTablet 
-          ? 360.0 
-          : 340.0;
+    final double drawerWidth = isSmallPhone
+        ? screenWidth
+        : isTablet
+            ? 360.0
+            : 340.0;
 
     return Drawer(
       width: drawerWidth,
@@ -50,7 +92,10 @@ class AccountDrawer extends StatelessWidget {
               child: SafeArea(
                 bottom: false,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 20.0,
+                  ),
                   child: Row(
                     children: [
                       Container(
@@ -65,18 +110,18 @@ class AccountDrawer extends StatelessWidget {
                         child: CircleAvatar(
                           radius: 26,
                           backgroundColor: colorScheme.surface,
-                          backgroundImage: avatar != null ? NetworkImage(avatar!) : null,
+                          backgroundImage:
+                              avatar != null ? NetworkImage(avatar!) : null,
                           child: avatar == null
-                            ? Icon(
-                                Icons.person_rounded,
-                                size: 30,
-                                color: colorScheme.primary,
-                              )
-                            : null,
+                              ? Icon(
+                                  Icons.person_rounded,
+                                  size: 30,
+                                  color: colorScheme.primary,
+                                )
+                              : null,
                         ),
                       ),
                       const SizedBox(width: 14),
-
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -95,7 +140,9 @@ class AccountDrawer extends StatelessWidget {
                             Text(
                               email,
                               style: theme.textTheme.bodySmall?.copyWith(
-                                color: colorScheme.onPrimary.withValues(alpha: 0.8),
+                                color: colorScheme.onPrimary.withValues(
+                                  alpha: 0.8,
+                                ),
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -136,6 +183,17 @@ class AccountDrawer extends StatelessWidget {
                     onHelp?.call();
                   },
                 ),
+                Consumer<ThemeController>(
+                  builder: (context, controller, child) {
+                    return ListTile(
+                      leading: const Icon(Icons.palette_outlined),
+                      title: const Text('Apariencia'),
+                      onTap: () {
+                        _showAppearanceDialog(context, controller);
+                      },
+                    );
+                  },
+                ),
               ],
             ),
           ),
@@ -145,10 +203,16 @@ class AccountDrawer extends StatelessWidget {
           SafeArea(
             top: false,
             child: ListTile(
-              leading: const Icon(Icons.logout_rounded, color: Colors.redAccent),
-              title: const Text(
-                'Cerrar sesión',
-                style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold),
+              leading: Icon(
+                Icons.logout_rounded,
+                color: colorScheme.error,
+              ),
+              title: Text(
+                'Cerrar Sesión',
+                style: TextStyle(
+                  color: colorScheme.error,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               onTap: () {
                 Navigator.pop(context);

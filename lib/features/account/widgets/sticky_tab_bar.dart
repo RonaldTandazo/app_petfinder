@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class StickyTabBar extends SliverPersistentHeaderDelegate {
@@ -14,14 +13,18 @@ class StickyTabBar extends SliverPersistentHeaderDelegate {
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Container(
-      color: Theme.of(context).scaffoldBackgroundColor,
+      color: colorScheme.surface,
       child: tabBar,
     );
   }
 
   @override
   bool shouldRebuild(StickyTabBar oldDelegate) {
-    return false;
+    return tabBar != oldDelegate.tabBar ||
+      tabBar.preferredSize.height != oldDelegate.tabBar.preferredSize.height;
   }
 }

@@ -9,9 +9,9 @@ import 'package:app_petfinder/core/network/api_client.dart';
 import 'package:app_petfinder/core/network/api_exception.dart';
 import 'package:app_petfinder/core/utils/api_error_handler.dart';
 import 'package:app_petfinder/core/utils/api_success_handler.dart';
-import 'package:app_petfinder/core/utils/image_url_helper.dart';
-import 'package:app_petfinder/enums/snackbar/snackbar_type.dart';
-import 'package:app_petfinder/features/adoption/styles/pet_form_styles.dart';
+import 'package:app_petfinder/core/helpers/image_url_helper.dart';
+import 'package:app_petfinder/enums/status/status_type.dart';
+import 'package:app_petfinder/styles/app_form_styles.dart';
 import 'package:app_petfinder/models/catalog/news_type_model.dart';
 import 'package:app_petfinder/models/community/post_model.dart';
 import 'package:app_petfinder/models/community/post_image_model.dart';
@@ -188,7 +188,7 @@ class _PostFormScreenState extends State<PostFormScreen> {
         context,
         title: 'Solo refugios',
         description: 'Solo los refugios pueden crear publicaciones en la comunidad.',
-        type: SnackBarType.warning,
+        type: StatusType.warning,
       );
       return;
     }
@@ -198,7 +198,7 @@ class _PostFormScreenState extends State<PostFormScreen> {
         context,
         title: 'Fotografía requerida',
         description: 'Por favor agrega al menos 1 fotografía a tu publicación.',
-        type: SnackBarType.warning,
+        type: StatusType.warning,
       );
       return;
     }
@@ -209,7 +209,7 @@ class _PostFormScreenState extends State<PostFormScreen> {
         context,
         title: 'Imagen subiendo',
         description: 'Por favor espera a que termine de subirse la fotografía.',
-        type: SnackBarType.warning,
+        type: StatusType.warning,
       );
       return;
     }
@@ -220,7 +220,7 @@ class _PostFormScreenState extends State<PostFormScreen> {
         context,
         title: 'Error en la fotografía',
         description: 'La imagen falló al subirse. Elimínala o vuelve a intentarlo.',
-        type: SnackBarType.error,
+        type: StatusType.error,
       );
       return;
     }
@@ -230,7 +230,7 @@ class _PostFormScreenState extends State<PostFormScreen> {
         context,
         title: 'Tipo de noticia requerido',
         description: 'Selecciona el tipo de publicación.',
-        type: SnackBarType.warning,
+        type: StatusType.warning,
       );
       return;
     }
@@ -263,7 +263,7 @@ class _PostFormScreenState extends State<PostFormScreen> {
           context,
           title: 'Sin cambios',
           description: 'No hay cambios que guardar.',
-          type: SnackBarType.warning,
+          type: StatusType.warning,
         );
         return;
       }
@@ -327,10 +327,10 @@ class _PostFormScreenState extends State<PostFormScreen> {
   InputDecoration _inputDecoration(String label, IconData icon, String field) {
     final errors = _fieldErrors[field];
     if (errors is List && errors.isNotEmpty) {
-      return PetFormStyles.inputDecoration(label, icon).copyWith(errorText: errors.first.toString());
+      return AppFormStyles.inputDecoration(context, label, icon).copyWith(errorText: errors.first.toString());
     }
 
-    return PetFormStyles.inputDecoration(label, icon);
+    return AppFormStyles.inputDecoration(context, label, icon);
   }
 
   void _clearFieldError(String field) {
@@ -361,7 +361,11 @@ class _PostFormScreenState extends State<PostFormScreen> {
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 children: [
-                  PetFormStyles.buildSectionHeader('Fotografía', 'Sube 1 imagen de la publicación'),
+                  AppFormStyles.buildSectionHeader(
+                    context,
+                    'Fotografía',
+                    'Sube 1 imagen de la publicación'
+                  ),
                   const SizedBox(height: 12),
                   AppImagePickerGrid(
                     images: _selectedImages,
@@ -374,11 +378,19 @@ class _PostFormScreenState extends State<PostFormScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  PetFormStyles.buildSectionHeader('Detalles', 'Información de tu publicación'),
+                  AppFormStyles.buildSectionHeader(
+                    context,
+                    'Detalles',
+                    'Información de tu publicación'
+                  ),
                   const SizedBox(height: 12),
                   DropdownButtonFormField<int>(
                     initialValue: _selectedNewsTypeId,
-                    decoration: PetFormStyles.inputDecoration('Tipo de noticia *', Icons.newspaper_rounded),
+                    decoration: AppFormStyles.inputDecoration(
+                      context,
+                      'Tipo de noticia *',
+                      Icons.newspaper_rounded
+                    ),
                     items: _newsTypes.map((item) {
                       return DropdownMenuItem<int>(
                         value: item.id,

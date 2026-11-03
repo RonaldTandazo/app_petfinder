@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:app_petfinder/core/utils/common_helpers.dart';
+import 'package:app_petfinder/core/helpers/date_helper.dart';
+import 'package:app_petfinder/core/helpers/gender_helper.dart';
 import 'package:app_petfinder/widgets/images/app_image_placeholders.dart';
 import 'package:app_petfinder/models/lost_pet/lost_pet_list_model.dart';
+import 'package:app_petfinder/core/helpers/color_helper.dart';
+import 'package:app_petfinder/enums/status/status_type.dart';
 
 class LostPetCard extends StatelessWidget {
   final LostPetListModel lostPet;
@@ -17,6 +20,9 @@ class LostPetCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final Size screenSize = MediaQuery.sizeOf(context);
 
     final bool isSmallPhone = screenSize.width < 360;
@@ -37,7 +43,8 @@ class LostPetCard extends StatelessWidget {
     final bool hasImage = lostPet.picture.trim().isNotEmpty;
     final bool isLost = lostPet.reportStatusTag == 'ACTIVE';
 
-    final Color badgeColor = isLost ? Colors.redAccent : Colors.teal;
+    final StatusType type = isLost ? StatusType.error : StatusType.information;
+    final badgeColors = getSemanticColors(colorScheme, type);
     final String badgeText = lostPet.reportStatus;
 
     final bool isMale = lostPet.genderTag == 'MALE';
@@ -54,6 +61,9 @@ class LostPetCard extends StatelessWidget {
                 lostPet.eventAddress!.trim().isNotEmpty
             ? '${lostPet.eventAddress}, ${lostPet.city}'
             : lostPet.city;
+    final double locationIconSize = isSmallPhone ? 10 : 12;
+
+    final double detailFontSize = isSmallPhone ? 9 : isTablet ? 11 : 10;
 
     return Container(
       margin: EdgeInsets.symmetric(
@@ -61,7 +71,7 @@ class LostPetCard extends StatelessWidget {
         vertical: 6,
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -91,20 +101,20 @@ class LostPetCard extends StatelessWidget {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(12),
                         child: hasImage
-                            ? Image.network(
-                                lostPet.picture,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return AppImagePlaceholders.card(
-                                    icon: Icons.broken_image_outlined,
-                                    message: 'No se pudo obtener\nla imagen',
-                                  );
-                                },
-                              )
-                            : AppImagePlaceholders.card(
-                                icon: Icons.pets,
-                                message: 'Sin imagen disponible',
-                              ),
+                          ? Image.network(
+                              lostPet.picture,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return AppImagePlaceholders.card(
+                                  icon: Icons.broken_image_outlined,
+                                  message: 'No se pudo obtener\nla imagen',
+                                );
+                              },
+                            )
+                          : AppImagePlaceholders.card(
+                              icon: Icons.pets,
+                              message: 'Sin imagen disponible',
+                            ),
                       ),
                     ),
                     Positioned(
@@ -119,7 +129,7 @@ class LostPetCard extends StatelessWidget {
                           vertical: 3,
                         ),
                         decoration: BoxDecoration(
-                          color: badgeColor,
+                          color: badgeColors.background,
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
@@ -127,7 +137,7 @@ class LostPetCard extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: Colors.white,
+                            color: badgeColors.foreground,
                             fontSize: isSmallPhone ? 8 : 9,
                             fontWeight: FontWeight.bold,
                           ),
@@ -153,7 +163,7 @@ class LostPetCard extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: nameFontSize,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.black87,
+                                color: colorScheme.onSurface,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -175,7 +185,7 @@ class LostPetCard extends StatelessWidget {
                         formatDate(lostPet.eventDate),
                         style: TextStyle(
                           fontSize: isSmallPhone ? 10 : 11,
-                          color: Colors.grey.shade600,
+                          color: colorScheme.onSurfaceVariant,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -188,7 +198,7 @@ class LostPetCard extends StatelessWidget {
                         description,
                         style: TextStyle(
                           fontSize: descriptionFontSize,
-                          color: Colors.grey.shade700,
+                          color: colorScheme.onSurfaceVariant,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -204,7 +214,7 @@ class LostPetCard extends StatelessWidget {
                             Icon(
                               Icons.location_on,
                               size: isSmallPhone ? 13 : 14,
-                              color: Colors.teal,
+                              color: colorScheme.primary,
                             ),
                             const SizedBox(width: 3),
                             Expanded(
@@ -212,7 +222,7 @@ class LostPetCard extends StatelessWidget {
                                 location,
                                 style: TextStyle(
                                   fontSize: locationFontSize,
-                                  color: Colors.black54,
+                                  color: colorScheme.onSurfaceVariant,
                                 ),
                                 maxLines: isSmallPhone ? 2 : 2,
                                 overflow: TextOverflow.ellipsis,
@@ -222,34 +232,33 @@ class LostPetCard extends StatelessWidget {
                         ),
 
                       // Distancia debajo de la ubicación
-                      if (distance != null &&
-                          distance!.trim().isNotEmpty) ...[
-                        const SizedBox(height: 6),
+                      if (distance != null && distance!.trim().isNotEmpty) ...[
+                        SizedBox(width: isSmallPhone ? 2 : 4),
                         Container(
                           padding: EdgeInsets.symmetric(
-                            horizontal: isSmallPhone ? 5 : 7,
-                            vertical: 3,
+                            horizontal: isSmallPhone ? 3 : 6,
+                            vertical: isSmallPhone ? 1 : 2,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.teal.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(6),
+                            color: colorScheme.primaryContainer,
+                            borderRadius: BorderRadius.circular(4),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Icon(
-                                Icons.near_me_outlined,
-                                size: isSmallPhone ? 11 : 13,
-                                color: Colors.teal.shade700,
+                                Icons.location_on_outlined,
+                                size: locationIconSize,
+                                color: colorScheme.onPrimaryContainer,
                               ),
-                              const SizedBox(width: 3),
+                              const SizedBox(width: 2),
                               Flexible(
                                 child: Text(
                                   distance!,
                                   style: TextStyle(
-                                    fontSize: isSmallPhone ? 10 : 11,
+                                    fontSize: detailFontSize,
                                     fontWeight: FontWeight.w600,
-                                    color: Colors.teal.shade700,
+                                    color: colorScheme.onPrimaryContainer,
                                   ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,

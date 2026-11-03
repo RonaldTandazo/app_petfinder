@@ -13,6 +13,9 @@ class FloatingBottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final mediaQuery = MediaQuery.of(context);
     final double screenWidth = mediaQuery.size.width;
 
@@ -64,7 +67,7 @@ class FloatingBottomBar extends StatelessWidget {
               offset: Offset(0, 10 * scale),
             ),
             BoxShadow(
-              color: Colors.teal.withValues(alpha: 0.15),
+              color: colorScheme.primary.withValues(alpha: 0.15),
               blurRadius: 16 * scale,
               spreadRadius: 1,
               offset: Offset(0, 2 * scale),
@@ -82,14 +85,14 @@ class FloatingBottomBar extends StatelessWidget {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    Colors.white.withValues(alpha: 0.35),
-                    Colors.white.withValues(alpha: 0.10),
-                    Colors.white.withValues(alpha: 0.20),
+                    colorScheme.surface.withValues(alpha: 0.90),
+                    colorScheme.surface.withValues(alpha: 0.75),
+                    colorScheme.surface.withValues(alpha: 0.85),
                   ],
                   stops: const [0.0, 0.5, 1.0],
                 ),
                 border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.45),
+                  color: colorScheme.outlineVariant.withValues(alpha: 0.5),
                   width: 1.5,
                 ),
               ),
@@ -97,6 +100,7 @@ class FloatingBottomBar extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   _buildNavItem(
+                    colorScheme: colorScheme,
                     icon: Icons.pets,
                     label: 'Adopciones',
                     index: 0,
@@ -105,6 +109,7 @@ class FloatingBottomBar extends StatelessWidget {
                     isTablet: isTablet
                   ),
                   _buildNavItem(
+                    colorScheme: colorScheme,
                     icon: Icons.search_off_rounded,
                     label: 'Perdidos',
                     index: 1,
@@ -116,6 +121,7 @@ class FloatingBottomBar extends StatelessWidget {
                   SizedBox(width: gapWidth),
 
                   _buildNavItem(
+                    colorScheme: colorScheme,
                     icon: Icons.people_rounded,
                     label: 'Comunidad',
                     index: 2,
@@ -124,6 +130,7 @@ class FloatingBottomBar extends StatelessWidget {
                     isTablet: isTablet
                   ),
                   _buildNavItem(
+                    colorScheme: colorScheme,
                     icon: Icons.person_rounded,
                     label: 'Perfil',
                     index: 3,
@@ -141,6 +148,7 @@ class FloatingBottomBar extends StatelessWidget {
   }
 
   Widget _buildNavItem({
+    required ColorScheme colorScheme,
     required IconData icon,
     required String label,
     required int index,
@@ -148,9 +156,9 @@ class FloatingBottomBar extends StatelessWidget {
     required bool isSmallPhone,
     required bool isTablet,
   }) {
-    final isSelected = currentIndex == index;
-    final activeColor = Colors.teal.shade700;
-    final inactiveColor = Colors.grey.shade700;
+    final bool isSelected = currentIndex == index;
+    final Color activeColor = colorScheme.primary;
+    final Color inactiveColor = colorScheme.onSurfaceVariant;
 
     final double iconSize = isSmallPhone
       ? 15.0
@@ -186,7 +194,7 @@ class FloatingBottomBar extends StatelessWidget {
       child: InkWell(
         onTap: () => onTap(index),
         borderRadius: BorderRadius.circular(100),
-        splashColor: Colors.teal.withValues(alpha: 0.15),
+        splashColor: colorScheme.primary.withValues(alpha: 0.15),
         highlightColor: Colors.transparent,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 250),
@@ -201,12 +209,12 @@ class FloatingBottomBar extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(100),
             color: isSelected
-                ? Colors.white.withValues(alpha: 0.60)
-                : Colors.transparent,
+              ? colorScheme.primaryContainer.withValues(alpha: 0.65)
+              : Colors.transparent,
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: Colors.teal.withValues(alpha: 0.2),
+                      color: colorScheme.primary.withValues(alpha: 0.2),
                       blurRadius: 8 * scale,
                       offset: Offset(0, 2 * scale),
                     ),

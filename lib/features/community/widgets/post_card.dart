@@ -1,5 +1,5 @@
-import 'package:app_petfinder/core/utils/image_url_helper.dart';
-import 'package:app_petfinder/core/utils/relative_time_helper.dart';
+import 'package:app_petfinder/core/helpers/image_url_helper.dart';
+import 'package:app_petfinder/core/helpers/relative_time_helper.dart';
 import 'package:app_petfinder/features/community/widgets/news_type_badge.dart';
 import 'package:app_petfinder/features/community/widgets/reaction_button.dart';
 import 'package:app_petfinder/models/community/post_model.dart';

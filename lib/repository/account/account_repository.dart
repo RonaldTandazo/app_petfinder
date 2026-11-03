@@ -1,6 +1,6 @@
 import 'package:app_petfinder/core/network/api_response.dart';
 import 'package:app_petfinder/core/repository/base_repository.dart';
-import 'package:app_petfinder/core/utils/account_storage_service.dart';
+import 'package:app_petfinder/core/storage/account_storage_service.dart';
 
 class AccountRepository extends BaseRepository {
   static const String _prefix = '/profile';

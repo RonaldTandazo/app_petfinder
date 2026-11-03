@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
-class LostPetDetailSkeleton extends StatefulWidget {
-  const LostPetDetailSkeleton({
+class PetDetailSkeleton extends StatefulWidget {
+  const PetDetailSkeleton({
     super.key,
   });
 
   @override
-  State<LostPetDetailSkeleton> createState() => _LostPetDetailSkeletonState();
+  State<PetDetailSkeleton> createState() => _PetDetailSkeletonState();
 }
 
-class _LostPetDetailSkeletonState extends State<LostPetDetailSkeleton> with SingleTickerProviderStateMixin {
+class _PetDetailSkeletonState extends State<PetDetailSkeleton> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
 
@@ -35,6 +35,7 @@ class _LostPetDetailSkeletonState extends State<LostPetDetailSkeleton> with Sing
   }
 
   Widget _box({
+    required Color placeholderColor,
     required double height,
     double? width,
     double radius = 8,
@@ -54,6 +55,8 @@ class _LostPetDetailSkeletonState extends State<LostPetDetailSkeleton> with Sing
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return CustomScrollView(
       slivers: [
         _buildImageCarouselSkeleton(),
@@ -64,19 +67,19 @@ class _LostPetDetailSkeletonState extends State<LostPetDetailSkeleton> with Sing
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildHeaderSkeleton(),
+                _buildHeaderSkeleton(colorScheme),
                 const SizedBox(height: 16),
 
-                _buildQuickInfoSkeleton(),
+                _buildQuickInfoSkeleton(colorScheme),
                 const SizedBox(height: 16),
 
-                _buildDescriptionSkeleton(),
+                _buildDescriptionSkeleton(colorScheme),
                 const SizedBox(height: 20),
 
-                _buildContactSkeleton(),
+                _buildContactSkeleton(colorScheme),
                 const SizedBox(height: 24),
 
-                _buildSightingsSkeleton(),
+                _buildSightingsSkeleton(colorScheme),
 
                 const SizedBox(height: 80),
               ],
@@ -104,7 +107,7 @@ class _LostPetDetailSkeletonState extends State<LostPetDetailSkeleton> with Sing
     );
   }
 
-  Widget _buildHeaderSkeleton() {
+  Widget _buildHeaderSkeleton(ColorScheme colorScheme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -116,11 +119,13 @@ class _LostPetDetailSkeletonState extends State<LostPetDetailSkeleton> with Sing
               height: 28,
               width: 80,
               radius: 20,
+              placeholderColor: colorScheme.surfaceContainerHighest,
             ),
             _box(
               height: 30,
               width: 130,
               radius: 20,
+              placeholderColor: colorScheme.surfaceContainerHighest,
             ),
           ],
         ),
@@ -135,6 +140,7 @@ class _LostPetDetailSkeletonState extends State<LostPetDetailSkeleton> with Sing
                 height: 28,
                 width: 180,
                 radius: 6,
+                placeholderColor: colorScheme.surfaceContainerHighest,
               ),
             ),
             const SizedBox(width: 8),
@@ -142,6 +148,7 @@ class _LostPetDetailSkeletonState extends State<LostPetDetailSkeleton> with Sing
               height: 26,
               width: 26,
               radius: 13,
+              placeholderColor: colorScheme.surfaceContainerHighest,
             ),
           ],
         ),
@@ -153,12 +160,13 @@ class _LostPetDetailSkeletonState extends State<LostPetDetailSkeleton> with Sing
           height: 14,
           width: 230,
           radius: 4,
+          placeholderColor: colorScheme.surfaceContainerHighest,
         ),
       ],
     );
   }
 
-  Widget _buildQuickInfoSkeleton() {
+  Widget _buildQuickInfoSkeleton(ColorScheme colorScheme) {
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: 8,
@@ -170,49 +178,52 @@ class _LostPetDetailSkeletonState extends State<LostPetDetailSkeleton> with Sing
       ),
       child: Row(
         children: [
-          Expanded(child: _buildQuickInfoItemSkeleton()),
+          Expanded(child: _buildQuickInfoItemSkeleton(colorScheme)),
           Container(
             height: 45,
             width: 1,
             color: Colors.grey.shade200,
           ),
-          Expanded(child: _buildQuickInfoItemSkeleton()),
+          Expanded(child: _buildQuickInfoItemSkeleton(colorScheme)),
           Container(
             height: 45,
             width: 1,
             color: Colors.grey.shade200,
           ),
-          Expanded(child: _buildQuickInfoItemSkeleton()),
+          Expanded(child: _buildQuickInfoItemSkeleton(colorScheme)),
         ],
       ),
     );
   }
 
-  Widget _buildQuickInfoItemSkeleton() {
+  Widget _buildQuickInfoItemSkeleton(ColorScheme colorScheme) {
     return Column(
       children: [
         _box(
           height: 20,
           width: 20,
           radius: 10,
+          placeholderColor: colorScheme.surfaceContainerHighest
         ),
         const SizedBox(height: 6),
         _box(
           height: 10,
           width: 45,
           radius: 4,
+          placeholderColor: colorScheme.surfaceContainerHighest
         ),
         const SizedBox(height: 5),
         _box(
           height: 12,
           width: 65,
           radius: 4,
+          placeholderColor: colorScheme.surfaceContainerHighest
         ),
       ],
     );
   }
 
-  Widget _buildDescriptionSkeleton() {
+  Widget _buildDescriptionSkeleton(ColorScheme colorScheme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -220,21 +231,23 @@ class _LostPetDetailSkeletonState extends State<LostPetDetailSkeleton> with Sing
           height: 18,
           width: 110,
           radius: 4,
+          placeholderColor: colorScheme.surfaceContainerHighest
         ),
         const SizedBox(height: 10),
-        _box(height: 12),
+        _box(height: 12, placeholderColor: colorScheme.surfaceContainerHighest),
         const SizedBox(height: 7),
-        _box(height: 12),
+        _box(height: 12, placeholderColor: colorScheme.surfaceContainerHighest),
         const SizedBox(height: 7),
         _box(
           height: 12,
           width: 260,
+          placeholderColor: colorScheme.surfaceContainerHighest
         ),
       ],
     );
   }
 
-  Widget _buildContactSkeleton() {
+  Widget _buildContactSkeleton(ColorScheme colorScheme) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final bool isSmall = constraints.maxWidth < 600;
@@ -245,11 +258,13 @@ class _LostPetDetailSkeletonState extends State<LostPetDetailSkeleton> with Sing
               _box(
                 height: 48,
                 radius: 10,
+                placeholderColor: colorScheme.surfaceContainerHighest
               ),
               const SizedBox(height: 10),
               _box(
                 height: 48,
                 radius: 10,
+                placeholderColor: colorScheme.surfaceContainerHighest
               ),
             ],
           );
@@ -261,6 +276,7 @@ class _LostPetDetailSkeletonState extends State<LostPetDetailSkeleton> with Sing
               child: _box(
                 height: 48,
                 radius: 10,
+                placeholderColor: colorScheme.surfaceContainerHighest
               ),
             ),
             const SizedBox(width: 12),
@@ -268,6 +284,7 @@ class _LostPetDetailSkeletonState extends State<LostPetDetailSkeleton> with Sing
               child: _box(
                 height: 48,
                 radius: 10,
+                placeholderColor: colorScheme.surfaceContainerHighest
               ),
             ),
           ],
@@ -276,7 +293,7 @@ class _LostPetDetailSkeletonState extends State<LostPetDetailSkeleton> with Sing
     );
   }
 
-  Widget _buildSightingsSkeleton() {
+  Widget _buildSightingsSkeleton(ColorScheme colorScheme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -287,11 +304,13 @@ class _LostPetDetailSkeletonState extends State<LostPetDetailSkeleton> with Sing
               height: 20,
               width: 180,
               radius: 4,
+              placeholderColor: colorScheme.surfaceContainerHighest
             ),
             _box(
               height: 14,
               width: 70,
               radius: 4,
+              placeholderColor: colorScheme.surfaceContainerHighest
             ),
           ],
         ),
@@ -302,6 +321,7 @@ class _LostPetDetailSkeletonState extends State<LostPetDetailSkeleton> with Sing
         _box(
           height: 280,
           radius: 16,
+          placeholderColor: colorScheme.surfaceContainerHighest
         ),
 
         const SizedBox(height: 16),
@@ -310,6 +330,7 @@ class _LostPetDetailSkeletonState extends State<LostPetDetailSkeleton> with Sing
           height: 18,
           width: 190,
           radius: 4,
+          placeholderColor: colorScheme.surfaceContainerHighest
         ),
 
         const SizedBox(height: 10),
@@ -331,6 +352,7 @@ class _LostPetDetailSkeletonState extends State<LostPetDetailSkeleton> with Sing
                     height: 40,
                     width: 40,
                     radius: 20,
+                    placeholderColor: colorScheme.surfaceContainerHighest
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -341,12 +363,14 @@ class _LostPetDetailSkeletonState extends State<LostPetDetailSkeleton> with Sing
                           height: 13,
                           width: 160,
                           radius: 4,
+                          placeholderColor: colorScheme.surfaceContainerHighest
                         ),
                         const SizedBox(height: 7),
                         _box(
                           height: 11,
                           width: 220,
                           radius: 4,
+                          placeholderColor: colorScheme.surfaceContainerHighest
                         ),
                       ],
                     ),

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:app_petfinder/enums/status/status_type.dart';
 import 'package:app_petfinder/widgets/snackbars/app_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
@@ -115,7 +116,11 @@ class _LegalDocumentScreenState extends State<LegalDocumentScreen> {
       if (!mounted) return;
 
       if (result.type != ResultType.done) {
-        AppSnackBar.show(context, title: 'No se pudo abrir el documento PDF.');
+        AppSnackBar.show(
+          context, 
+          title: 'No se pudo abrir el documento PDF',
+          type: StatusType.error
+        );
       }
     } on ApiException catch (e) {
       ApiErrorHandler.handle(context, e);
@@ -131,6 +136,7 @@ class _LegalDocumentScreenState extends State<LegalDocumentScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
           _title,
@@ -151,9 +157,13 @@ class _LegalDocumentScreenState extends State<LegalDocumentScreen> {
   }
 
   Widget _buildBody(ThemeData theme) {
+    final colorScheme = theme.colorScheme;
+
     if (_isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(),
+      return Center(
+        child: CircularProgressIndicator(
+          color: colorScheme.primary,
+        ),
       );
     }
 
@@ -167,7 +177,7 @@ class _LegalDocumentScreenState extends State<LegalDocumentScreen> {
               Icon(
                 Icons.error_outline,
                 size: 48,
-                color: theme.colorScheme.error,
+                color: colorScheme.error,
               ),
               const SizedBox(height: 16),
               Text(
@@ -206,15 +216,27 @@ class _LegalDocumentScreenState extends State<LegalDocumentScreen> {
                 styleSheet: MarkdownStyleSheet.fromTheme(theme).copyWith(
                   p: theme.textTheme.bodyLarge?.copyWith(
                     height: 1.6,
+                    color: colorScheme.onSurface,
                   ),
                   h1: theme.textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
+                    color: colorScheme.onSurface,
                   ),
                   h2: theme.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
+                    color: colorScheme.onSurface,
                   ),
                   h3: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
+                    color: colorScheme.onSurface,
+                  ),
+                  a: theme.textTheme.bodyLarge?.copyWith(
+                    color: colorScheme.primary,
+                    decoration: TextDecoration.underline,
+                  ),
+                  code: theme.textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.onSurface,
+                    backgroundColor: colorScheme.surfaceContainerHighest,
                   ),
                 ),
               ),
@@ -226,26 +248,42 @@ class _LegalDocumentScreenState extends State<LegalDocumentScreen> {
   }
 
   Widget _buildDownloadButton(ThemeData theme) {
+    final colorScheme = theme.colorScheme;
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
         child: SizedBox(
+          height: 54,
           width: double.infinity,
           child: FilledButton.icon(
             onPressed: _isDownloading ? null : _downloadPdf,
+            style: FilledButton.styleFrom(
+              backgroundColor: colorScheme.primary,
+              foregroundColor: colorScheme.onPrimary,
+              disabledBackgroundColor: colorScheme.primary.withValues(alpha: 0.5),
+              disabledForegroundColor: colorScheme.onPrimary,
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
             icon: _isDownloading
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                    ),
-                  )
-                : const Icon(Icons.download),
+              ? SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    color: colorScheme.onPrimary,
+                    strokeWidth: 2,
+                  ),
+                )
+              : const Icon(Icons.download_rounded),
             label: Text(
-              _isDownloading
-                  ? 'Descargando...'
-                  : 'Descargar',
+              _isDownloading ? 'Descargando...' : 'Descargar PDF',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: colorScheme.onPrimary,
+              ),
             ),
           ),
         ),
