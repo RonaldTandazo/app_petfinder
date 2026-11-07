@@ -6,7 +6,7 @@ class LostPetRoutes {
   static const String prefix = '/lost-pet';
 
   static const String publish = '$prefix/publish';
-  static const String lostPetDetail = '$prefix/detail';
+  static const String lostPet = '$prefix/detail';
 
   static List<RouteBase> getRoutes() {
     return [
@@ -18,7 +18,7 @@ class LostPetRoutes {
         }
       ),
       GoRoute(
-        path: lostPetDetail,
+        path: lostPet,
         builder: (context, state) {
           final int lostPetId = state.extra as int;
           return LostPetScreen(lostPetId: lostPetId);

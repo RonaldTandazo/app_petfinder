@@ -69,8 +69,9 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
 
   @override
   void dispose() {
-    _debounceTimer?.cancel();
+    _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
+    _debounceTimer?.cancel();
     super.dispose();
   }
 

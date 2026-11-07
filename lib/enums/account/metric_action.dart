@@ -1,17 +1,14 @@
 enum MetricAction {
-  openPublished,
-  openRescued,
-  openFollowed,
+  open,
+  filter,
   unknown;
 
   static MetricAction fromString(String? action) {
     switch (action) {
-      case 'open_published':
-        return MetricAction.openPublished;
-      case 'open_rescued':
-        return MetricAction.openRescued;
-      case 'open_followed':
-        return MetricAction.openFollowed;
+      case 'open':
+        return MetricAction.open;
+      case 'filter':
+        return MetricAction.filter;
       default:
         return MetricAction.unknown;
     }

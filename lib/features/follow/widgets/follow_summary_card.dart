@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class SummaryCard extends StatelessWidget {
+class FollowSummaryCard extends StatelessWidget {
   final String title;
   final int count;
   final IconData icon;
@@ -8,7 +8,7 @@ class SummaryCard extends StatelessWidget {
   final bool selected;
   final VoidCallback onTap;
 
-  const SummaryCard({
+  const FollowSummaryCard({
     super.key,
     required this.title,
     required this.count,
@@ -25,7 +25,7 @@ class SummaryCard extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final width = constraints.maxWidth;
+        final double width = constraints.maxWidth;
 
         final bool isSmall = width < 100;
         final bool isCompact = width < 125;

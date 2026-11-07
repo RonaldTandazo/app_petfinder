@@ -1,9 +1,9 @@
 class AdoptionPetListModel {
   final int id;
   final String name;
+  final String? race;
   final int speciesId;
   final String species;
-  final String? race;
   final String genderTag;
   final String size;
   final String age;

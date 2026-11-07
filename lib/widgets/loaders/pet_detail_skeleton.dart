@@ -55,11 +55,12 @@ class _PetDetailSkeletonState extends State<PetDetailSkeleton> with SingleTicker
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     
     return CustomScrollView(
       slivers: [
-        _buildImageCarouselSkeleton(),
+        _buildImageCarouselSkeleton(colorScheme),
 
         SliverToBoxAdapter(
           child: Padding(
@@ -90,17 +91,17 @@ class _PetDetailSkeletonState extends State<PetDetailSkeleton> with SingleTicker
     );
   }
 
-  Widget _buildImageCarouselSkeleton() {
+  Widget _buildImageCarouselSkeleton(ColorScheme colorScheme) {
     return SliverAppBar(
       expandedHeight: 300,
       pinned: true,
-      backgroundColor: Colors.grey.shade300,
+      backgroundColor: colorScheme.surfaceContainerHighest,
       automaticallyImplyLeading: false,
       flexibleSpace: FlexibleSpaceBar(
         background: FadeTransition(
           opacity: _animation,
           child: Container(
-            color: Colors.grey.shade300,
+            color: colorScheme.onSurfaceVariant,
           ),
         ),
       ),
@@ -173,7 +174,7 @@ class _PetDetailSkeletonState extends State<PetDetailSkeleton> with SingleTicker
         vertical: 16,
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -182,13 +183,13 @@ class _PetDetailSkeletonState extends State<PetDetailSkeleton> with SingleTicker
           Container(
             height: 45,
             width: 1,
-            color: Colors.grey.shade200,
+            color: colorScheme.surfaceContainerHighest,
           ),
           Expanded(child: _buildQuickInfoItemSkeleton(colorScheme)),
           Container(
             height: 45,
             width: 1,
-            color: Colors.grey.shade200,
+            color: colorScheme.surfaceContainerHighest,
           ),
           Expanded(child: _buildQuickInfoItemSkeleton(colorScheme)),
         ],
@@ -343,7 +344,7 @@ class _PetDetailSkeletonState extends State<PetDetailSkeleton> with SingleTicker
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: colorScheme.surfaceContainer,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(

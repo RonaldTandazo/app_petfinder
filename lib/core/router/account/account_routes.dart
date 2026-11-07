@@ -2,7 +2,7 @@ import 'package:go_router/go_router.dart';
 import 'package:app_petfinder/features/account/screens/edit_user_screen.dart';
 import 'package:app_petfinder/features/account/screens/edit_shelter_screen.dart';
 import 'package:app_petfinder/features/account/screens/management_screen.dart';
-import 'package:app_petfinder/features/followed/screens/followed_pets_screen.dart';
+import 'package:app_petfinder/features/follow/screens/follow_pets_screen.dart';
 
 class AccountRoutes {
   static const String prefix = '/account';
@@ -28,7 +28,7 @@ class AccountRoutes {
       ),
       GoRoute(
         path: followedPets,
-        builder: (context, state) => const FollowedPetsScreen(),
+        builder: (context, state) => const FollowPetsScreen(),
       ),
     ];
   }

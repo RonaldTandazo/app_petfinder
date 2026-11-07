@@ -57,8 +57,9 @@ class _LostPetHomeScreenState extends State<LostPetHomeScreen> {
 
   @override
   void dispose() {
-    _debounceTimer?.cancel();
+    _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
+    _debounceTimer?.cancel();
     super.dispose();
   }
 
@@ -184,7 +185,7 @@ class _LostPetHomeScreenState extends State<LostPetHomeScreen> {
   }
 
   void _navigateToDetail(LostPetListModel lostPet) {
-    context.push(LostPetRoutes.lostPetDetail, extra: lostPet.id);
+    context.push(LostPetRoutes.lostPet, extra: lostPet.id);
   }
 
   void _onSearchChanged(String query) {

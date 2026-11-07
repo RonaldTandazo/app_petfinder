@@ -53,6 +53,7 @@ class _CommunityFeedScreenState extends State<CommunityFeedScreen> {
     _debounce?.cancel();
     _searchController.dispose();
     _scrollController.dispose();
+    _scrollController.removeListener(_onScroll);
     super.dispose();
   }
 

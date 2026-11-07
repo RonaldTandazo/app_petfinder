@@ -94,15 +94,14 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
       _pageLostPets = 1;
       _hasMoreAdoptions = true;
       _hasMoreLostPets = true;
-      _adoptionPets.clear();
-      _lostPets.clear();
-      _metrics.clear();
     });
-    await _loadProfileData();
+    await _loadProfileData(showSkeleton: false);
   }
 
-  Future<void> _loadProfileData() async {
-    setState(() => _isLoading = true);
+  Future<void> _loadProfileData({bool showSkeleton = true}) async {
+    if (showSkeleton) {
+      setState(() => _isLoading = true);
+    }
 
     final payload = {
       'page_adoptions': _pageAdoptions,
@@ -129,8 +128,8 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
           final newMetrics = metricsJson
               .map((e) => MetricModel.fromJson(e as Map<String, dynamic>))
               .toList();
-
-          setState(() => _metrics.addAll(newMetrics));
+          
+          setState(() => _metrics..clear()..addAll(newMetrics));
         }
 
         if (data['adoptions'] is List) {
@@ -140,7 +139,7 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
               .toList();
 
           setState(() {
-            _adoptionPets.addAll(newAdoptionPets);
+            _adoptionPets..clear()..addAll(newAdoptionPets);
             _hasMoreAdoptions = data['hasMoreAdoptions'] ?? false;
             if (_hasMoreAdoptions) _pageAdoptions++;
           });
@@ -153,7 +152,7 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
               .toList();
 
           setState(() {
-            _lostPets.addAll(newLostPets);
+            _lostPets..clear()..addAll(newLostPets);
             _hasMoreLostPets = data['hasMoreLostPets'] ?? false;
             if (_hasMoreLostPets) _pageLostPets++;
           });
@@ -162,7 +161,9 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
     } on ApiException catch (e) {
       ApiErrorHandler.handle(context, e);
     } finally {
-      if (mounted) setState(() => _isLoading = false);
+      if (mounted && showSkeleton) {
+       setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -270,8 +271,11 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
         break;
 
       case PetSource.lost:
-        context.push(LostPetRoutes.lostPetDetail, extra: id);
+        context.push(LostPetRoutes.lostPet, extra: id);
         break;
+
+      case PetSource.unknown:
+        return;
     }
   }
 
@@ -287,6 +291,9 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
       case PetSource.lost:
         updated = await context.push<bool>(LostPetRoutes.publish, extra: id,);
         break;
+
+      case PetSource.unknown:
+        return;
     }
 
     if (!mounted) return;
@@ -327,6 +334,9 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
             _decrementPostingMetric();
           });
           break;
+        
+        case PetSource.unknown:
+          return;
       }
 
       ApiSuccessHandler.handle(context, title: 'Publicación Eliminada', description: response.message);
@@ -354,13 +364,10 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
 
   void _handleMetricTap(MetricAction action) {
     switch (action) {
-      case MetricAction.openPublished:
-        break;
-      case MetricAction.openRescued:
-        break;
-      case MetricAction.openFollowed:
+      case MetricAction.open:
         context.push(AccountRoutes.followedPets);
         break;
+      case MetricAction.filter:
       case MetricAction.unknown:
         break;
     }
@@ -434,6 +441,10 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
         ? AccountSkeleton(isMyProfile: isMyProfile)
         : RefreshIndicator(
             onRefresh: _onRefresh,
+            color: colorScheme.primary,
+            notificationPredicate: (notification) {
+              return notification.depth == 2;
+            },
             child: NestedScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               headerSliverBuilder: (context, innerBoxIsScrolled) {

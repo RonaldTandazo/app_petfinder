@@ -1,5 +1,4 @@
-import 'package:app_petfinder/enums/snackbar/snackbar_position.dart';
-import 'package:app_petfinder/enums/status/status_type.dart';
+import 'package:app_petfinder/repository/follow/follow_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:app_petfinder/models/adoption/adoption_pet_model.dart';
@@ -13,6 +12,7 @@ import 'package:app_petfinder/widgets/snackbars/app_snackbar.dart';
 import 'package:app_petfinder/widgets/contact/app_contact_action_buttons.dart';
 import 'package:app_petfinder/widgets/pets/app_pet_header_info.dart';
 import 'package:app_petfinder/widgets/locations/app_location_map.dart';
+import 'package:app_petfinder/enums/snackbar/snackbar_position.dart';
 
 class AdoptionPetScreen extends StatefulWidget {
   final int petId;
@@ -27,8 +27,10 @@ class AdoptionPetScreen extends StatefulWidget {
 }
 
 class _AdoptionPetScreenState extends State<AdoptionPetScreen> {
+  final AdoptionRepository _adoptionRepository = AdoptionRepository();
+  final FollowRepository _followRepository = FollowRepository();
+  
   final MapController _mapController = MapController();
-  final _adoptionRepository = AdoptionRepository();
 
   bool _isFollowing = false;
   bool _isLoadingAdoptionPet = true;
@@ -79,7 +81,7 @@ class _AdoptionPetScreenState extends State<AdoptionPetScreen> {
     });
 
     final String message = _isFollowing 
-      ? 'Ahora sigues la adopción de ${_adoptionPet!.name}. Lo verás en tus adopciones guardadas'
+      ? 'Ahora sigues la adopción de ${_adoptionPet!.name}. Lo verás en Favoritos'
       : 'Dejaste de seguir la adopción de ${_adoptionPet!.name}';
 
     AppSnackBar.show(
@@ -89,11 +91,13 @@ class _AdoptionPetScreenState extends State<AdoptionPetScreen> {
     );
     
     final Map<String, dynamic> payload = {
+      'pet_id': widget.petId,
+      'pet_type': 'adoption',
       'is_following': _isFollowing,
     };
     
     try {
-      _adoptionRepository.setFollowState(widget.petId, payload);
+      _followRepository.setPetFollow(payload);
     } on ApiException catch (e) {
       ApiErrorHandler.handle(context, e);
     }

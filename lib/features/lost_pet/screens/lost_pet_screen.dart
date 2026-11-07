@@ -3,6 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:app_petfinder/core/storage/session_storage_service.dart';
 import 'package:app_petfinder/enums/snackbar/snackbar_position.dart';
+import 'package:app_petfinder/repository/follow/follow_repository.dart';
 import 'package:app_petfinder/core/network/api_exception.dart';
 import 'package:app_petfinder/core/utils/api_error_handler.dart';
 import 'package:app_petfinder/core/helpers/date_helper.dart';
@@ -36,9 +37,12 @@ class LostPetScreen extends StatefulWidget {
 }
 
 class _LostPetScreenState extends State<LostPetScreen> {
+  final LostPetRepository _lostPetRepository = LostPetRepository();
+  final LostPetEventRepository _lostPetEventRepository = LostPetEventRepository();
+  final FollowRepository _followRepository = FollowRepository();
+  
   final MapController _mapController = MapController();
-  final _lostPetRepository = LostPetRepository();
-  final _lostPetEventRepository = LostPetEventRepository();
+  
   final int? currentTutorId = SessionStorageService.tutorId;
 
   int? _selectedSightId;
@@ -105,7 +109,7 @@ class _LostPetScreenState extends State<LostPetScreen> {
     });
 
     final String message = _isFollowing 
-      ? 'Ahora sigues el caso de ${_lostPet!.name}. Lo verás en tus casos guardados'
+      ? 'Ahora sigues el caso de ${_lostPet!.name}. Lo verás en Favoritos'
       : 'Dejaste de seguir el caso de ${_lostPet!.name}';
 
     AppSnackBar.show(
@@ -115,11 +119,13 @@ class _LostPetScreenState extends State<LostPetScreen> {
     );
     
     final Map<String, dynamic> payload = {
+      'pet_id': widget.lostPetId,
+      'pet_type': 'lost_pet',
       'is_following': _isFollowing,
     };
     
     try {
-      _lostPetRepository.setFollowState(widget.lostPetId, payload);
+      _followRepository.setPetFollow(payload);
     } on ApiException catch (e) {
       ApiErrorHandler.handle(context, e);
     }
