@@ -551,7 +551,7 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
                               Icons.search_off_rounded,
                               size: tabIconSize,
                             ),
-                            text: 'Perdidas',
+                            text: 'Perdidos',
                           ),
                         ],
                       ),

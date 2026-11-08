@@ -110,6 +110,10 @@ class _AdoptionHomeScreenState extends State<AdoptionHomeScreen> {
       _cancelToken?.cancel('Nueva búsqueda iniciada');
       _cancelToken = CancelToken();
 
+      if (_scrollController.hasClients) {
+        _scrollController.jumpTo(0);
+      }
+
       setState(() {
         _isLoadingPets = true;
         _isLoadingMore = false;

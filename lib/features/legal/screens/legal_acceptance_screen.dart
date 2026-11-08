@@ -47,6 +47,9 @@ class _LegalAcceptanceScreenState extends State<LegalAcceptanceScreen> {
   }
 
   Widget _buildLegalAcceptance(ThemeData theme, LegalDocumentModel document) {
+
+    String connector = document.tag == LegalDocumentType.terms ? 'los' : 'la';
+
     return CheckboxListTile(
       value: _accepted[document.id] ?? false,
       activeColor: theme.colorScheme.primary,
@@ -62,7 +65,7 @@ class _LegalAcceptanceScreenState extends State<LegalAcceptanceScreen> {
       title: Wrap(
         children: [
           Text(
-            'He leído y acepto los ',
+            'He leído y acepto $connector ',
             style: theme.textTheme.bodyMedium,
           ),
           InkWell(

@@ -153,6 +153,10 @@ class _FollowPetsScreenState extends State<FollowPetsScreen> {
       _cancelToken?.cancel('Nueva búsqueda iniciada');
       _cancelToken = CancelToken();
 
+      if (_scrollController.hasClients) {
+        _scrollController.jumpTo(0);
+      }
+
       setState(() {
         _isLoadingFollows = true;
         _isLoadingMore = false;
