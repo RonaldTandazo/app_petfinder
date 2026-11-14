@@ -1,6 +1,7 @@
 import 'package:app_petfinder/core/storage/account_storage_service.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:app_petfinder/core/router/app_router.dart';
 import 'package:app_petfinder/core/network/api_exception.dart';
@@ -12,8 +13,7 @@ import 'package:app_petfinder/core/storage/catalog_storage_service.dart';
 class ApiClient {
   static final ApiClient _instance = ApiClient._internal();
   
-  static final String baseUrl = 'http://192.168.100.61:8000/api';
-  // static const String baseUrl = 'http://localhost:8000/api';
+  static final String baseUrl = dotenv.env['API_URL']!;
   
   static String get baseHost => Uri.parse(baseUrl).host;
   

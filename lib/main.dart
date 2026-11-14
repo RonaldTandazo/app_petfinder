@@ -6,9 +6,21 @@ import 'package:app_petfinder/core/storage/session_storage_service.dart';
 import 'package:app_petfinder/features/connectivity/screens/connection_gate.dart';
 import 'package:app_petfinder/core/theme/theme_controller.dart';
 import 'package:app_petfinder/core/theme/app_theme.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  const String environment = String.fromEnvironment(
+    'APP_ENV',
+    defaultValue: 'development',
+  );
+
+  final String envFile = environment == 'production'
+    ? '.env.production'
+    : '.env.development';
+
+  await dotenv.load(fileName: envFile);
 
   await SessionStorageService.loadSession();
 
