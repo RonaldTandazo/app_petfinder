@@ -343,28 +343,41 @@ class _PostFormScreenState extends State<PostFormScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAF9),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
           _isEditing ? 'Editar Publicación' : 'Nueva Publicación',
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 18
+          ),
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Colors.teal))
+          ? Center(
+              child: CircularProgressIndicator(
+                color: colorScheme.primary,
+              ),
+            )
           : Form(
               key: _formKey,
               child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
                 children: [
                   AppFormStyles.buildSectionHeader(
                     context,
                     'Fotografía',
-                    'Sube 1 imagen de la publicación'
+                    'Sube 1 imagen de la publicación',
                   ),
                   const SizedBox(height: 12),
                   AppImagePickerGrid(
@@ -381,7 +394,7 @@ class _PostFormScreenState extends State<PostFormScreen> {
                   AppFormStyles.buildSectionHeader(
                     context,
                     'Detalles',
-                    'Información de tu publicación'
+                    'Información de tu publicación',
                   ),
                   const SizedBox(height: 12),
                   DropdownButtonFormField<int>(
@@ -389,7 +402,7 @@ class _PostFormScreenState extends State<PostFormScreen> {
                     decoration: AppFormStyles.inputDecoration(
                       context,
                       'Tipo de noticia *',
-                      Icons.newspaper_rounded
+                      Icons.newspaper_rounded,
                     ),
                     items: _newsTypes.map((item) {
                       return DropdownMenuItem<int>(
@@ -397,8 +410,11 @@ class _PostFormScreenState extends State<PostFormScreen> {
                         child: Text(item.name),
                       );
                     }).toList(),
-                    onChanged: (val) => setState(() => _selectedNewsTypeId = val),
-                    validator: (val) => val == null ? 'Selecciona un tipo' : null,
+                    onChanged: (val) {
+                      setState(() => _selectedNewsTypeId = val);
+                    },
+                    validator: (val) =>
+                        val == null ? 'Selecciona un tipo' : null,
                   ),
                   const SizedBox(height: 14),
 
@@ -406,7 +422,11 @@ class _PostFormScreenState extends State<PostFormScreen> {
                     controller: _titleController,
                     maxLength: 140,
                     onChanged: (_) => _clearFieldError('title'),
-                    decoration: _inputDecoration('Título *', Icons.title_rounded, 'title'),
+                    decoration: _inputDecoration(
+                      'Título *',
+                      Icons.title_rounded,
+                      'title',
+                    ),
                     validator: _fieldValidator,
                   ),
                   const SizedBox(height: 14),
@@ -427,16 +447,24 @@ class _PostFormScreenState extends State<PostFormScreen> {
 
                   SizedBox(
                     height: 54,
-                    child: ElevatedButton(
+                    child: FilledButton.icon(
                       onPressed: _submitForm,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.teal.shade600,
+                      style: FilledButton.styleFrom(
+                        backgroundColor: colorScheme.primary,
+                        foregroundColor: colorScheme.onPrimary,
                         elevation: 2,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
                       ),
-                      child: Text(
+                      icon: const Icon(Icons.campaign_rounded),
+                      label: Text(
                         _isEditing ? 'Guardar Cambios' : 'Publicar',
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme.onPrimary,
+                        ),
                       ),
                     ),
                   ),

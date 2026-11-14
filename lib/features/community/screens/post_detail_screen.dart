@@ -658,14 +658,19 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAF9),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: const Text(
           'Publicación',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
         ),
         centerTitle: true,
       ),
@@ -681,62 +686,91 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   }
 
   Widget _buildBody() {
-    final post = _post;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    final PostModel? post = _post;
+    
     if (post == null) {
       return _isLoadingPost
-          ? const Center(child: CircularProgressIndicator(color: Colors.teal))
-          : const Center(child: Text('La publicación no está disponible', style: TextStyle(color: Colors.grey)));
+        ? Center(
+            child: CircularProgressIndicator(
+              color: colorScheme.primary,
+            ),
+          )
+        : Center(
+            child: Text(
+              'La publicación no está disponible',
+              style: TextStyle(
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+          );
     }
 
     return RefreshIndicator(
       onRefresh: _onRefresh,
+      color: colorScheme.primary,
       child: ListView(
         controller: _scrollController,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         physics: const AlwaysScrollableScrollPhysics(),
         children: [
-        PostCard(
-          post: post,
-          isOwn: _postIsOwn,
-          onTap: null,
-          onImageTap: post.images.isNotEmpty
-            ? (index) => _openImageGallery(post.images, index)
-            : null,
-          onEdit: _editPost,
-          onDelete: _deletePost,
-          onToggleReaction: _handleReaction,
-        ),
-        const SizedBox(height: 16),
-        Text(
-          'Comentarios',
-          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.grey.shade800),
-        ),
-        const SizedBox(height: 4),
-        ..._buildCommentsSection(),
-        const SizedBox(height: 8),
+          PostCard(
+            post: post,
+            isOwn: _postIsOwn,
+            onTap: null,
+            onImageTap: post.images.isNotEmpty
+              ? (index) => _openImageGallery(post.images, index)
+              : null,
+            onEdit: _editPost,
+            onDelete: _deletePost,
+            onToggleReaction: _handleReaction,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Comentarios',
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+          ),
+          const SizedBox(height: 4),
+          ..._buildCommentsSection(),
+          const SizedBox(height: 8),
         ],
       ),
     );
   }
 
   List<Widget> _buildCommentsSection() {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     if (_isLoadingComments) {
-      return const [
+      return [
         Padding(
-          padding: EdgeInsets.all(20),
-          child: Center(child: CircularProgressIndicator(color: Colors.teal)),
+          padding: const EdgeInsets.all(20),
+          child: Center(
+            child: CircularProgressIndicator(
+              color: colorScheme.primary,
+            ),
+          ),
         ),
       ];
     }
 
     if (_buckets[null]?.items.isNotEmpty != true) {
       return [
-        const Padding(
-          padding: EdgeInsets.symmetric(vertical: 24),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 24),
           child: Text(
             'Aún no hay comentarios. ¡Sé el primero en comentar!',
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey),
+            style: TextStyle(
+              color: colorScheme.onSurfaceVariant,
+            ),
           ),
         ),
       ];
@@ -745,9 +779,13 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     return [
       ..._buildCommentsTree(),
       if (_isLoadingMoreComments)
-        const Padding(
-          padding: EdgeInsets.all(12),
-          child: Center(child: CircularProgressIndicator(color: Colors.teal)),
+        Padding(
+          padding: const EdgeInsets.all(12),
+          child: Center(
+            child: CircularProgressIndicator(
+              color: colorScheme.primary,
+            ),
+          ),
         ),
     ];
   }
@@ -761,11 +799,14 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   }
 
   Widget _renderCommentNode(CommunityCommentModel comment, int depth) {
-    final canReply = depth < 2;
-    final bucket = _buckets[comment.id];
-    final replies = bucket?.items ?? const <CommunityCommentModel>[];
-    final isExpanded = _expandedReplies.contains(comment.id);
-    final hasReplies = comment.repliesCount > 0 || replies.isNotEmpty;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    final bool canReply = depth < 2;
+    final _CommentBucket? bucket = _buckets[comment.id];
+    final List<CommunityCommentModel> replies = bucket?.items ?? const <CommunityCommentModel>[];
+    final bool isExpanded = _expandedReplies.contains(comment.id);
+    final bool hasReplies = comment.repliesCount > 0 || replies.isNotEmpty;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -789,20 +830,26 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
             padding: const EdgeInsets.only(left: 20, top: 4, bottom: 2),
             decoration: BoxDecoration(
               border: Border(
-                left: BorderSide(color: Colors.grey.shade300, width: 2),
+                left: BorderSide(
+                  color: colorScheme.outlineVariant,
+                  width: 2,
+                ),
               ),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 if (bucket?.isLoading == true && replies.isEmpty)
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.symmetric(vertical: 8),
                     child: Center(
                       child: SizedBox(
                         width: 16,
                         height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.teal),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: colorScheme.primary,
+                        ),
                       ),
                     ),
                   ),
@@ -830,6 +877,9 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   }
 
   Widget _buildRepliesToggle(CommunityCommentModel comment, {bool expanded = false}) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Padding(
       padding: const EdgeInsets.only(left: 12, top: 4),
       child: InkWell(
@@ -843,14 +893,14 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
               Icon(
                 expanded ? Icons.expand_less_rounded : Icons.chevron_right_rounded,
                 size: 18,
-                color: Colors.grey.shade600,
+                color: colorScheme.onSurfaceVariant,
               ),
               const SizedBox(width: 4),
               Text(
                 _buildRepliesToggleLabel(comment, expanded),
                 style: TextStyle(
                   fontSize: 12,
-                  color: Colors.grey.shade700,
+                  color: colorScheme.onSurfaceVariant,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -862,8 +912,11 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   }
 
   Widget _buildLoadMoreReplies(CommunityCommentModel comment) {
-    final bucket = _buckets[comment.id];
-    final isLoading = bucket?.isLoading ?? false;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    final _CommentBucket? bucket = _buckets[comment.id];
+    final bool isLoading = bucket?.isLoading ?? false;
 
     return Padding(
       padding: const EdgeInsets.only(left: 12, top: 4),
@@ -876,22 +929,29 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (isLoading)
-                const Padding(
+                Padding(
                   padding: EdgeInsets.only(right: 8),
                   child: SizedBox(
                     width: 14,
                     height: 14,
-                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.teal),
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: colorScheme.primary,
+                    ),
                   ),
                 )
               else
-                Icon(Icons.expand_more_rounded, size: 18, color: Colors.grey.shade600),
+                Icon(
+                  Icons.expand_more_rounded,
+                  size: 18,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               const SizedBox(width: 4),
               Text(
                 'Ver más respuestas',
                 style: TextStyle(
                   fontSize: 12,
-                  color: Colors.grey.shade700,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -903,8 +963,11 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   }
 
   Widget _buildCommentField() {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Material(
-      color: Colors.white,
+      color: colorScheme.surface,
       elevation: 8,
       child: SafeArea(
         top: false,

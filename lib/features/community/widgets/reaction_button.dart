@@ -73,6 +73,9 @@ class _ReactionButtonState extends State<ReactionButton> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final bool active = _reacted;
 
     return InkWell(
@@ -86,7 +89,7 @@ class _ReactionButtonState extends State<ReactionButton> {
             Icon(
               active ? Icons.favorite_rounded : Icons.favorite_border_rounded,
               size: 22,
-              color: active ? Colors.redAccent : Colors.grey.shade600,
+              color: active ? colorScheme.error : colorScheme.onSurfaceVariant,
             ),
             const SizedBox(width: 6),
             Text(
@@ -94,7 +97,7 @@ class _ReactionButtonState extends State<ReactionButton> {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: active ? FontWeight.bold : FontWeight.w500,
-                color: active ? Colors.redAccent : Colors.grey.shade700,
+                color: active ? colorScheme.error : colorScheme.onSurfaceVariant
               ),
             ),
           ],

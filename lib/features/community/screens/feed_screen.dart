@@ -207,19 +207,28 @@ class _CommunityFeedScreenState extends State<CommunityFeedScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAF9),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Comunidad',
-          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 20),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
         ),
         actions: [
           if (isShelter)
             IconButton(
-              icon: const Icon(Icons.post_add_rounded, color: Colors.teal),
+              icon: Icon(
+                Icons.post_add_rounded,
+                color: colorScheme.primary,
+              ),
               tooltip: 'Crear publicación',
               onPressed: _navigateToCreate,
             ),
@@ -239,16 +248,19 @@ class _CommunityFeedScreenState extends State<CommunityFeedScreen> {
   }
 
   Widget _buildSearchBar() {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colorScheme.surfaceContainerLow,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
+              color: colorScheme.shadow.withValues(alpha: 0.04),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -258,13 +270,23 @@ class _CommunityFeedScreenState extends State<CommunityFeedScreen> {
           controller: _searchController,
           onChanged: _onSearchChanged,
           textInputAction: TextInputAction.search,
+          style: TextStyle(color: colorScheme.onSurface),
           decoration: InputDecoration(
             hintText: 'Busca por título, contenido o autor...',
-            hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
-            prefixIcon: const Icon(Icons.search, color: Colors.teal),
+            hintStyle: TextStyle(
+              color: colorScheme.onSurfaceVariant,
+              fontSize: 14,
+            ),
+            prefixIcon: Icon(
+              Icons.search,
+              color: colorScheme.primary,
+            ),
             suffixIcon: _hasSearchText
                 ? IconButton(
-                    icon: const Icon(Icons.close_rounded, color: Colors.grey),
+                    icon: Icon(
+                      Icons.close_rounded,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
                     onPressed: _clearSearch,
                   )
                 : null,
@@ -276,6 +298,9 @@ class _CommunityFeedScreenState extends State<CommunityFeedScreen> {
   }
 
   Widget _buildFeedContent() {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     if (_isLoading) {
       return const FeedSkeleton();
     }
@@ -283,6 +308,7 @@ class _CommunityFeedScreenState extends State<CommunityFeedScreen> {
     if (_posts.isEmpty) {
       return RefreshIndicator(
         onRefresh: _onRefresh,
+        color: colorScheme.primary,
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
           children: [
@@ -301,6 +327,7 @@ class _CommunityFeedScreenState extends State<CommunityFeedScreen> {
 
     return RefreshIndicator(
       onRefresh: _onRefresh,
+      color: colorScheme.primary,
       child: ListView.builder(
         controller: _scrollController,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -308,9 +335,13 @@ class _CommunityFeedScreenState extends State<CommunityFeedScreen> {
         itemCount: _posts.length + (_hasMore ? 1 : 0),
         itemBuilder: (context, index) {
           if (index >= _posts.length) {
-            return const Padding(
-              padding: EdgeInsets.all(16),
-              child: Center(child: CircularProgressIndicator(color: Colors.teal)),
+            return Padding(
+              padding: const EdgeInsets.all(16),
+              child: Center(
+                child: CircularProgressIndicator(
+                  color: colorScheme.primary,
+                ),
+              ),
             );
           }
 

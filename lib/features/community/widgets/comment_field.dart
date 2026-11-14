@@ -44,26 +44,36 @@ class _CommentFieldState extends State<CommentField> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
         if (widget.replyToName != null) ...[
           Material(
-            color: Colors.teal.shade50,
+            color: colorScheme.primaryContainer,
             borderRadius: BorderRadius.circular(12),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 6,
+              ),
               child: Row(
                 children: [
-                  const Icon(Icons.reply_rounded, size: 16, color: Colors.teal),
+                  Icon(
+                    Icons.reply_rounded,
+                    size: 16,
+                    color: colorScheme.onPrimaryContainer,
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'Respondiendo a @${widget.replyToName}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: Colors.teal,
+                        color: colorScheme.onPrimaryContainer,
                         fontWeight: FontWeight.w500,
                       ),
                       maxLines: 1,
@@ -75,7 +85,11 @@ class _CommentFieldState extends State<CommentField> {
                     borderRadius: BorderRadius.circular(6),
                     child: Padding(
                       padding: const EdgeInsets.all(4),
-                      child: Icon(Icons.close_rounded, size: 16, color: Colors.grey.shade600),
+                      child: Icon(
+                        Icons.close_rounded,
+                        size: 16,
+                        color: colorScheme.onPrimaryContainer,
+                      ),
                     ),
                   ),
                 ],
@@ -98,19 +112,29 @@ class _CommentFieldState extends State<CommentField> {
                   hintText: 'Escribe un comentario...',
                   counterText: '',
                   filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  fillColor: colorScheme.surfaceContainerLow,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(20),
-                    borderSide: BorderSide(color: Colors.grey.shade300),
+                    borderSide: BorderSide(
+                      color: colorScheme.outlineVariant,
+                    ),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(20),
-                    borderSide: BorderSide(color: Colors.grey.shade200),
+                    borderSide: BorderSide(
+                      color: colorScheme.outlineVariant,
+                    ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(20),
-                    borderSide: BorderSide(color: Colors.teal.shade600, width: 1.5),
+                    borderSide: BorderSide(
+                      color: colorScheme.primary,
+                      width: 1.5,
+                    ),
                   ),
                 ),
               ),
@@ -119,14 +143,17 @@ class _CommentFieldState extends State<CommentField> {
             IconButton.filled(
               onPressed: _isSending ? null : _handleSend,
               icon: _isSending
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                    )
-                  : const Icon(Icons.send_rounded, size: 20),
-              color: Colors.teal.shade600,
-              disabledColor: Colors.teal.shade200,
+                ? SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: colorScheme.onPrimary,
+                    ),
+                  )
+                : const Icon(Icons.send_rounded),
+              color: colorScheme.onPrimary,
+              disabledColor: colorScheme.surfaceContainerHighest, 
               tooltip: 'Enviar',
             ),
           ],

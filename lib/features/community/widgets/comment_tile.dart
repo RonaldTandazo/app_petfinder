@@ -23,48 +23,48 @@ class CommentTile extends StatelessWidget {
     this.onDelete,
   });
 
-  Widget _buildAvatar() {
-    final avatar = ImageUrlHelper.resolve(comment.author.avatar ?? '');
-    final hasAvatar = avatar.isNotEmpty;
+  Widget _buildAvatar(ColorScheme colorScheme) {
+    final String avatar = ImageUrlHelper.resolve(comment.author.avatar ?? '');
+    final bool hasAvatar = avatar.isNotEmpty;
 
     return CircleAvatar(
       radius: isRoot ? 18 : 13,
-      backgroundColor: Colors.teal.shade100,
+      backgroundColor: colorScheme.primaryContainer,
       backgroundImage: hasAvatar ? NetworkImage(avatar) : null,
       child: hasAvatar
-          ? null
-          : Text(
-              comment.author.displayName.isNotEmpty
-                  ? comment.author.displayName.substring(0, 1).toUpperCase()
-                  : '?',
-              style: TextStyle(
-                color: Colors.teal.shade700,
-                fontSize: isRoot ? 15 : 11,
-                fontWeight: FontWeight.bold,
-              ),
+        ? null
+        : Text(
+            comment.author.displayName.isNotEmpty
+                ? comment.author.displayName.substring(0, 1).toUpperCase()
+                : '?',
+            style: TextStyle(
+              color: colorScheme.onPrimaryContainer,
+              fontSize: isRoot ? 15 : 11,
+              fontWeight: FontWeight.bold,
             ),
+          ),
     );
   }
 
-  Widget _buildShelterBadge() {
+  Widget _buildShelterBadge(ColorScheme colorScheme) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
       decoration: BoxDecoration(
-        color: Colors.teal.withValues(alpha: 0.1),
+        color: colorScheme.onPrimary,
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
         'Refugio',
         style: TextStyle(
           fontSize: 9,
-          color: Colors.teal.shade600,
+          color: colorScheme.primary,
           fontWeight: FontWeight.bold,
         ),
       ),
     );
   }
 
-  Widget _buildNameRow() {
+  Widget _buildNameRow(ColorScheme colorScheme) {
     return Row(
       children: [
         Flexible(
@@ -73,7 +73,7 @@ class CommentTile extends StatelessWidget {
             style: TextStyle(
               fontSize: isRoot ? 14 : 12.5,
               fontWeight: FontWeight.bold,
-              color: Colors.black87,
+              color: colorScheme.onSurface,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -81,32 +81,39 @@ class CommentTile extends StatelessWidget {
         ),
         if (comment.author.isShelter) ...[
           const SizedBox(width: 6),
-          _buildShelterBadge(),
+          _buildShelterBadge(colorScheme),
         ],
         const Spacer(),
         Text(
           formatRelativeTime(comment.createdAt),
-          style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+          style: TextStyle(
+            fontSize: 11,
+            color: colorScheme.onSurfaceVariant
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildReplyTag() {
+  Widget _buildReplyTag(ColorScheme colorScheme) {
     final parentName = comment.parentName ?? '';
     if (parentName.isEmpty) return const SizedBox.shrink();
 
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(Icons.subdirectory_arrow_right_rounded, size: 14, color: Colors.teal.shade600),
+        Icon(
+          Icons.subdirectory_arrow_right_rounded,
+          size: 14,
+          color: colorScheme.primary
+        ),
         const SizedBox(width: 2),
         Flexible(
           child: Text(
             'respondió a @$parentName',
             style: TextStyle(
               fontSize: 11,
-              color: Colors.teal.shade700,
+              color: colorScheme.primary,
               fontWeight: FontWeight.w600,
             ),
             maxLines: 1,
@@ -117,7 +124,7 @@ class CommentTile extends StatelessWidget {
     );
   }
 
-  Widget _buildReplyButton() {
+  Widget _buildReplyButton(ColorScheme colorScheme) {
     return InkWell(
       onTap: onReply,
       borderRadius: BorderRadius.circular(8),
@@ -126,13 +133,17 @@ class CommentTile extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.reply_rounded, size: 14, color: Colors.teal.shade600),
+            Icon(
+              Icons.reply_rounded,
+              size: 14,
+              color: colorScheme.primary
+            ),
             const SizedBox(width: 4),
             Text(
               'Responder',
               style: TextStyle(
                 fontSize: 11,
-                color: Colors.teal.shade600,
+                color: colorScheme.primary,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -142,62 +153,70 @@ class CommentTile extends StatelessWidget {
     );
   }
 
-  Widget _buildFooter() {
+  Widget _buildFooter(ColorScheme colorScheme) {
     return Row(
       children: [
         if (comment.repliesCount > 0) ...[
           Text(
             '· ${comment.repliesCount} ${comment.repliesCount == 1 ? 'respuesta' : 'respuestas'}',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 11,
-              color: Colors.teal,
+              color: colorScheme.primary,
               fontWeight: FontWeight.w600,
             ),
           ),
           const SizedBox(width: 12),
         ],
-        if (canReply && onReply != null) _buildReplyButton(),
+        if (canReply && onReply != null) _buildReplyButton(colorScheme),
       ],
     );
   }
 
-  Widget _buildRootContent() {
+  Widget _buildRootContent(ColorScheme colorScheme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildNameRow(),
+        _buildNameRow(colorScheme),
         const SizedBox(height: 6),
         Text(
           comment.content,
-          style: TextStyle(fontSize: 14, color: Colors.grey.shade800, height: 1.35),
+          style: TextStyle(
+            fontSize: 14,
+            color: colorScheme.onSurface,
+            height: 1.35
+          ),
         ),
         const SizedBox(height: 4),
-        _buildFooter(),
+        _buildFooter(colorScheme),
       ],
     );
   }
 
-  Widget _buildReplyContent() {
+  Widget _buildReplyContent(ColorScheme colorScheme) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(12, 9, 12, 7),
       decoration: BoxDecoration(
-        color: const Color(0xFFF1F7F5),
+        color: colorScheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildNameRow(),
+          _buildNameRow(colorScheme),
           const SizedBox(height: 2),
-          _buildReplyTag(),
+          _buildReplyTag(colorScheme),
           const SizedBox(height: 5),
           Text(
             comment.content,
-            style: TextStyle(fontSize: 13, color: Colors.grey.shade800, height: 1.35),
+            style: TextStyle(
+              fontSize: 13,
+              color: colorScheme.onSurface,
+              height: 1.35
+            ),
           ),
           const SizedBox(height: 3),
-          _buildFooter(),
+          _buildFooter(colorScheme),
         ],
       ),
     );
@@ -205,34 +224,50 @@ class CommentTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Padding(
       padding: const EdgeInsets.only(top: 10),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildAvatar(),
+          _buildAvatar(colorScheme),
           const SizedBox(width: 10),
           Expanded(
-            child: isRoot ? _buildRootContent() : _buildReplyContent(),
+            child: isRoot ? _buildRootContent(colorScheme) : _buildReplyContent(colorScheme),
           ),
           if (isOwn)
             PopupMenuButton<String>(
-              icon: Icon(Icons.more_vert_rounded, color: Colors.grey.shade500, size: 20),
+              icon: Icon(
+                Icons.more_vert_rounded,
+                color: colorScheme.onSurfaceVariant,
+                size: 20
+              ),
               padding: EdgeInsets.zero,
-              color: Colors.white,
+              color: colorScheme.surfaceContainer,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               onSelected: (value) {
                 if (value == 'edit') onEdit?.call();
                 if (value == 'delete') onDelete?.call();
               },
-              itemBuilder: (context) => const [
+              itemBuilder: (context) => [
                 PopupMenuItem(
                   value: 'edit',
                   child: Row(
                     children: [
-                      Icon(Icons.edit_outlined, size: 18),
+                      Icon(
+                        Icons.edit_outlined,
+                        size: 18,
+                        color: colorScheme.primary
+                      ),
                       SizedBox(width: 8),
-                      Text('Editar'),
+                      Text(
+                        'Editar',
+                        style: TextStyle(
+                          color: colorScheme.primary
+                        ),  
+                      ),
                     ],
                   ),
                 ),
@@ -240,9 +275,18 @@ class CommentTile extends StatelessWidget {
                   value: 'delete',
                   child: Row(
                     children: [
-                      Icon(Icons.delete_outline_rounded, size: 18, color: Colors.redAccent),
+                      Icon(
+                        Icons.delete_outline_rounded,
+                        size: 18,
+                        color: colorScheme.error
+                      ),
                       SizedBox(width: 8),
-                      Text('Eliminar'),
+                      Text(
+                        'Eliminar',
+                        style: TextStyle(
+                          color: colorScheme.error
+                        ),  
+                      ),
                     ],
                   ),
                 ),

@@ -22,14 +22,14 @@ class _FeedSkeletonState extends State<FeedSkeleton> with SingleTickerProviderSt
     super.dispose();
   }
 
-  Widget _buildPlaceholderBox({required double height, double? width, double radius = 8}) {
+  Widget _buildPlaceholderBox(ColorScheme colorScheme, {required double height, double? width, double radius = 8}) {
     return FadeTransition(
       opacity: _animation,
       child: Container(
         height: height,
         width: width ?? double.infinity,
         decoration: BoxDecoration(
-          color: Colors.grey.shade300,
+          color: colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(radius),
         ),
       ),
@@ -38,6 +38,9 @@ class _FeedSkeletonState extends State<FeedSkeleton> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       physics: const NeverScrollableScrollPhysics(),
@@ -47,7 +50,7 @@ class _FeedSkeletonState extends State<FeedSkeleton> with SingleTickerProviderSt
           margin: const EdgeInsets.symmetric(vertical: 6),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: colorScheme.surfaceContainer,
             borderRadius: BorderRadius.circular(16),
           ),
           child: Column(
@@ -55,28 +58,28 @@ class _FeedSkeletonState extends State<FeedSkeleton> with SingleTickerProviderSt
             children: [
               Row(
                 children: [
-                  _buildPlaceholderBox(height: 40, width: 40, radius: 20),
+                  _buildPlaceholderBox(colorScheme, height: 40, width: 40, radius: 20),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildPlaceholderBox(height: 14, width: 140),
+                        _buildPlaceholderBox(colorScheme, height: 14, width: 140),
                         const SizedBox(height: 6),
-                        _buildPlaceholderBox(height: 12, width: 80),
+                        _buildPlaceholderBox(colorScheme, height: 12, width: 80),
                       ],
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 12),
-              _buildPlaceholderBox(height: 180, radius: 12),
+              _buildPlaceholderBox(colorScheme, height: 180, radius: 12),
               const SizedBox(height: 12),
-              _buildPlaceholderBox(height: 16, width: 200),
+              _buildPlaceholderBox(colorScheme, height: 16, width: 200),
               const SizedBox(height: 8),
-              _buildPlaceholderBox(height: 12, width: double.infinity),
+              _buildPlaceholderBox(colorScheme, height: 12, width: double.infinity),
               const SizedBox(height: 12),
-              _buildPlaceholderBox(height: 24, width: 120, radius: 12),
+              _buildPlaceholderBox(colorScheme, height: 24, width: 120, radius: 12),
             ],
           ),
         );
