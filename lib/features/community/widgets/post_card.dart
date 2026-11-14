@@ -36,14 +36,14 @@ class PostCard extends StatelessWidget {
 
     return CircleAvatar(
       radius: 20,
-      backgroundColor: colorScheme.primary,
+      backgroundColor: colorScheme.primaryContainer,
       backgroundImage: hasAvatar ? NetworkImage(avatar) : null,
       child: hasAvatar
         ? null
         : Text(
             post.author.displayName.isNotEmpty ? post.author.displayName.substring(0, 1).toUpperCase() : '?',
             style: TextStyle(
-              color: colorScheme.onPrimary,
+              color: colorScheme.onPrimaryContainer,
               fontSize: 16,
               fontWeight: FontWeight.bold,
             ),
@@ -55,9 +55,8 @@ class PostCard extends StatelessWidget {
     final imageUrl = ImageUrlHelper.resolve(post.mainImageUrl ?? '');
 
     return ClipRRect(
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
       child: SizedBox(
-        height: 200,
+        height: 300,
         width: double.infinity,
         child: imageUrl.isNotEmpty
           ? Image.network(
