@@ -179,7 +179,7 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
     };
 
     try {
-      final response = await _adoptionRepository.getAdoptionPets(payload);
+      final response = await _accountRepository.getAdoptionPets(payload);
       if (!mounted) return;
 
       final data = response.data;
@@ -214,7 +214,7 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
     };
 
     try {
-      final response = await _lostPetRepository.getLostPets(payload);
+      final response = await _accountRepository.getLostPets(payload);
       if (!mounted) return;
 
       final data = response.data;
@@ -348,18 +348,42 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
   }
 
   Future<void> _handlePetStatusChange(int id, PetSource source) async {
-    // try {
-    //   switch (source) {
-    //     case PetSource.adoption:
-    //       await _adoptionRepository.toggleStatus(id);
-    //       break;
-    //     case PetSource.lost:
-    //       await _lostPetRepository.toggleStatus(id);
-    //       break;
-    //   }
-    // } on ApiException catch (e) {
-    //   ApiErrorHandler.handle(context, e);
-    // }
+    try {
+      switch (source) {
+        case PetSource.adoption:
+          await _adoptionRepository.changeStatus(id, { 'status': 'ADOPTED' });
+
+          setState(() {
+            final int index = _adoptionPets.indexWhere((p) => p.id == id);
+
+            if (index != -1) {
+              _adoptionPets[index] = _adoptionPets[index].copyWith(
+                status: 'Adoptado',
+                statusTag: 'ADOPTED',
+              );
+            }
+          });
+          break;
+        case PetSource.lost:
+          await _lostPetRepository.changeStatus(id, { 'status': 'CLOSED' });
+          
+          setState(() {
+            final int index = _lostPets.indexWhere((p) => p.id == id);
+
+            if (index != -1) {
+              _lostPets[index] = _lostPets[index].copyWith(
+                reportStatus: 'Cerrado',
+                reportStatusTag: 'CLOSED',
+              );
+            }
+          });
+          break;
+        case PetSource.unknown:
+          return;
+      }
+    } on ApiException catch (e) {
+      ApiErrorHandler.handle(context, e);
+    }
   }
 
   void _handleMetricTap(MetricAction action) {

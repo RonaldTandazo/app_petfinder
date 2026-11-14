@@ -12,4 +12,13 @@ class ManagementRepository extends BaseRepository {
 
     return response;
   }
+
+  Future<ApiResponse<Map<String, dynamic>>> updatePassword(Map<String, dynamic> data) async {
+    final response = await safeCall<Map<String, dynamic>>(
+      () => api.put('$_prefix/password', data: data),
+      fromJson: (json) => json as Map<String, dynamic>,
+    );
+
+    return response;
+  }
 }

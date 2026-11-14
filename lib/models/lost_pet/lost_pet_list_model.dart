@@ -49,4 +49,38 @@ class LostPetListModel {
       picture: json['picture'] as String
     );
   }
+
+  LostPetListModel copyWith({
+    int? id,
+    String? name,
+    String? race,
+    int? speciesId,
+    String? species,
+    String? genderTag,
+    String? city,
+    String? eventAddress,
+    double? latitude,
+    double? longitude,
+    DateTime? eventDate,
+    String? reportStatusTag,
+    String? reportStatus,
+    String? picture,
+  }) {
+    return LostPetListModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      race: race ?? this.race,
+      speciesId: speciesId ?? this.speciesId,
+      species: species ?? this.species,
+      genderTag: genderTag ?? this.genderTag,
+      city: city ?? this.city,
+      eventAddress: eventAddress ?? this.eventAddress,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+      eventDate: eventDate ?? this.eventDate,
+      reportStatusTag: reportStatusTag ?? this.reportStatusTag,
+      reportStatus: reportStatus ?? this.reportStatus,
+      picture: picture ?? this.picture,
+    );
+  }
 }

@@ -1,6 +1,7 @@
 import 'package:app_petfinder/core/network/api_response.dart';
 import 'package:app_petfinder/core/repository/base_repository.dart';
 import 'package:app_petfinder/core/storage/account_storage_service.dart';
+import 'package:dio/dio.dart';
 
 class AccountRepository extends BaseRepository {
   static const String _prefix = '/profile';
@@ -41,9 +42,18 @@ class AccountRepository extends BaseRepository {
     return response;
   }
 
-  Future<ApiResponse<Map<String, dynamic>>> updatePassword(Map<String, dynamic> data) async {
+  Future<ApiResponse<Map<String, dynamic>>> getAdoptionPets(Map<String, dynamic> data, { CancelToken? cancelToken, }) async {
     final response = await safeCall<Map<String, dynamic>>(
-      () => api.put('$_prefix/password', data: data),
+      () => api.get('$_prefix/pets', queryParameters: data, cancelToken: cancelToken),
+      fromJson: (json) => json as Map<String, dynamic>,
+    );
+
+    return response;
+  }
+
+  Future<ApiResponse<Map<String, dynamic>>> getLostPets(Map<String, dynamic> data, { CancelToken? cancelToken, }) async {
+    final response = await safeCall<Map<String, dynamic>>(
+      () => api.get('$_prefix/lost-pets', queryParameters: data),
       fromJson: (json) => json as Map<String, dynamic>,
     );
 

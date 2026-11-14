@@ -74,16 +74,18 @@ class AccountAdoptionsGrid extends StatelessWidget {
             ),
             itemBuilder: (context, index) {
               final AdoptionPetListModel pet = pets[index];
+              final bool justDelete = pet.statusTag != 'AVAILABLE';
 
               return PetCardWithActions(
                 title: pet.name,
                 picture: pet.picture,
                 genderTag: pet.genderTag,
                 isUrgent: pet.isUrgent,
-                badgeLabel: 'En adopción',
+                badgeLabel: pet.status,
                 badgeColor: colorScheme.primary,
                 iconData: Icons.pets,
                 showActions: isMyProfile,
+                justDelete: justDelete,
                 onTap: () => onTap?.call(pet.id, PetSource.adoption),
                 onEdit: () => onEdit?.call(pet.id, PetSource.adoption),
                 onDelete: () => onDelete?.call(pet.id, PetSource.adoption),

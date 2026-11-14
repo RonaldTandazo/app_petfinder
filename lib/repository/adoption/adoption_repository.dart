@@ -49,4 +49,13 @@ class AdoptionRepository extends BaseRepository {
 
     return response;
   }
+
+  Future<ApiResponse<Map<String, dynamic>>> changeStatus(int petId, Map<String, dynamic> data) async {
+    final response = await safeCall<Map<String, dynamic>>(
+      () => api.put('$_prefix/status/$petId', data: data),
+      fromJson: (json) => json as Map<String, dynamic>,
+    );
+
+    return response;
+  }
 }

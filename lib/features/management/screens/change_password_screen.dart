@@ -4,7 +4,7 @@ import 'package:app_petfinder/core/network/api_exception.dart';
 import 'package:app_petfinder/core/utils/api_error_handler.dart';
 import 'package:app_petfinder/core/utils/api_success_handler.dart';
 import 'package:app_petfinder/styles/app_form_styles.dart';
-import 'package:app_petfinder/repository/account/account_repository.dart';
+import 'package:app_petfinder/repository/management/management_repository.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
@@ -14,7 +14,7 @@ class ChangePasswordScreen extends StatefulWidget {
 }
 
 class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
-  late final AccountRepository _accountRepository =  AccountRepository();
+  late final ManagementRepository _managementRepository =  ManagementRepository();
 
   final _formKey = GlobalKey<FormState>();
 
@@ -136,7 +136,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     };
 
     try {
-      await _accountRepository.updatePassword(payload);
+      await _managementRepository.updatePassword(payload);
       if (!mounted) return;
 
       _currentController.clear();

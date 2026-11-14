@@ -14,6 +14,7 @@ class PetCardWithActions extends StatelessWidget {
   final bool showActions;
   final bool isUrgent;
   final String? genderTag;
+  final bool justDelete;
   final VoidCallback onTap;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
@@ -30,6 +31,7 @@ class PetCardWithActions extends StatelessWidget {
     this.showActions = true,
     this.isUrgent = false,
     this.genderTag,
+    this.justDelete = false,
     required this.onTap,
     required this.onEdit,
     required this.onDelete,
@@ -168,31 +170,33 @@ class PetCardWithActions extends StatelessWidget {
                             }
                           },
                           itemBuilder: (context) => [
-                            PopupMenuItem(
-                              value: 'status',
-                              child: Row(
-                                children: [
-                                  const Icon(
-                                    Icons.check_circle_outline,
-                                    size: 20,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Flexible(
-                                    child: Text(statusActionLabel),
-                                  ),
-                                ],
+                            if(!justDelete)...[
+                              PopupMenuItem(
+                                value: 'status',
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.check_circle_outline,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Flexible(
+                                      child: Text(statusActionLabel),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                            const PopupMenuItem(
-                              value: 'edit',
-                              child: Row(
-                                children: [
-                                  Icon(Icons.edit_outlined, size: 20),
-                                  SizedBox(width: 8),
-                                  Text('Editar'),
-                                ],
+                              const PopupMenuItem(
+                                value: 'edit',
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.edit_outlined, size: 20),
+                                    SizedBox(width: 8),
+                                    Text('Editar'),
+                                  ],
+                                ),
                               ),
-                            ),
+                            ],
                             const PopupMenuItem(
                               value: 'delete',
                               child: Row(

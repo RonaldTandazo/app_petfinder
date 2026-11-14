@@ -79,7 +79,7 @@ class AccountLostPetsGrid extends StatelessWidget {
                 title: lostPet.name,
                 picture: lostPet.picture,
                 genderTag: lostPet.genderTag,
-                badgeLabel: 'Perdida',
+                badgeLabel: lostPet.reportStatus,
                 badgeColor: colorScheme.tertiary,
                 iconData: Icons.warning_amber_rounded,
                 statusActionLabel: 'Marcar como Encontrada',

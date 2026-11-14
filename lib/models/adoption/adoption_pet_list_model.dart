@@ -11,6 +11,8 @@ class AdoptionPetListModel {
   final double? latitude;
   final double? longitude;
   final bool isUrgent;
+  final String status;
+  final String statusTag;
   final String picture;
 
   AdoptionPetListModel({
@@ -26,6 +28,8 @@ class AdoptionPetListModel {
     this.latitude,
     this.longitude,
     required this.isUrgent,
+    required this.status,
+    required this.statusTag,
     required this.picture
   });
 
@@ -43,7 +47,45 @@ class AdoptionPetListModel {
       longitude: (json['longitude'] as num?)?.toDouble(),
       latitude: (json['latitude'] as num?)?.toDouble(),
       isUrgent: json['is_urgent'] as bool,
+      status: json['status'] as String,
+      statusTag: json['status_tag'] as String,
       picture: json['picture'] as String,
+    );
+  }
+
+  AdoptionPetListModel copyWith({
+    int? id,
+    String? name,
+    String? race,
+    int? speciesId,
+    String? species,
+    String? genderTag,
+    String? size,
+    String? age,
+    String? city,
+    double? latitude,
+    double? longitude,
+    bool? isUrgent,
+    String? status,
+    String? statusTag,
+    String? picture,
+  }) {
+    return AdoptionPetListModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      race: race ?? this.race,
+      speciesId: speciesId ?? this.speciesId,
+      species: species ?? this.species,
+      genderTag: genderTag ?? this.genderTag,
+      size: size ?? this.size,
+      age: age ?? this.age,
+      city: city ?? this.city,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+      isUrgent: isUrgent ?? this.isUrgent,
+      status: status ?? this.status,
+      statusTag: statusTag ?? this.statusTag,
+      picture: picture ?? this.picture,
     );
   }
 }
