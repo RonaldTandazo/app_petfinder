@@ -382,6 +382,7 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
           return;
       }
     } on ApiException catch (e) {
+      if(!mounted) return;
       ApiErrorHandler.handle(context, e);
     }
   }

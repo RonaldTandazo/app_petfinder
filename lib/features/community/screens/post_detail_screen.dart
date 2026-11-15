@@ -11,6 +11,7 @@ import 'package:app_petfinder/models/community/paginated.dart';
 import 'package:app_petfinder/models/community/post_image_model.dart';
 import 'package:app_petfinder/models/community/post_model.dart';
 import 'package:app_petfinder/repository/community/community_repository.dart';
+import 'package:app_petfinder/widgets/dialogs/app_confirm_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -504,26 +505,13 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   }
 
   Future<void> _deleteComment(CommunityCommentModel comment) async {
-    final confirmed = await showDialog<bool>(
+    final bool? confirm = await AppConfirmDialog.show(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Eliminar Comentario'),
-        content: const Text('¿Seguro que deseas eliminar este comentario?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Eliminar'),
-          ),
-        ],
-      ),
+      title: 'Eliminar Comentario',
+      message: 'Esta acción eliminará el comentario. \n\n¿Deseas continuar?'
     );
 
-    if (confirmed != true) return;
+    if (confirm != true) return;
 
     try {
       await _communityRepository.deleteComment(comment.id);
@@ -582,29 +570,16 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   }
 
   Future<void> _deletePost() async {
-    final post = _post;
+    final PostModel? post = _post;
     if (post == null) return;
 
-    final confirmed = await showDialog<bool>(
+    final bool? confirm = await AppConfirmDialog.show(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Eliminar Publicación'),
-        content: const Text('¿Seguro que deseas eliminar esta publicación? Esta acción no se puede deshacer.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Eliminar'),
-          ),
-        ],
-      ),
+      title: 'Eliminar Publicación',
+      message: 'Esta acción eliminará la publicación. \n\n¿Deseas continuar?'
     );
 
-    if (confirmed != true) return;
+    if (confirm != true) return;
 
     try {
       await _communityRepository.deletePost(post.id);
