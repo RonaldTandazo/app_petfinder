@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:app_petfinder/core/router/adoption/adoption_routes.dart';
 import 'package:app_petfinder/core/router/lost_pet/lost_pet_routes.dart';
+import 'package:app_petfinder/core/router/community/community_routes.dart';
 import 'package:app_petfinder/enums/status/status_type.dart';
 import 'package:app_petfinder/core/helpers/color_helper.dart';
+import 'package:app_petfinder/core/storage/session_storage_service.dart';
 
-class QuickActionBottomSheet {
+class QuickActionBottomSheet {  
   static Future<void> show(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
@@ -24,6 +26,8 @@ class QuickActionBottomSheet {
     final double verticalPadding = isSmallPhone ? 12 : 20;
     final double titleFontSize = isSmallPhone ? 16 : 18;
     final double iconRadius = isSmallPhone ? 20 : 24;
+
+    final bool isShelter = SessionStorageService.isShelter;
 
     return showModalBottomSheet<void>(
       context: context,
@@ -104,6 +108,27 @@ class QuickActionBottomSheet {
                     context.push(LostPetRoutes.publish);
                   },
                 ),
+
+                if(isShelter)...[
+                  Divider(
+                    height: 1,
+                    color: colorScheme.outlineVariant,
+                  ),
+
+                  _buildActionTile(
+                    context: modalContext,
+                    icon: Icons.newspaper,
+                    type: StatusType.information,
+                    title: 'Novedades',
+                    subtitle: 'Informa a la comunidad sobre un evento o noticia',
+                    iconRadius: iconRadius,
+                    isSmallPhone: isSmallPhone,
+                    onTap: () {
+                      Navigator.of(modalContext).pop();
+                      context.push(CommunityRoutes.postCreate);
+                    },
+                  ),
+                ],
 
                 SizedBox(height: isSmallPhone ? 4 : 12),
               ],

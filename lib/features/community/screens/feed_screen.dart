@@ -22,7 +22,7 @@ class CommunityFeedScreen extends StatefulWidget {
 }
 
 class _CommunityFeedScreenState extends State<CommunityFeedScreen> {
-  final _communityRepository = CommunityRepository();
+  final CommunityRepository _communityRepository = CommunityRepository();
   final ScrollController _scrollController = ScrollController();
   final bool isShelter = SessionStorageService.isShelter;
 
